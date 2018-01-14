@@ -1,6 +1,6 @@
-===============
+==================
 Photonic Framework
-===============
+==================
 
 .. image:: https://travis-ci.org/TachyonicProject/photonic.svg?branch=master
     :target: https://travis-ci.org/TachyonicProject/photonic
