@@ -1,9 +1,11 @@
-Welcome to Tachyonic documentation!
-===================================
+Welcome to Photonic documentation!
+==================================
 
 Release v\ |version|
 
 The project is in 'Planning' phase, some of the documentation and functionality is under-way.
+
+Photonic is a web application user interface for Tachyonic.
 
 Tachyonic which purpose is highly scaleable API service providing:
 
