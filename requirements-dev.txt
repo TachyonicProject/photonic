@@ -1,0 +1,29 @@
+# Runtime requirements
+--requirement requirements.txt
+
+# Testing
+pytest==3.0.6
+py==1.4.32
+tox==2.6.0
+
+# Linting
+flake8==2.1.0
+mccabe==0.2.1
+pep8==1.4.6
+pyflakes==0.7.3
+
+# Documentation
+Sphinx==1.5.3
+sphinx_rtd_theme==0.2.4
+docutils==0.13.1
+MarkupSafe==1.0
+Pygments==2.2.0
+watchdog==0.8.3
+
+# Miscellaneous
+Paver==1.2.4
+colorama==0.2.7
+enum==0.4.6
+
+# Coverage
+pytest-cov==2.4.0
