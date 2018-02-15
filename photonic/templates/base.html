@@ -10,40 +10,66 @@
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/bootstrap/css/bootstrap.min.css">
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/DataTables/datatables.min.css">
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/select2/css/select2.min.css">
-        <link type="text/css" rel="stylesheet" href="{{SITE}}/css">
-        <link type="text/css" rel="stylesheet" href="{{STATIC}}/custom.css">
+        <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/photonic.css">
+        <link type="text/css" rel="stylesheet" href="{{ G.theme.css }}">
 
         <script type="text/javascript" src="{{STATIC}}/photonic/jquery-3.2.1.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/jquery-ui/jquery-ui.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/bootstrap/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/DataTables/datatables.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/select2/js/select2.min.js"></script>
-        <script type="text/javascript" src="{{STATIC}}/photonic/tachyonic.js"></script>
+        <script type="text/javascript" src="{{STATIC}}/photonic/photonic.js"></script>
 
-        <link rel="icon" href="{{STATIC}}/photonic/images/tachyon-sm.png">
+        <link rel="icon" href="{{ G.theme.icon }}">
 
-        {% for css in REQUEST.context.css %}
+        {% for css in REQ.context.css %}
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/{{css}}">
         {% endfor %}
-        {% for js in REQUEST.context.js %}
+        {% for js in REQ.context.js %}
         <script type="text/javascript" src="{{STATIC}}/{{js}}"></script>
         {% endfor %}
 
-        <title>{{ APP.config.get("application").get('name', 'Tachonic UI') }}</title>
+        <title>{{ G.config.get("application", 'name', fallback='Tachonic UI') }}</title>
     </head>
     <body>
-        {% if REQUEST.is_mobile() %}
+        {% if not REQ.token.authenticated %}
+        <div class="locked"></div>
+        <div class="login modal">
+            <div class="modal-header">
+                <h4 class="modal-title">Login</h4>
+            </div>
+            <div class="modal-body">
+                {% if error_title %}
+                <p class='red'>{{ error_title }} {{ error_description }} ({{ REQUEST_ID }})</p>
+                {% endif %}
+                <form method="post" action="{{APP}}/login" role="form">
+                    <div class="form-group has-feedback has-feedback-left">
+                        <label for="username" class="control-label sr-only">Email/Username</label>
+                        <input name="username" type="username" id="username" class="form-control" placeholder="Username" value="{{ username }}" required autofocus>
+                        <i class="form-control-feedback glyphicon glyphicon-user"></i>
+                    </div>  
+                    <div class="form-group has-feedback has-feedback-left">
+                        <label for="password" class="sr-only">Password</label>
+                        <input name="password" type="password" id="password" class="form-control" placeholder="Password" value="{{ password }}" required>
+                        <i class="form-control-feedback glyphicon glyphicon-lock"></i>
+                    </div>  
+                    <div class="form-group">
+                        <label for="domain" class="sr-only">Domain</label>
+                        <input name="domain" type="text" id="domain" class="form-control" placeholder="Domain" value="{{ domain }}">
+                    </div>  
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                </form> 
+            </div>
+        </div>
+        {% endif %}
+        {% if REQ.is_mobile %}
         <div class="top-navigation-section-mobile">
         {% else %}
         <div class="top-navigation-section">
         {% endif %}
             <div class="container">
-                {% if CUSTOM_LOGO %}
-                <a href="#"><img src="{{SITE}}/image/logo/{{THEME_DOMAIN}}" alt="{{ APP.config.get("application").get('name', 'Tachonic UI') }}" title="{{ APP.config.get("application").get('name', 'Tachonic UI') }}" height="50px" id="nav_logo"></a>
-                {% else %}
-                <a href="#"><img src="{{STATIC}}/photonic/images/tachyon-sm.png" alt="{{ APP.config.get("application").get('name', 'Tachonic UI') }}" title="{{ APP.config.get("application").get('name', 'Tachonic UI') }}" id="nav_logo"></a>
-                {% endif %}
-                {% if REQUEST.is_mobile() %}
+                <a href="#"><img src="{{ G.theme.logo }}" alt="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" title="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" id="nav_logo"></a>
+                {% if REQ.is_mobile %}
                 <button data-toggle="collapse" data-target="#menu-content">
                     <div class="icon-bar"></div>
                     <div class="icon-bar"></div>
@@ -51,77 +77,28 @@
                 </button>
                 {% endif %} 
 
-                {% if REQUEST.auth['login'] %}
-                <a href="{{SITE}}/logout" class="top-navigation-section-static">Logout</a>
-                {% endif %}
-
-                {% if REQUEST.is_mobile() %}
+                {% if REQ.is_mobile %}
                 <div class="collapse" id="menu-content">
-                    {% if MENU.admin.hasitems() %}
                     {{ MENU.admin.render(REQUEST, 'menu-mobile') }}
-                    {% endif %}
                 </div>
                 {% else %}
                  <div class="menu-wrapper" id="menu-content">
-                     {% if MENU.admin.hasitems() %}
-                     {{ MENU.admin.render(REQUEST, 'menu menu-horizontal menu-top-theme') }}
-                     {% endif %}
+                     {{ G.nav_menu.render('menu menu-horizontal menu-top-theme') }}
                  </div>
                  {% endif %}
             </div>
         </div>
-
-        {% if REQUEST.auth['login'] %}
-        <div class="context-navigation-section">
+        <div class="open_tenant-section">
             <div class="container">
-                <div class="pull-left tenant-bar-box">
-                    <form class="form-inline pull-left" disabled onsubmit='return false;'>
-                        <div class="form-group" style="width:100%">
-                            <input id='open_tenant' class="form-control" readonly style="width: 290px" placeholder="Current Open Tenant">
-                        </div>
-                    </form>
-                    <form class="form-inline pull-left" action="{{SITE}}" method="post">
-                        <input type="hidden" name="X-Tenant-Id" value="NULL">
-                        <button type="submit" class="btn btn-danger" class="pull-right">Close</button>
-                    </form>
-                </div>
-                <div class="pull-right search-bar-box">
-                    <form class="form-inline pull-left" method="post" action="{{ SITE }}/">
-                        <div class="form-group">
-                            <input type="hidden" name="X-Tenant-Id" value="NULL">
-                            <select class="form-control" name="X-Domain" onchange="this.form.submit()">
-                                {% for domain in REQUEST.auth['domains'] %}
-                                <option value='{{ domain }}' {% if REQUEST.auth['domain'] == domain %}selected{% endif %}  >{{ domain }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </form>
-                    {% if not REQUEST.auth['domain_admin'] %}
-                    <form class="form-inline pull-right" method="post" action="{{ SITE }}/open_tenant">
-                        <select class="form-control" name="X-Tenant-Id" onchange="this.form.submit()">
-                            {% for role in REQUEST.auth['roles'] %}
-                            {% if role['domain_name'] == REQUEST.auth['domain'] %}
-                            <option value='{{ role['tenant_id'] }}' {% if REQUEST.auth['tenant_id'] == role['tenant_id'] %}selected{% endif %}>blah</option>
-                            {% endif %}
-                            {% endfor %}
-                        </select>
-                    </form>
-                    {% else %}
-                    <form id="searchForm" class="form-inline pull-right" method="post" action="{{ SITE }}/search" onsubmit="link(this); return false;" data-url="{{SITE}}/search" data-name="Search Tenants">
-                        <div class="form-group pull-left">
-                            {{ SEARCH }}
-                        </div>
-                        <button type="submit" class="btn btn-success">Search</button>
-                    </form>
-                    {% endif %}
+                <div class="tenant-bar">
+                    <div class="open_tenant">
+                        <button type="submit" class="btn btn-danger pull-right">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
-        {% else %}
-        <div class="push_top"></div>
-        {% endif %}
         <div class="loading" id="loading"></div>
-        <div class="locked" id="locked"></div>
+        <div class="locked hidden" id="locked"></div>
         <div class="confirm" id="confirm">
             <div class="modal-header">
                 <button class="close" type="button" onclick="document.getElementById('confirm').style.display = 'none';">x</button>
@@ -144,7 +121,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-default" onclick="document.getElementById('logout').style.display = 'none'; idleTime=0;">Continue</button>
-                <a class="btn btn-danger" href="{{SITE}}/logout">Logout</a>
+                <a class="btn btn-danger" href="{{APP}}/logout">Logout</a>
             </div>
         </div>
         <div class="window" id="window">
@@ -161,27 +138,38 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-3">
-                    {% if REQUEST.auth['login'] %}
-                    {% if MENU.accounts.hasitems() %}
+                    <div class="block">
+                        <form method="POST" action="{{APP}}/scope">
+                            <div class="form-group">
+                                <label for="Domain">Domain:</label>
+                                {{ REQ.context.domains_html }}
+                            </div>
+                            <div class="form-group">
+                                <label for="Tenant">Tenant:</label>
+                                {{ REQ.context.tenants_html }}
+                            </div>
+                        </form>
+                    </div>
+                    {% if G.acc_menu.hasitems() %}
                     <div class="block menu_accounts">
                         <div class="block_title">
                             Tenant Account
                         </div>
                         <div class="block_menu">
                             <ul class="nav nav-pills nav-stacked">
-                                {{ MENU.accounts.render(REQUEST, 'menu menu-vertical menu-left-theme') }}
+                                {{ G.acc_menu.render('menu menu-vertical menu-left-theme') }}
                             </ul>
                         </div>
                     </div>
                     {% endif %}
-                    {% if MENU.services.hasitems() %}
+                    {% if G.srv_menu.hasitems() %}
                     <div class="block menu_services">
                         <div class="block_title">
                             Services
                         </div>
                         <div class="block_menu">
                             <ul class="nav nav-pills nav-stacked">
-                                {{ MENU.services.render(REQUEST, 'menu menu-vertical menu-left-theme') }}
+                                {{ G.srv_menu.render('menu menu-vertical menu-left-theme') }}
                             </ul>
                         </div>
                     </div>
@@ -193,42 +181,36 @@
                         <div class="block_content">
                             <span class='title'>Username:</span>
                             <div class="box">
-                                {{ REQUEST.auth.username }}
+                                {{ REQ.token.username }}
                             </div>
                             <span class='title'>Email:</span>
                             <div class="box">
-                                {{ REQUEST.auth.email }}
-                            </div>
-                            <span class='title'>Login Domain:</span>
-                            <div class="box">
-                                {{ REQUEST.auth.domain }}
                             </div>
                             <span class='title'>Active Roles:</span>
-                            {% for role in REQUEST.auth.roles %}
+                            <div class="box">
+                            {% for role in REQ.token.roles %}
                             <div class="box">
                                 {{ role }}
                             </div>
                             {% endfor %}
+                            </div>
                             <span class='title'>Last Login:</span>
                             <div class="box">
-                                {{ DATETIME.f_datetime(REQUEST.auth.last_login) }}
                             </div>
-                            <a href="{{ SITE }}/logout" type="submit" class="btn btn-danger">Logout</a>
+                            <a href="{{ APP }}/logout" type="submit" class="btn btn-danger">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-9">
+                    {% set content = self.content() %} 
+                    {% if content %}
+                    <div class="block">
+                        <div class="block_title" id="title">{{ G.config.get("application",'name', fallback='Tachonic UI') }}</div>
+                        <div class="block_content" id="service">
+                            {{ content }}
                         </div>
                     </div>
                     {% endif %}
-                </div>
-                <div class="col-sm-9">
-                    <div class="block">
-                        {% if title %}
-                        <div class="block_title" id="title">{{title}}</div>
-                        {% else %}
-                        <div class="block_title" id="title">{{ APP.config.get("application").get('name', 'Tachonic UI') }}</div>
-                        {% endif %}
-                        <div class="block_content" id="service">
-                            {% block content %}{% endblock %}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -238,22 +220,8 @@
                 <p class="pull-right"><a href="#">Back to top</a></p>
             </div>
         <div class="push_bottom"></div>
-
         <footer>
         </footer>
 
-        {% if REQUEST.auth.login %}
-        <script>
-        /**
-         * Run login client side javascript.
-         */
-        $( document ).ready(function() {
-            // Start Message Polling
-            poll('{{SITE}}/messaging');
-            // Auto Logout
-            autoLogout('{{SITE}}/logout', 600, 60);
-        });
-        </script>
-        {% endif %}
     </body>
 </html>
