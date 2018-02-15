@@ -205,7 +205,7 @@
                     {% set content = self.content() %} 
                     {% if content %}
                     <div class="block">
-                        <div class="block_title" id="title">{{ G.config.get("application",'name', fallback='Tachonic UI') }}</div>
+                        <div class="block_title" id="title">{{ view }}</div>
                         <div class="block_content" id="service">
                             {{ content }}
                         </div>

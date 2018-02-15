@@ -13,7 +13,7 @@
 
 body {
     background-color: #E7E8EB;
-    background-image: url("/static/tachyonic.ui/images/bg.jpg");
+    background-image: url("/static/themes/default/background.jpg");
     background-repeat: no-repeat;
     background-size: 100% 100%;
     background-attachment: fixed;
