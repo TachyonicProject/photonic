@@ -5,6 +5,7 @@ from luxon import constants as const
 from luxon.structs.htmldoc import HTMLDoc
 from luxon import GetLogger
 from luxon import register_resources
+from luxon.utils.uri import build_qs
 
 log = GetLogger(__name__)
 
@@ -54,7 +55,7 @@ def datatable(req, table_id, url,
     for field in fields:
         th = tr.create_element('th')
         th.append(field.title())
-        api_fields.append("%s=%s" % (field, field.title()))
+        api_fields.append(field)
     if view_button is True or checkbox is True:
         th = tr.create_element('th')
         th.append('&nbsp;')
@@ -65,7 +66,6 @@ def datatable(req, table_id, url,
         id_field_no = id_field
 
     field_name = api_fields[id_field_no]
-    field_name = field_name.split('=')[0]
     api_fields = ",".join(api_fields)
 
     tfoot = table.create_element('tfoot')
@@ -167,49 +167,48 @@ class DataTables(object):
         Returns:
             JSON object used to render the contents of the Datatable.
         """
-        resp.headers['Content-Type'] = const.APPLICATION_JSON
-        url = req.query.get('api')
-        api_fields = req.query.getlist('fields', [''])
-        api_fields = api_fields[0].split(",")
-        endpoint = req.query.get('endpoint', None)
-        draw = req.query.getlist('draw', ["0"])
-        start = req.query.getlist('start', ["0"])
-        length = req.query.getlist('length', ["0"])
-        search = req.query.getlist('search[value]', [None])
-        order = req.query.getlist("order[0][dir]")
-        column = req.query.getlist("order[0][column]")
-        count = 0
-        orderby = None
-        if order is not None and column is not None:
-            order = order[0]
-            column = column[0]
-            for api_field in api_fields:
-                if column == str(count):
-                    order_field, order_field_name = api_field.split('=')
-                    orderby = "%s %s" % (order_field, order)
-                count += 1
-        request_headers = {'X-Pager-Start': start[0], 'X-Pager-Limit': length[0]}
-        if orderby is not None:
-            request_headers['X-Order-By'] = orderby
+        resp.content_type = const.APPLICATION_JSON
+        url = req.get_first('api')
+        api_fields = req.get_first('fields').split(',')
+        endpoint = req.get_first('endpoint')
+        draw = req.get_first('draw', default=0)
+        start = req.get_first('start', default=0)
+        length = req.get_first('length', default=0)
+        search = req.get_first('search[value]')
+        column = req.get_first("order[0][column]")
+        direction = req.get_first("order[0][dir]")
 
-        if search[0] is not None:
-            request_headers['X-Search'] = search[0]
-        response_headers, result = g.client.execute(const.HTTP_GET, url,
-                                                    headers=request_headers,
-                                                    endpoint=endpoint)
-        recordsTotal = int(response_headers.get('X-Total-Rows', 0))
-        recordsFiltered = int(response_headers.get('X-Filtered-Rows', 0))
+        params = []
+        col_no = 0
+        for api_field in api_fields:
+            if direction is not None and column is not None:
+                if column == str(col_no):
+                    params.append("sort=%s:%s" % (api_field, direction))
+
+            if search is not None:
+                params.append('search=%s:%s' % (api_field, search,))
+
+            col_no += 1
+
+        if start is not None and length is not None:
+            params.append('range=%s,%s' % (start, length,))
+
+        url = build_qs(params, url)
+        result = g.client.execute(const.HTTP_GET, url,
+                                  endpoint=endpoint)
+        recordsTotal = int(result.headers.get('X-Total-Rows', 0))
+        recordsFiltered = int(result.headers.get('X-Filtered-Rows', 0))
         response = {
-            'draw': int(draw[0]),
+            'draw': int(draw),
             'recordsTotal': recordsTotal,
             'recordsFiltered': recordsFiltered
         }
         data = []
-        for row in result:
+        for row in result.json:
             fields = []
             for api_field in api_fields:
-                field, name = api_field.split("=")
-                fields.append(row[field])
+                fields.append(row[api_field])
             data.append(fields)
         response['data'] = data
-        return json.dumps(response, indent=4)
+
+        return json.dumps(response)
