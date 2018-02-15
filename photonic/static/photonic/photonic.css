@@ -2,8 +2,9 @@
 }
 
 .modal-header {
-    background-color: #98AFC7;
-    border-bottom: 1px solid #000;
+    background-color: #29527f;
+    padding: 4px;
+    color: #fff;
 }
 
 .red {
@@ -69,7 +70,7 @@ div.icon-bar {
     margin: 6px 0;
 }
 
-.context-navigation-section {
+div.open_tenant-section {
     top: 50px;
     padding-top: 50px;
     padding-bottom: 5px;
@@ -79,6 +80,14 @@ div.icon-bar {
     z-index: 1029;
 }
 
+div.context-section {
+    position: fixed;
+    bottom: 20px;
+    margin: 0px;
+    width: 100%;
+    z-index: 20000;
+}
+
 
 div.top-navigation-section {
     opacity: 0.95;
@@ -86,7 +95,7 @@ div.top-navigation-section {
     background: #000000;
     position: fixed;
     width: 100%;
-    z-index: 1000000;
+    z-index: 100000;
     color: #9d9d9d;
     height: 50px;
     min-width: 800px;
@@ -344,17 +353,44 @@ ol.menu-top-theme li a:hover {
     background: #555555;
 }
 
+div.modal {
+    opacity: 0.9;
+    position: absolute;
+    top: 45px;
+    left: 10%;
+    right: 10%;
+    bottom: auto;
+    margin: auto;
+    width: 80%;
+    background-color: #FFFFFF;
+    z-index: 1055;
+    overflow: auto;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+}
+
 div.locked {
-    display: none;
     background-color: #000000;
     overflow: hidden;
     position: fixed;
-    z-index: 1050;
+    z-index: 100001;
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
-    opacity: 0.4;
+    opacity: 0.5;
+}
+
+.hidden {
+    display: none
+}
+
+div.login {
+    position: fixed;
+    display: block;
+    width: 600px;
+    z-index: 100002;
 }
 
 div.confirm {
@@ -410,15 +446,10 @@ div.window {
 }
 
 div.loading {
-    display: none;
-    overflow: hidden;
-    position: fixed;
-    z-index: 5000;
-    top: 0;
-    left: 0;
+    z-index: 200000;
     height: 100%;
     width: 100%;
-    background: rgba( 255, 255, 255, .6 )url('/static/tachyonic.ui/images/loader.gif')50% 50% no-repeat;
+    background: rgba( 255, 255, 255, .6 )url('/static/photonic/images/loader.gif')50% 50% no-repeat;
 }
 
 #popup {
@@ -484,12 +515,26 @@ div.popup {
     overflow: hidden;
 }
 
-div.signin {
-    width: 50%;
-    max-width: 400px;
-    min-width: 200px;
-    margin: auto;
+div.open_tenant {
+    display: inline-block;
+    width: 100%;
+    vertical-align: middle;
+    background-color: #eee;
+    opacity: 1;
+    heigth: 34px;
+    padding 6px 12px;
+    line-height: 1.42857143;
+    color: #555;
+    border-radius: 4px;
+    border-top: 1px solid #00c5ff;
+    border-left: 1px solid #00c5ff;
+    border-right: 1px solid #00c5ff;
+    border-bottom: 1px solid #00c5ff;
+    font-family: inherit;
+    margin: 0;
+    box-shadow: 0 0 4px #888888;
 }
+
 
 div.box {
     width: auto;
@@ -585,12 +630,6 @@ div.menu_services {
     position: relative;
 }
 
-div.push_top_searchbox {
-    height: 40px;
-    width: 100%;
-    clear: both;
-}
-
 div.push_top {
     height: 70px;
     width: 100%;
@@ -599,14 +638,25 @@ div.push_top {
 }
 
 div.push_bottom {
-    height: 25px;
+    height: 40px;
     width: 100%;
     clear: both;
     z-index: 1;
 }
 
 
-.tenant-bar-box {
+.context-bar {
+    padding-top: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 8px;
+    border: 0px solid rgba(0, 0, 0, .2);
+    border-radius: 6px 6px 0px 0px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+    width: 100%;
+}
+
+.tenant-bar {
     padding-top: 8px;
     padding-left: 8px;
     padding-right: 8px;
@@ -614,7 +664,7 @@ div.push_bottom {
     border: 0px solid rgba(0, 0, 0, .2);
     border-radius: 0px 0px 6px 6px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
-    min-width: 50%;
+    width: 100%;
 }
 
 .search-bar-box {
