@@ -35,8 +35,9 @@ def start(name, app_root=None, virtualenv=None):
         exec(open(activate_this).read())
 
     # Import after virtualenv, since luxon could be inside of the env.
+    from luxon.constants import TEXT_HTML
     from luxon.core.handlers.wsgi import Wsgi
-    app = Wsgi(name, app_root)
+    app = Wsgi(name, app_root, content_type=TEXT_HTML)
 
     # This the place to start importing luxon packages/modules.
     import photonic.app
