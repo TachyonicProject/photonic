@@ -44,13 +44,26 @@ from photonic.base.crudview import CRUDView
 g.nav_menu.add('/System/Endpoints', href='/system/endpoints', view='role:root')
 
 @register_resources()
-class Endpoints(CRUDView):
-    base_resource = 'system/endpoints'
-    view_role = "role:root"
-    update_role = "role:root"
+class Endpoints():
+    def __init__(self):
+        g.router.add('GET',
+                     '/system/endpoints',
+                     self.list,
+                     tag='role:root')
 
-    def list_pre(self, req, resp):
-        dt = datatable(req, 'endpoints_view',
-                       '/v1/endpoints',
-                       ('name', 'region'))
-        return { 'datatable': dt }
+        g.router.add(('GET', 'POST',),
+                     '/system/endpoints/add',
+                     self.add,
+                     tag='role:root')
+
+    def list(self, req, resp):
+        list_html = datatable(req, 'endpoints_view',
+                              '/v1/endpoints',
+                              ('name', 'region'))
+        return render_template('photonic/endpoints/list.html',
+                               datatable=list_html,
+                               view='Endpoints')
+
+    def add(self, req, resp):
+        return render_template('photonic/endpoints/add.html',
+                               view='Add Endpoint')
