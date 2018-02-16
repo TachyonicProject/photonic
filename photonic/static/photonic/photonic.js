@@ -675,12 +675,49 @@ function validate_form(form) {
     }
     return valid;
 }
+
+/**
+ * Function to turn a Select div into select2
+ */
+function toSelect2(id,url) {
+    $(id).select2({
+      allowClear: true,
+      placeholder: "",
+      ajax: {
+        dataType: "json",
+        url: "/apiproxy?url=" + url,
+        processResults: function (data) {
+          // Tranforms the top-level key of the response object from to 'results'
+            response = [];
+            var isArr = false;
+            if (data.constructor === Array) {
+                isArr = true
+            }
+            for (var key in data) {
+                if (isArr) {
+                    id = data[key]
+                }
+                else {
+                    id = key
+                }
+                response.push({'id': id, 'text': data[key]})
+            }
+            return {
+                results: response
+            }
+        }
+      }
+    });
+}
+
 $( document ).ready(function() {
     $("form").submit(function(e) {
         if (validate_form(this) == false) {
             e.preventDefault()
         }
-    })
+    });
+    toSelect2('#X-Domain','v1/domains');
+    toSelect2('#X-Tenant-Id','v1/tenants');
 });
 
 
