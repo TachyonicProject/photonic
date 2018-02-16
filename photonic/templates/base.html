@@ -214,7 +214,19 @@
                 </div>
             </div>
         </div>
-
+        {% if REQ.token.authenticated %}
+        <script>
+        /**
+         * Run login client side javascript.
+         */
+        $( document ).ready(function() {
+            // Start Message Polling
+            //poll('{{SITE}}/messaging');
+            // Auto Logout
+            autoLogout('{{APP}}/logout', 600, 60);
+        });
+        </script>
+        {% endif %}
         <div id="popup"></div>
             <div class="container">
                 <p class="pull-right"><a href="#">Back to top</a></p>
