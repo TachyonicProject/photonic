@@ -687,7 +687,7 @@ function toSelect2(id,url) {
         dataType: "json",
         url: "/apiproxy?url=" + url,
         processResults: function (data) {
-          // Tranforms the top-level key of the response object from to 'results'
+          // Tranforms the top-level key of the response object to 'results'
             response = [];
             var isArr = false;
             if (data.constructor === Array) {
