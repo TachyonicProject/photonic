@@ -91,9 +91,13 @@
         <div class="open_tenant-section">
             <div class="container">
                 <div class="tenant-bar">
+                    {% if REQ.token.authenticated %}
                     <div class="open_tenant">
-                        <button type="submit" class="btn btn-danger pull-right">Close</button>
+                        <form method="POST" action="{{APP}}/scope">
+                            {{ REQ.context.tenants_html }}
+                        </form>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -141,12 +145,10 @@
                     <div class="block">
                         <form method="POST" action="{{APP}}/scope">
                             <div class="form-group">
-                                <label for="Domain">Domain:</label>
-                                {{ REQ.context.domains_html }}
+                                {{ REQ.context.regions_html }}
                             </div>
                             <div class="form-group">
-                                <label for="Tenant">Tenant:</label>
-                                {{ REQ.context.tenants_html }}
+                                {{ REQ.context.domains_html }}
                             </div>
                         </form>
                     </div>
@@ -183,9 +185,6 @@
                             <div class="box">
                                 {{ REQ.token.username }}
                             </div>
-                            <span class='title'>Email:</span>
-                            <div class="box">
-                            </div>
                             <span class='title'>Active Roles:</span>
                             <div class="box">
                             {% for role in REQ.token.roles %}
@@ -193,9 +192,6 @@
                                 {{ role }}
                             </div>
                             {% endfor %}
-                            </div>
-                            <span class='title'>Last Login:</span>
-                            <div class="box">
                             </div>
                             <a href="{{ APP }}/logout" type="submit" class="btn btn-danger">Logout</a>
                         </div>
@@ -214,7 +210,23 @@
                 </div>
             </div>
         </div>
+        <script>
+        /**
+         * Run login client side javascript.
+         */
+        $( document ).ready(function() {
+            toSelect2('#X-Domain','{{APP}}','v1/domains','name','Select domain');
+            toSelect2('#X-Tenant-Id','{{APP}}','/v1/tenants','name','Select tenant');
+            toSelect2('#X-Region','{{APP}}','/v1/regions','name','Select region');
 
+            {% if REQ.token.authenticated %}
+            // Start Message Polling
+            //poll('{{APP}}/messaging');
+            // Auto Logout
+            autoLogout('{{APP}}/logout', 600, 60);
+            {% endif %}
+        });
+        </script>
         <div id="popup"></div>
             <div class="container">
                 <p class="pull-right"><a href="#">Back to top</a></p>

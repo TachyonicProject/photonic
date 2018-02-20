@@ -1,6 +1,3 @@
-
-
-
 /**
   * Disable Error popup for Datatables.
   * It will throw a javascript error rather.
@@ -16,7 +13,6 @@ function log(msg) {
     }
 }
 
-
 /**
   * Reload css for theme updates
   */
@@ -28,157 +24,6 @@ function reloadStylesheets() {
     return false;
 }
 
-
-/**
-  * Function to load content into div and submit form
-  *
-  * @param string element (HTML Element to populate with result)
-  * @param string url (URL to open)
-  * @param string form_id Serialize Data from Form to post
-  *
-  */
-function ajax_query(element, url, form, form_save, load_window, save, headers) {
-    // DEFAULT PARAMTER NOT SUPPPORTED BY IE
-    if (!form) searchMap = null;
-    if (!form_save) form_save = false;
-    if (!load_window) load_window= false;
-    if (!save) save = 'Succesfully saved';
-    if (!headers) headers = {}
-
-    $('html, body').animate({ scrollTop: 0 }, 'fast');
-    document.getElementById('confirm').style.display = 'none';
-
-    if (typeof(form) !== 'undefined' && form != null) {
-        if (typeof(window.FormData) == 'undefined') {
-            submit = $(form).serialize();
-            pd = true;
-            ct = 'application/x-www-form-urlencoded; charset=UTF-8'
-        } else {
-            submit = new FormData(form);
-            pd = false;
-            ct = false;
-        }
-        typ = 'POST';
-    }
-    else {
-        typ = 'GET';
-        pd = false;
-        ct = false;
-        submit = null;
-    }
-    document.getElementById('loading').style.display = "block";
-    $.ajax({url: url,
-        type: typ,
-        async: true,
-        cache: false,
-        context: document.body,
-        contentType: ct,
-        processData: pd,
-        data: submit,
-        headers: headers,
-        success: function(result) {
-            if (form_save == false) {
-                $(element).html(result);
-                document.getElementById('loading').style.display = "none";
-                $("#window_content button").on("click", function(e) {
-                    link(this);
-                    e.preventDefault()
-                });
-                $("#window_content a").on("click", function(e) {
-                    if ("url" in this.dataset) {
-                        link(this);
-                        e.preventDefault()
-                    }
-                });
-                $("#service a").on("click", function(e) {
-                    if ("url" in this.dataset) {
-                        link(this);
-                        e.preventDefault()
-                    }
-                });
-                $("#service button").on("click", function(e) {
-                    if ("url" in this.dataset) {
-                        link(this);
-                        e.preventDefault()
-                    }
-                });
-                $("#window_content form").submit(function( e )  {
-                    link(this);
-                    e.preventDefault()
-                });
-                $("#service form").submit(function( e )  {
-                    if ("url" in this.dataset) {
-                        link(this);
-                        e.preventDefault()
-                    }
-                });
-            }
-            else
-            {
-                success(save)
-            }
-            done_loading()
-        },
-        complete: function() {
-            if (load_window == true) {
-                open_window();
-            }
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if (XMLHttpRequest.status == 500) {
-                error(XMLHttpRequest.responseText);
-            }
-            else {
-                warning(XMLHttpRequest.responseText);
-            }
-            if (load_window == true) {
-                document.getElementById('locked').style.display = "none";
-                load_window = false;
-            }
-            done_loading()
-        }
-    });
-    return false;
-}
-
-/**
-  * Clear Assign
-  */
-function clear_assign() {
-    document.getElementById('tenant_assignment').value = '';
-    document.getElementById('tenant_id').value = '';
-}
-
-/**
-  * Delete role used by users
-  */
-function delete_role(domain,tenant_id,role) {
-    document.getElementById('assign_domain_id').value = domain;
-    if (tenant_id == 'None') {
-        document.getElementById('tenant_id').value = '';
-    } else {
-        document.getElementById('tenant_id').value = tenant_id;
-    }
-    document.getElementById('remove').value = "True";
-    document.getElementById('role').value = role;
-}
-
-/**
-  * Display or hide Admin Window
-  */
-function toggle_window() {
-    var display = document.getElementById('window').style.display;
-    if (display == "none" || display == "")
-    {
-        windowed = true;
-        document.getElementById('window').style.display = "block";
-    }   
-    else
-    {   
-        windowed = false;
-        document.getElementById('window').style.display = "none";
-    }   
-}
 
 /**
   * Lock or Unlock background
@@ -264,195 +109,6 @@ function open_window() {
 }
 
 
-/*
-  * This is function is automatically triggerd on any button / form within window or service
-  *
-  * Open link in admin window or service and or submit form
-  * depending on which is active...
-  * requires data-url for link
-  * optional data-name for title
-  *          if not specified gets from button text
-  * optional data-save set this to any value to save form and not open link in window
-  *          you should see success or errors popup
-  * optional data-confirm causes a pop to appear to confirm.. 
-  *          set this value to the confirmation question...
-  *
-  * for example button: <button data-url='/ui/users' data-name='Edit Users'>
-  * for example link: <a href="#" data-url="/ui/users">
-  * for example form: <form data-url="/ui/users">
-  * for example form save: <form data-url="/ui/users" data-save="yes">
-  */
-function link(element) {
-    window_display = document.getElementById('window').style.display;
-    if ("url" in element.dataset) {
-        url = element.dataset.url;
-        name = element.dataset.name;
-        tag = element.tagName.toLowerCase();
-        if ("save" in element.dataset) {
-            save = true;
-        }
-        else {
-            save = false;
-        }
-        if ("confirm" in element.dataset) {
-            document.getElementById('confirmation').innerHTML = element.dataset.confirm;
-            document.getElementById('confirm').style.display = 'block';
-            $('[data-toggle="tooltip"]').tooltip();
-            document.getElementById('continue').onclick = function() {
-                confirm = String(element.dataset.confirm);
-                document.getElementById('confirm').style.display = 'none';
-                delete element.dataset.confirm;
-                link(element);
-                element.dataset.confirm = confirm;
-            }
-            $('html, body').animate({ scrollTop: 0 }, 'fast');
-        }
-        else
-            {
-            if (window_display == "none" || window_display == "")
-            {
-                // Inside Customer area
-                if (save == false) {
-                    //document.getElementById('service').innerHTML = '';
-                }
-                if (tag != "form") {
-                    document.getElementById('title').innerHTML = element.innerHTML;
-                }
-                if ("name" in element.dataset) {
-                    document.getElementById('title').innerHTML = name;
-                }
-                if (tag == "form") {
-                    if (validate_form(element)) {
-                        ajax_query("#service", url, element, save); 
-                    }
-                }
-                else {
-                    ajax_query("#service", url); 
-                }
-            }   
-            else
-            {   
-                // Inside Admin Window
-                if (save == false) {
-                    //document.getElementById('window_content').innerHTML = '';
-                }
-                if (tag == "form") {
-                    if (validate_form(element)) {
-                        ajax_query("#window_content", url, element, save); 
-                    }
-                }
-                else {
-                    ajax_query("#window_content", url); 
-                }
-                document.getElementById('locked').style.display = "block";
-                if (tag != "form") {
-                    document.getElementById('window_title').innerHTML = element.innerHTML;
-                }
-                if ("name" in element.dataset) {
-                    document.getElementById('window_title').innerHTML = name;
-                }
-                windowed = true;
-                document.getElementById('window').style.display = "block";
-            }   
-        }
-        return false;
-    }
-}
-
-function open_tenant(site, id) {
-    headers = { "X-Tenant-Id": id };
-    ajax_query("#service", site + "/tenant", form=null, form_save=false, load_window=false, save='<B>Open Tenant Account</B>', headers=headers);
-    return false;
-}
-
-function close_tenant(site) {
-    if (tenant_selected == true) {
-        headers = { "X-Tenant-Id": "NULL" };
-        ajax_query("#service", site + "/", form=null, form_save=true, load_window=false, save='<B>Closed Tenant Account</B>', headers=headers);
-        tenant_selected = false;
-        document.getElementById('open_tenant').value = ''
-        document.getElementById('service').innerHTML = '<H1>Tenant Closed</H1>'
-    }
-    else {
-        warning('<B>Account already closed</B>')
-    }
-    return false;
-}
-
-function open_domain(site, id) {
-    headers = { "X-Tenant-Id": "NULL", "X-Domain": id };
-    ajax_query("#service", site + "/", form=null, form_save=true, load_window=false, save='<B>Domain selected</B>', headers=headers);
-    tenant_selected = false;
-    document.getElementById('open_tenant').value = ''
-    document.getElementById('service').innerHTML = '<H1>Switched domain</H1>'
-
-    return false;
-}
-
-
-tenant_selected = false;
-
-/**
-  * Open service/customer view for menu
-  */
-function service(a) {
-    if (tenant_selected == true) {
-        document.getElementById('service').innerHTML = '';
-        ajax_query("#service", a.href); 
-        document.getElementById('title').innerHTML = a.innerHTML;
-        document.getElementById('locked').style.display = "none";
-        document.getElementById('window').style.display = "none";
-    }
-    else
-    {
-        warning('<B>Please select tenant account</B>')
-    }
-    return false
-}
-
-/**
-  * Open admin view for menu
-  */
-function admin(a) {
-    window_display = document.getElementById('window').style.display;
-    if (window_display == "block") {
-        $( "#window" ).toggle( "puff", 1000, function () { admin(a) } );
-    }
-    else {
-        document.getElementById('window_content').innerHTML = '';
-        ajax_query("#window_content", a.href, null, false, true); 
-        document.getElementById('locked').style.display = "block";
-        document.getElementById('window_title').innerHTML = a.innerHTML;
-        //if (window_display == "none" || window_display == "") {
-        //    $( "#window" ).toggle( "clip", {}, 1000 );
-        //}
-    }
-    return false
-}
-
-/**
-  * Open Window view for menu
-  * Currently shortcut to admin(a)
-  */
-function popup(a) {
-    return admin(a);
-}
-
-/**
-  * Set title
-  */
-function title(title) {
-    var display = document.getElementById('window').style.display;
-    //if (display == "none" || display == "")
-    if (windowed == false)
-    {
-        document.getElementById('title').innerHTML = title;
-    }
-    else
-    {
-        document.getElementById('window_title').innerHTML = title;
-    }
-}
 
 /**
   * POPUPS Below... 
@@ -679,13 +335,13 @@ function validate_form(form) {
 /**
  * Function to turn a Select div into select2
  */
-function toSelect2(id,url) {
+function toSelect2(id, app, url, search_field, placeholder) {
     $(id).select2({
       allowClear: true,
-      placeholder: "",
+      placeholder: placeholder,
       ajax: {
         dataType: "json",
-        url: "/apiproxy?url=" + url,
+        url: app + "/apiproxy?url=" + url + '&search_field=' + search_field,
         processResults: function (data) {
           // Tranforms the top-level key of the response object to 'results'
             response = [];
@@ -710,35 +366,108 @@ function toSelect2(id,url) {
     });
 }
 
-$( document ).ready(function() {
-    $("form").submit(function(e) {
-        if (validate_form(this) == false) {
-            e.preventDefault()
+function ajax_query(method, url, form, success) {
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
+    if (typeof(form) !== 'undefined' && form != null) {
+        if (typeof(window.FormData) == 'undefined') {
+            submit = $(form).serialize();
+            pd = true;
+            ct = 'application/x-www-form-urlencoded; charset=UTF-8'
+        } else {
+            submit = new FormData(form);
+            pd = false;
+            ct = false;
+        }
+    } else {
+        submit = null;
+        pd = false;
+        ct = false;
+    }
+    $.ajax({url: url,
+        type: method,
+        async: true,
+        cache: false,
+        context: document.body,
+        contentType: ct,
+        processData: pd,
+        data: submit,
+        success: function(result) {
+            success(result);
+        },
+        complete: function() {
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            document.getElementById('loading').style.display = "none";
+            if (XMLHttpRequest.status == 500) {
+                error(XMLHttpRequest.responseText);
+            } else {
+                warning(XMLHttpRequest.responseText);
+            }
         }
     });
-    toSelect2('#X-Domain','v1/domains');
-    toSelect2('#X-Tenant-Id','v1/tenants');
+}
+
+function save(result) {
+    success('Succesfully saved!')
+    document.getElementById('loading').style.display = "none";
+}
+
+function create(result) {
+    var uri = String(window.location);
+    var uri = uri.replace(/\/+$/g, '');
+    var l = uri.lastIndexOf('/');
+    var uri = uri.substring(0, l) + '/' + result.id;
+    info('Redirecting to view!')
+    window.location.replace(uri)
+}
+
+
+
+
+$( document ).ready(function() {
+    $("a").on("click", function(e) {
+        if ("confirm" in this.dataset) {
+            document.getElementById('confirmation').innerHTML = this.dataset.confirm;
+            document.getElementById('confirm').style.display = 'block';
+            $('[data-toggle="tooltip"]').tooltip();
+			uri = this.getAttribute("href");
+            document.getElementById('continue').onclick = function() {
+                confirm = String(this.dataset.confirm);
+                document.getElementById('confirm').style.display = 'none';
+				window.location.replace(uri)
+            }   
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+            e.preventDefault();
+        }
+    });
+    $("form").submit(function(e) {
+        if ("disabled" in this.dataset) {
+            e.preventDefault();
+        } else {
+            document.getElementById('loading').style.display = "block";
+            if (validate_form(this) == false) {
+                e.preventDefault();
+            }
+            if ("type" in this.dataset) {
+                if ("url" in this.dataset) {
+                    url = this.dataset.url;
+                    if ("method" in this.dataset) {
+                        method = this.dataset.method;
+                        if (this.dataset.type == 'save') {
+                            ajax_query(method, url, this, save);
+                        }
+                        if (this.dataset.type == 'create') {
+                            ajax_query(method, url, this, create);
+                        }
+                    } else {
+                        log('form requires data-method');
+                    }
+                } else {
+                    log('form requires data-url');
+                }
+
+                e.preventDefault();
+            }
+        }
+    });
 });
-
-
-/**
-  * TENANT FORM
-  */
-function update_tenant_form(tenant_type) {
-    if (tenant_type == 'organization') {
-        $( ".organization" ).show();
-        $( ".individual" ).hide();
-    }
-    if (tenant_type == 'individual') {
-        $( ".organization" ).hide();
-        $( ".individual" ).show();
-    }
-}
-function tenant_form() {
-    $( "#tenant_type" ).change(function() {
-        tenant_type = document.getElementById('tenant_type').value;
-        update_tenant_form(tenant_type);
-    })
-    tenant_type = document.getElementById('tenant_type').value
-    update_tenant_form(tenant_type);
-}

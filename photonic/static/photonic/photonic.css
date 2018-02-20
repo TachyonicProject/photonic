@@ -37,7 +37,7 @@ button.view_button {
     width: 24px;
     border-width: 1px;
     background-color: #FFFFFF;
-    background-image: url("/static/tachyonic.ui/images/view.png");
+    background-image: url("/static/themes/default/view.png");
     background-repeat: no-repeat;
     border-style: solid;
 }
@@ -47,7 +47,7 @@ button.edit_button {
     width: 24px;
     border-width: 1px;
     background-color: #FFFFFF;
-    background-image: url("/static/tachyonic.ui/images/edit.png");
+    background-image: url("/static/themes/default/edit.png");
     border-style: solid;
     background-repeat: no-repeat;
 }
@@ -450,6 +450,10 @@ div.loading {
     height: 100%;
     width: 100%;
     background: rgba( 255, 255, 255, .6 )url('/static/photonic/images/loader.gif')50% 50% no-repeat;
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: none;
 }
 
 #popup {

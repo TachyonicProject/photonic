@@ -38,8 +38,8 @@ from luxon import render_template
 from luxon.constants import TEXT_HTML
 from luxon.utils.theme import Theme
 from photonic.views.datatable import datatable
-
-from photonic.base.crudview import CRUDView
+from luxon.utils.html import form
+from luxon.models.endpoints import luxon_endpoint
 
 g.nav_menu.add('/System/Endpoints', href='/system/endpoints', view='role:root')
 
@@ -51,19 +51,57 @@ class Endpoints():
                      self.list,
                      tag='role:root')
 
+        g.router.add('GET',
+                     '/system/endpoints/delete/{id}',
+                     self.delete,
+                     tag='role:root')
+
+        g.router.add('GET',
+                     '/system/endpoints/{id}',
+                     self.view,
+                     tag='role:root')
+
         g.router.add(('GET', 'POST',),
                      '/system/endpoints/add',
                      self.add,
                      tag='role:root')
 
+        g.router.add(('GET', 'POST',),
+                     '/system/endpoints/edit/{id}',
+                     self.edit,
+                     tag='role:root')
+
     def list(self, req, resp):
         list_html = datatable(req, 'endpoints_view',
                               '/v1/endpoints',
-                              ('name', 'region'))
+                              ('name', 'region'),
+                              view_button=True)
         return render_template('photonic/endpoints/list.html',
                                datatable=list_html,
                                view='Endpoints')
 
+    def delete(self, req, resp, id):
+        g.client.execute('DELETE', '/v1/endpoint/%s' % id)
+        resp.redirect('/system/endpoints')
+
+    def view(self, req, resp, id):
+        endpoint = g.client.execute('GET', '/v1/endpoint/%s' % id)
+        html_form = form(luxon_endpoint, endpoint.json, readonly=True)
+        return render_template('photonic/endpoints/view.html',
+                               view='View Endpoint',
+                               form=html_form,
+                               id=id)
+
+    def edit(self, req, resp, id):
+        endpoint = g.client.execute('GET', '/v1/endpoint/%s' % id)
+        html_form = form(luxon_endpoint, endpoint.json)
+        return render_template('photonic/endpoints/edit.html',
+                               view='Edit Endpoint',
+                               form=html_form,
+                               id=id)
+
     def add(self, req, resp):
+        html_form = form(luxon_endpoint)
         return render_template('photonic/endpoints/add.html',
-                               view='Add Endpoint')
+                               view='Add Endpoint',
+                               form=html_form)
