@@ -12,7 +12,7 @@ log = GetLogger(__name__)
 
 def datatable(req, table_id, url,
               fields, width='100%', view_button=False,
-              checkbox=False, service=False,
+              checkbox=False,
               endpoint=None, id_field=None,
               search='', sort=''):
     """
@@ -33,7 +33,6 @@ def datatable(req, table_id, url,
         width (str): width of the datatable.
         view_button (bool): Wehther or not to include the view icon/url in the datatable.
         checkbox (bool): Whether or not to include the a checkbox in the datatable.
-        service (bool): Whether or not to to display in the service area.
         endpoint (str): The Tachyonic endpoint to query.
         id_field (int): The number of the column for which the id should be obtained
         search (str): Search string to be supplied to datatables.
@@ -59,7 +58,7 @@ def datatable(req, table_id, url,
     if view_button is True or checkbox is True:
         th = tr.create_element('th')
         th.append('&nbsp;')
-        api_fields.append("%s=%s" % ('id', 'id'))
+        api_fields.append('id')
     if id_field is None:
         id_field_no = len(api_fields) - 1
     else:
@@ -106,16 +105,11 @@ def datatable(req, table_id, url,
         js += "}"
         js += "]"
         js += "} );"
-        res = ""#ui.resource(req)
         js += "$('#%s tbody')" % (table_id,)
         js += ".on( 'click', 'button', function () {"
         js += "var data = table.row( $(this).parents('tr') ).data();"
-        if service is False:
-            js += "ajax_query(\"#window_content\","
-            js += "\"%s/%s/view/\"+data[%s]);" % (req.get_app(), res, id_field_no)
-        else:
-            js += "ajax_query(\"#service\","
-            js += "\"%s/%s/view/\"+data[%s]);" % (req.get_app(), res, id_field_no)
+        js += "window.location.replace(\"%s/\"+data[%s]);" % (req.relative_resource_uri,
+                                                               id_field_no)
     elif checkbox is True:
         js += ",\"columnDefs\": ["
         js += "{\"targets\": -1,"
@@ -168,15 +162,15 @@ class DataTables(object):
             JSON object used to render the contents of the Datatable.
         """
         resp.content_type = const.APPLICATION_JSON
-        url = req.get_first('api')
-        api_fields = req.get_first('fields').split(',')
-        endpoint = req.get_first('endpoint')
-        draw = req.get_first('draw', default=0)
-        start = req.get_first('start', default=0)
-        length = req.get_first('length', default=0)
-        search = req.get_first('search[value]')
-        column = req.get_first("order[0][column]")
-        direction = req.get_first("order[0][dir]")
+        url = req.query_params.get('api')
+        api_fields = req.query_params.get('fields').split(',')
+        endpoint = req.query_params.get('endpoint')
+        draw = req.query_params.get('draw', 0)
+        start = req.query_params.get('start', 0)
+        length = req.query_params.get('length', 0)
+        search = req.query_params.get('search[value]')
+        column = req.query_params.get("order[0][column]")
+        direction = req.query_params.get("order[0][dir]")
 
         params = []
         col_no = 0
@@ -201,7 +195,7 @@ class DataTables(object):
         response = {
             'draw': int(draw),
             'recordsTotal': recordsTotal,
-            'recordsFiltered': recordsFiltered
+            'recordsFiltered': recordsTotal
         }
         data = []
         for row in result.json:
