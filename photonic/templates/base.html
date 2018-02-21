@@ -95,8 +95,6 @@
                     <div class="open_tenant">
                         <form method="POST" action="{{APP}}/scope">
                             {{ REQ.context.tenants_html }}
-                            <input type="hidden" name="X-Domain" value="{{ REQ.session['domain'] }}">
-                            <input type="hidden" name="X-Region" value="{{ REQ.session['region'] }}">
                         </form>
                     </div>
                     {% endif %}
@@ -147,10 +145,18 @@
                     <div class="block">
                         <form method="POST" action="{{APP}}/scope">
                             <div class="form-group">
+                                <label for="email">Region:</label>
                                 {{ REQ.context.regions_html }}
+                                <input type="hidden" name="X-Domain">
+                                <input type="hidden" name="X-Tenant-Id">
                             </div>
+                        </form>
+                        <form method="POST" action="{{APP}}/scope">
                             <div class="form-group">
+                                <label for="email">Domain:</label>
                                 {{ REQ.context.domains_html }}
+                                <input type="hidden" name="X-Domain">
+                                <input type="hidden" name="X-Tenant-Id">
                             </div>
                         </form>
                     </div>
@@ -217,9 +223,7 @@
          * Run login client side javascript.
          */
         $( document ).ready(function() {
-            toSelect2('#X-Domain','{{APP}}','v1/domains','name','Select domain');
             toSelect2('#X-Tenant-Id','{{APP}}','/v1/tenants','name','Select tenant');
-            toSelect2('#X-Region','{{APP}}','/v1/regions','name','Select region');
 
             {% if REQ.token.authenticated %}
             // Start Message Polling
