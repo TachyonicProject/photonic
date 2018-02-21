@@ -95,6 +95,8 @@
                     <div class="open_tenant">
                         <form method="POST" action="{{APP}}/scope">
                             {{ REQ.context.tenants_html }}
+                            <input type="hidden" name="X-Domain" value="{{ REQ.session['domain'] }}">
+                            <input type="hidden" name="X-Region" value="{{ REQ.session['region'] }}">
                         </form>
                     </div>
                     {% endif %}

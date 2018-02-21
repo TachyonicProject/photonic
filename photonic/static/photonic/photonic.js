@@ -335,7 +335,13 @@ function validate_form(form) {
 /**
  * Function to turn a Select div into select2
  */
-function toSelect2(id, app, url, search_field, placeholder) {
+function toSelect2(id, app, url, search_field, placeholder, text_field) {
+    if (typeof text_field === 'undefined') {
+        text_field = "name";
+    }
+    else if  (text_field.constructor === Array) {
+        text_field = text_field.join(" ")
+    };
     $(id).select2({
       allowClear: true,
       placeholder: placeholder,
@@ -343,20 +349,19 @@ function toSelect2(id, app, url, search_field, placeholder) {
         dataType: "json",
         url: app + "/apiproxy?url=" + url + '&search_field=' + search_field,
         processResults: function (data) {
-          // Tranforms the top-level key of the response object from to 'results'
+          // Tranforms the top-level key of the response object to 'results'
             response = [];
-            var isArr = false;
-            if (data.constructor === Array) {
-                isArr = true
-            }
-            for (var key in data) {
-                if (isArr) {
-                    id = data[key]
+            for (var i=0,  tot=data.length; i < tot; i++) {
+                if (data[i].constructor === String) {
+                    id = data[i]
+                    text = data[i]
                 }
                 else {
-                    id = key
+                    id = data[i]["id"]
+                    text = data[i][text_field]
+
                 }
-                response.push({'id': id, 'text': data[key]})
+                response.push({'id': id, 'text': text})
             }
             return {
                 results: response
