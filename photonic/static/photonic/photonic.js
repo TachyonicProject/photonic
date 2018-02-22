@@ -445,7 +445,28 @@ $( document ).ready(function() {
             e.preventDefault();
         }
     });
+    $("input").on("click", function(e) {
+        if (String(this.type).toLowerCase() == 'checkbox') {
+            var checkbox = $(this);
+            parent = this.parentElement
+            if( checkbox.is(':checked')) {
+                checkbox.attr('value','1');
+                parent.innerHTML = this.outerHTML;
+            } else {
+                checkbox.after().append(checkbox.clone().attr({type:'hidden', value:0}));
+            }
+        }
+    });
     $("form").submit(function(e) {
+        //$(this).find('input[type="checkbox"]').each( function () {
+        //    var checkbox = $(this);
+        //    if( checkbox.is(':checked')) {
+        //        checkbox.attr('value','1');
+        //    } else {
+        //        checkbox.after().append(checkbox.clone().attr({type:'hidden', value:0}));
+        //        checkbox.prop('disabled', true);
+        //    }
+        //})
         if ("disabled" in this.dataset) {
             e.preventDefault();
         } else {

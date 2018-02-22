@@ -1,3 +1,36 @@
+select.select {
+  display: block;
+  width: 100%;
+  border: 1px solid #ccc;
+  height: 28px;
+  background-color: #FFFFFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding-left: 4px;
+  padding-right: 2px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='black'><polygon points='0,0 100,0 50,50'/></svg>") no-repeat;
+  background-size: 12px;
+  background-position: calc(100% - 5px) center;
+  background-repeat: no-repeat;
+}
+
+
+/* CAUTION: IE hackery ahead */
+select.select::-ms-expand { 
+    display: none; /* remove default arrow in IE 10 and 11 */
+}
+
+/* target Internet Explorer 9 to undo the custom arrow */
+@media screen and (min-width:0\0) {
+    select.select {
+        background:none\9;
+        padding: 5px\9;
+    }
+}
+
 .navbar-wrapper {
 }
 
