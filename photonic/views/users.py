@@ -39,69 +39,69 @@ from luxon.constants import TEXT_HTML
 from luxon.utils.theme import Theme
 from photonic.views.datatable import datatable
 from luxon.utils.html import form
-from luxon.models.tenants import luxon_tenant
+from luxon.models.users import luxon_user
 
-g.nav_menu.add('/System/Tenants', href='/system/tenants', view='admin')
+g.nav_menu.add('/System/Users', href='/system/users', view='admin')
 
 @register_resources()
-class Tenants():
+class Users():
     def __init__(self):
         g.router.add('GET',
-                     '/system/tenants',
+                     '/system/users',
                      self.list,
                      tag='role:root')
 
         g.router.add('GET',
-                     '/system/tenants/delete/{id}',
+                     '/system/users/delete/{id}',
                      self.delete,
                      tag='role:root')
 
         g.router.add('GET',
-                     '/system/tenants/{id}',
+                     '/system/users/{id}',
                      self.view,
                      tag='role:root')
 
         g.router.add(('GET', 'POST',),
-                     '/system/tenants/add',
+                     '/system/users/add',
                      self.add,
                      tag='role:root')
 
         g.router.add(('GET', 'POST',),
-                     '/system/tenants/edit/{id}',
+                     '/system/users/edit/{id}',
                      self.edit,
                      tag='role:root')
 
     def list(self, req, resp):
-        list_html = datatable(req, 'tenants_view',
-                              '/v1/tenants',
+        list_html = datatable(req, 'users_view',
+                              '/v1/users',
                               ('name',),
                               view_button=True)
-        return render_template('photonic/tenants/list.html',
+        return render_template('photonic/users/list.html',
                                datatable=list_html,
-                               view='Tenants')
+                               view='Users')
 
     def delete(self, req, resp, id):
-        g.client.execute('DELETE', '/v1/tenant/%s' % id)
-        resp.redirect('/system/tenants')
+        g.client.execute('DELETE', '/v1/user/%s' % id)
+        resp.redirect('/system/users')
 
     def view(self, req, resp, id):
-        tenant = g.client.execute('GET', '/v1/tenant/%s' % id)
-        html_form = form(luxon_tenant, tenant.json, readonly=True)
-        return render_template('photonic/tenants/view.html',
-                               view='View Tenant',
+        user = g.client.execute('GET', '/v1/user/%s' % id)
+        html_form = form(luxon_user, user.json, readonly=True)
+        return render_template('photonic/users/view.html',
+                               view='View User',
                                form=html_form,
                                id=id)
 
     def edit(self, req, resp, id):
-        tenant = g.client.execute('GET', '/v1/tenant/%s' % id)
-        html_form = form(luxon_tenant, tenant.json)
-        return render_template('photonic/tenants/edit.html',
-                               view='Edit Tenant',
+        user = g.client.execute('GET', '/v1/user/%s' % id)
+        html_form = form(luxon_user, user.json)
+        return render_template('photonic/users/edit.html',
+                               view='Edit User',
                                form=html_form,
                                id=id)
 
     def add(self, req, resp):
-        html_form = form(luxon_tenant)
-        return render_template('photonic/tenants/add.html',
-                               view='Add Tenant',
+        html_form = form(luxon_user)
+        return render_template('photonic/users/add.html',
+                               view='Add User',
                                form=html_form)

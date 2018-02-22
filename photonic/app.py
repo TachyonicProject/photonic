@@ -31,15 +31,21 @@ from luxon import g
 from luxon import register_middleware
 from luxon import error_template
 from luxon import ajax_error_template
+
 from luxon.middleware.client import Client
 from luxon.middleware.wsgi.ui.token import Token
 from luxon.middleware.policy import Policy
+
 register_middleware(Client)
 register_middleware(Token)
 register_middleware(Policy)
+
 error_template('photonic/error.html')
 ajax_error_template('photonic/error_ajax.html')
-import luxon.resources.wsgi.ui.photonic
+
+import luxon.resources.wsgi.ui.apiproxy
+import luxon.resources.wsgi.ui.auth
+
 from luxon import UIMenu
 g.nav_menu = UIMenu()
 g.acc_menu = UIMenu()
