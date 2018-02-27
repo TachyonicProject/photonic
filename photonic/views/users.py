@@ -37,9 +37,10 @@ from luxon import register_resources
 from luxon import render_template
 from luxon.constants import TEXT_HTML
 from luxon.utils.theme import Theme
-from photonic.views.datatable import datatable
 from luxon.utils.html import form
-from luxon.models.users import luxon_user
+
+from photonic.models.users import luxon_user
+from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Users', href='/system/users', view='admin')
 

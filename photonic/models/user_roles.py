@@ -27,25 +27,51 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from luxon import g
-from luxon import register_middleware
-from luxon import error_template
-from luxon import ajax_error_template
+from uuid import uuid4
 
-from psychokinetic.middleware.client import Client
-from psychokinetic.middleware.policy import Policy
-from photonic.middleware.token import Token
+from luxon import database_model
+from luxon import Model
+from luxon import SQLModel
+from luxon import Uuid
+from luxon import String
+from luxon import Text
+from luxon import DateTime
+from luxon import Boolean
+from luxon import Email
+from luxon import Phone
+from luxon import Enum
+from luxon import Index
+from luxon import ForeignKey
+from luxon import UniqueIndex
+from luxon import Username
+from luxon import Fqdn
+from luxon.utils.timezone import now
 
-register_middleware(Client)
-register_middleware(Token)
-register_middleware(Policy)
+from photonic.models.domains import luxon_domain
+from photonic.models.tenants import luxon_tenant
+from photonic.models.roles import luxon_role
 
-error_template('photonic/error.html')
-ajax_error_template('photonic/error_ajax.html')
+USER_ROLES = [
+    ('00000000-0000-0000-0000-000000000000',
+     '00000000-0000-0000-0000-000000000000',
+     None,
+     None,
+     '00000000-0000-0000-0000-000000000000',
+     now()),
+]
 
-from luxon import UIMenu
-g.nav_menu = UIMenu()
-g.acc_menu = UIMenu()
-g.srv_menu = UIMenu()
-import photonic.views
-
+@database_model()
+class luxon_user_role(SQLModel):
+    id = Uuid(default=uuid4, internal=True)
+    role_id = Uuid()
+    domain = Fqdn(internal=True)
+    tenant_id = String()
+    user_id = Uuid()
+    creation_time = DateTime(readonly=True, default=now)
+    unique_user_role = UniqueIndex(role_id, tenant_id, user_id)
+    user_role_id_ref = ForeignKey(role_id, luxon_role.id)
+    user_role_domain_ref = ForeignKey(domain, luxon_domain.name)
+    user_role_tenant_ref = ForeignKey(tenant_id, luxon_tenant.id)
+    user_roles = Index(domain, tenant_id)
+    primary_key = id
+    db_default_rows = USER_ROLES

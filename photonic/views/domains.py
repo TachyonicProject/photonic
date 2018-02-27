@@ -37,9 +37,10 @@ from luxon import register_resources
 from luxon import render_template
 from luxon.constants import TEXT_HTML
 from luxon.utils.theme import Theme
-from photonic.views.datatable import datatable
 from luxon.utils.html import form
-from luxon.models.domains import luxon_domain
+
+from photonic.models.domains import luxon_domain
+from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Domains', href='/system/domains', view='admin')
 
