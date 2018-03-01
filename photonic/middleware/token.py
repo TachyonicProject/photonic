@@ -59,15 +59,18 @@ class Token(object):
     __slots__ = ()
 
     def pre(self, req, resp):
+        # SHORT-CIRCUIT TOKEN VALIDATION FOR STATIC
+        if STATIC_REGEX.match(req.route):
+            return None
+
         token = req.session.get('token')
         region = req.session.get('region')
         scoped = req.session.get('scoped')
         domain = req.session.get('domain')
         tenant_id = req.session.get('tenant_id')
 
-        # SHORT-CIRCUIT TOKEN VALIDATION FOR STATIC
-        if STATIC_REGEX.match(req.route):
-            return None
+        if region is None:
+            region = g.config.get('restapi', 'region')
 
         if token is not None:
             try:
@@ -81,7 +84,7 @@ class Token(object):
                                      domain,
                                      tenant_id,
                                      region,
-                                     g.config.get('application', 'interface'))
+                                     g.config.get('restapi', 'interface'))
 
                 req.token.domain = domain
                 req.token.tenant_id = tenant_id
@@ -96,7 +99,7 @@ class Token(object):
                 req.context.regions_html = select('X-Region',
                                                   g.client.endpoints.regions,
                                                   region,
-                                                  True,
+                                                  False,
                                                   'select',
                                                   'this.form.submit()')
 
