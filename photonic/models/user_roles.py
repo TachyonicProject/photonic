@@ -29,9 +29,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 from uuid import uuid4
 
-from luxon import database_model
 from luxon import Model
-from luxon import SQLModel
 from luxon import Uuid
 from luxon import String
 from luxon import Text
@@ -47,31 +45,11 @@ from luxon import Username
 from luxon import Fqdn
 from luxon.utils.timezone import now
 
-from photonic.models.domains import luxon_domain
-from photonic.models.tenants import luxon_tenant
-from photonic.models.roles import luxon_role
-
-USER_ROLES = [
-    ('00000000-0000-0000-0000-000000000000',
-     '00000000-0000-0000-0000-000000000000',
-     None,
-     None,
-     '00000000-0000-0000-0000-000000000000',
-     now()),
-]
-
-@database_model()
-class luxon_user_role(SQLModel):
+class luxon_user_role(Model):
     id = Uuid(default=uuid4, internal=True)
     role_id = Uuid()
     domain = Fqdn(internal=True)
     tenant_id = String()
     user_id = Uuid()
     creation_time = DateTime(readonly=True, default=now)
-    unique_user_role = UniqueIndex(role_id, tenant_id, user_id)
-    user_role_id_ref = ForeignKey(role_id, luxon_role.id)
-    user_role_domain_ref = ForeignKey(domain, luxon_domain.name)
-    user_role_tenant_ref = ForeignKey(tenant_id, luxon_tenant.id)
-    user_roles = Index(domain, tenant_id)
     primary_key = id
-    db_default_rows = USER_ROLES

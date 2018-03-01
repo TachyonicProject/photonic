@@ -29,9 +29,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 from uuid import uuid4
 
-from luxon import database_model
 from luxon import Model
-from luxon import SQLModel
 from luxon import Uuid
 from luxon import String
 from luxon import Text
@@ -47,19 +45,7 @@ from luxon import Username
 from luxon import Fqdn
 from luxon.utils.timezone import now
 
-from photonic.models.domains import luxon_domain
-from photonic.models.tenants import luxon_tenant
-
-USERS = [
-    ('00000000-0000-0000-0000-000000000000', 'tachyonic',
-     None, None,
-     'root', '$2b$12$QaWa.Q3gZuafYXkPo3EJRuSJ1wGuutShb73RuH1gdUVri82CU6V5q',
-     None, 'Default Root User', None, None, None, None,
-     1, now()),
-]
-
-@database_model()
-class luxon_user(SQLModel):
+class luxon_user(Model):
     id = Uuid(default=uuid4, internal=True)
     tag = String(hidden=True, max_length=30, null=False)
     domain = Fqdn(internal=True)
@@ -74,11 +60,4 @@ class luxon_user(SQLModel):
     last_login = DateTime(readonly=True)
     enabled = Boolean(default=True)
     creation_time = DateTime(default=now, readonly=True)
-    unique_username = UniqueIndex(domain, username)
-    user_tenant_ref = ForeignKey(tenant_id, luxon_tenant.id)
-    user_domain_ref = ForeignKey(domain, luxon_domain.name)
-    users = Index(domain, username)
-    users_tenants = Index(domain, tenant_id)
-    users_domain = Index(domain)
     primary_key = id
-    db_default_rows = USERS

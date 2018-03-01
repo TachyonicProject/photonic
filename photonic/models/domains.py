@@ -29,9 +29,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 from uuid import uuid4
 
-from luxon import database_model
 from luxon import Model
-from luxon import SQLModel
 from luxon import Uuid
 from luxon import String
 from luxon import Text
@@ -47,18 +45,10 @@ from luxon import Username
 from luxon import Fqdn
 from luxon.utils.timezone import now
 
-DOMAINS = [
-    ('00000000-0000-0000-0000-000000000000', 'default', None, 1, now()),
-]
-
-@database_model()
-class luxon_domain(SQLModel):
+class luxon_domain(Model):
     id = Uuid(default=uuid4, internal=True)
     name = Fqdn(null=False)
     description = Text()
     enabled = Boolean(default=True)
     creation_time = DateTime(default=now, readonly=True)
     primary_key = id
-    unique_domain = UniqueIndex(name)
-    db_default_rows = DOMAINS
-    domains = Index(name)
