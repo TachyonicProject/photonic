@@ -29,8 +29,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 from uuid import uuid4
 
-from luxon import database_model
-from luxon import SQLModel
+from luxon import Model
 from luxon import Uuid
 from luxon import String
 from luxon import Text
@@ -46,23 +45,9 @@ from luxon import Username
 from luxon import Fqdn
 from luxon.utils.timezone import now
 
-ROLES = [
-    ('00000000-0000-0000-0000-000000000000', 'Root', None, now()),
-    (str(uuid4()), 'Operations', None, '0000-00-00 00:00:00'),
-    (str(uuid4()), 'Administrator', None, '0000-00-00 00:00:00'),
-    (str(uuid4()), 'Account Manager', None, '0000-00-00 00:00:00'),
-    (str(uuid4()), 'Billing', None, '0000-00-00 00:00:00'),
-    (str(uuid4()), 'Customer', None, '0000-00-00 00:00:00'),
-    (str(uuid4()), 'Support', None, '0000-00-00 00:00:00'),
-]
-
-@database_model()
-class luxon_role(SQLModel):
+class luxon_role(Model):
     id = Uuid(default=uuid4, internal=True)
     name = String(max_length=64, null=False)
     description = Text()
     creation_time = DateTime(default=now, readonly=True)
     primary_key = id
-    unique_role = UniqueIndex(name)
-    db_default_rows = ROLES
-    roles = Index(name)

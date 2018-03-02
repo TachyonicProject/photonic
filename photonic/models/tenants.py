@@ -29,9 +29,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 from uuid import uuid4
 
-from luxon import database_model
 from luxon import Model
-from luxon import SQLModel
 from luxon import Uuid
 from luxon import String
 from luxon import Text
@@ -47,20 +45,11 @@ from luxon import Username
 from luxon import Fqdn
 from luxon.utils.timezone import now
 
-from photonic.models.domains import luxon_domain
-
-@database_model()
-class luxon_tenant(SQLModel):
+class luxon_tenant(Model):
     id = Uuid(default=uuid4, internal=True)
     domain = Fqdn(internal=True)
     tenant_id = Uuid(internal=True)
     name = String(max_length=100, null=False)
     enabled = Boolean(default=True)
     creation_time = DateTime(default=now, readonly=True)
-    unique_tenant = UniqueIndex(domain, name)
-    tenants = Index(id, domain)
-    tenants_search_name = Index(domain, name)
-    tenants_per_domain = Index(domain)
     primary_key = id
-    tenant_domain_ref = ForeignKey(domain, luxon_domain.name)
-    tenant_parent_ref = ForeignKey(tenant_id, id)

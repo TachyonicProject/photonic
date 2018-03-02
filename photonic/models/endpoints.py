@@ -29,9 +29,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 from uuid import uuid4
 
-from luxon import database_model
 from luxon import Model
-from luxon import SQLModel
 from luxon import Uuid
 from luxon import String
 from luxon import Text
@@ -48,8 +46,7 @@ from luxon import Fqdn
 from luxon import UniqueIndex
 from luxon.utils.timezone import now
 
-@database_model()
-class luxon_endpoint(SQLModel):
+class luxon_endpoint(Model):
     id = Uuid(default=uuid4, internal=True)
     name = Fqdn(max_length=64,null=False)
     interface = Enum('public', 'internal', 'admin',null=False)
@@ -57,7 +54,3 @@ class luxon_endpoint(SQLModel):
     uri = Uri(max_length=64, null=False)
     creation_time = DateTime(default=now, internal=True)
     primary_key = id
-    unique_endpoint = UniqueIndex(interface, uri)
-    endpoint_name = Index(name)
-    endpoint_find = Index(name, interface)
-    endpoint_exact = Index(name, interface, region)

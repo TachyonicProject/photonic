@@ -27,40 +27,23 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from uuid import uuid4
+from luxon import g
+from luxon.exceptions import ValidationError
 
-from luxon import Model
-from luxon import Uuid
-from luxon import String
-from luxon import Text
-from luxon import DateTime
-from luxon import Boolean
-from luxon import Email
-from luxon import Phone
-from luxon import Enum
-from luxon import Index
-from luxon import ForeignKey
-from luxon import UniqueIndex
-from luxon import Username
-from luxon import Fqdn
-from luxon import Confirm
-from luxon.utils.timezone import now
+def parse_form(form):
+    parsed = {}
+    for field in form:
+        if field.startswith("confirm_"):
+            value1 = form.get(field)
+            compare = field[8:]
+            value2 = form.get(compare)
+            if value1 != value2:
+                raise ValidationError("Confirmation '%s' do not match" %
+                                      compare.title().replace('_', ' '))
+        else:
+            parsed[field] = form[field]
 
-class luxon_user(Model):
-    id = Uuid(default=uuid4, internal=True)
-    tag = String(hidden=True, max_length=30, null=False)
-    domain = Fqdn(internal=True)
-    tenant_id = Uuid(internal=True)
-    username = Username(max_length=100, null=False, readonly=True)
-    password = String(max_length=100, null=True, ignore_null=True,
-                      password=True)
-    confirm_password = Confirm(password)
-    email = Email(max_length=255)
-    name = String(max_length=100)
-    phone_mobile = Phone()
-    phone_office = Phone()
-    designation = Enum('', 'Mr','Mrs','Ms', 'Dr', 'Prof')
-    last_login = DateTime(readonly=True)
-    enabled = Boolean(default=True)
-    creation_time = DateTime(default=now, readonly=True)
-    primary_key = id
+    return parsed
+
+
+
