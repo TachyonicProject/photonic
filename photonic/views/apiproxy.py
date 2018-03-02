@@ -31,6 +31,8 @@ from luxon import register_resource
 from luxon.constants import TEXT_HTML
 from luxon import g
 
+from photonic.utils.form import parse_form
+
 @register_resource('POST', '/scope')
 def scope(req, resp):
     if req.token.authenticated:
@@ -73,7 +75,9 @@ def apiproxy(req, resp):
     if term is not None and search_field is not None:
         url += '&search=%s:%s' % (search_field, term,)
 
-    response = g.client.execute(req.method, url, req.form_json,
+    parsed = parse_form(req.form_dict)
+
+    response = g.client.execute(req.method, url, parsed,
                                 endpoint=endpoint)
     resp.set_headers(response.headers)
     resp.status = response.status_code

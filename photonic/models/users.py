@@ -43,6 +43,7 @@ from luxon import ForeignKey
 from luxon import UniqueIndex
 from luxon import Username
 from luxon import Fqdn
+from luxon import Confirm
 from luxon.utils.timezone import now
 
 class luxon_user(Model):
@@ -51,7 +52,9 @@ class luxon_user(Model):
     domain = Fqdn(internal=True)
     tenant_id = Uuid(internal=True)
     username = Username(max_length=100, null=False, readonly=True)
-    password = String(max_length=100, null=True, confirm=True)
+    password = String(max_length=100, null=True, ignore_null=True,
+                      password=True)
+    confirm_password = Confirm(password)
     email = Email(max_length=255)
     name = String(max_length=100)
     phone_mobile = Phone()
