@@ -27,25 +27,52 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
+from luxon import register_resource
+from luxon.constants import TEXT_HTML
 from luxon import g
-from luxon import register_middleware
-from luxon import error_template
-from luxon import ajax_error_template
 
-from psychokinetic.middleware.client import Client
-from psychokinetic.middleware.policy import Policy
-from photonic.middleware.token import Token
+@register_resource('POST', '/login')
+def login(req, resp):
+    username = req.get_first('username')
+    password = req.get_first('password')
+    domain = req.get_first('domain')
+    req.token.authenticate(username,
+                           password,
+                           domain)
+    req.session['token'] = req.token.encoded
+    req.session.save()
+    resp.redirect('/')
 
-register_middleware(Client)
-register_middleware(Token)
-register_middleware(Policy)
+@register_resource('GET', '/logout')
+def logout(req, resp):
+    req.session.clear()
+    req.session.save()
+    req.token.clear()
+    resp.redirect('/')
 
-error_template('photonic/error.html')
-ajax_error_template('photonic/error_ajax.html')
+@register_resource('POST', '/scope')
+def scope(req, resp):
+    if req.token.authenticated:
+        if 'X-Region' in req.form:
+            x_region = req.get_first('X-Region')
+            req.session['region'] = x_region
 
-from luxon import UIMenu
-g.nav_menu = UIMenu()
-g.acc_menu = UIMenu()
-g.srv_menu = UIMenu()
-import photonic.views
+        if 'X-Domain' in req.form:
+            x_domain = req.get_first('X-Domain')
+        else:
+            x_domain = req.session.get('domain')
 
+        if 'X-Tenant-Id' in req.form:
+            x_tenant_id = req.get_first('X-Tenant-Id')
+        else:
+            x_tenant_id = req.session.get('tenant_id')
+
+        g.client.unscope()
+        scoped = g.client.scope(x_domain, x_tenant_id).json
+        scoped = scoped['token']
+        req.session['scoped'] = scoped
+        req.session['domain'] = x_domain
+        req.session['tenant_id'] = x_tenant_id
+
+        req.session.save()
+    resp.redirect('/')

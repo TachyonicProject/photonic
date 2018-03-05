@@ -27,25 +27,28 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from luxon import g
-from luxon import register_middleware
-from luxon import error_template
-from luxon import ajax_error_template
+from uuid import uuid4
 
-from psychokinetic.middleware.client import Client
-from psychokinetic.middleware.policy import Policy
-from photonic.middleware.token import Token
+from luxon import Model
+from luxon import Uuid
+from luxon import String
+from luxon import Text
+from luxon import DateTime
+from luxon import Boolean
+from luxon import Email
+from luxon import Phone
+from luxon import Enum
+from luxon import Index
+from luxon import ForeignKey
+from luxon import UniqueIndex
+from luxon import Username
+from luxon import Fqdn
+from luxon.utils.timezone import now
 
-register_middleware(Client)
-register_middleware(Token)
-register_middleware(Policy)
-
-error_template('photonic/error.html')
-ajax_error_template('photonic/error_ajax.html')
-
-from luxon import UIMenu
-g.nav_menu = UIMenu()
-g.acc_menu = UIMenu()
-g.srv_menu = UIMenu()
-import photonic.views
-
+class luxon_domain(Model):
+    id = Uuid(default=uuid4, internal=True)
+    name = Fqdn(null=False)
+    description = Text()
+    enabled = Boolean(default=True)
+    creation_time = DateTime(default=now, readonly=True)
+    primary_key = id

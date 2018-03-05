@@ -37,15 +37,12 @@ from luxon import register_resources
 from luxon import render_template
 from luxon.constants import TEXT_HTML
 from luxon.utils.theme import Theme
+from luxon.utils.html import form
+
+from photonic.models.domains import luxon_domain
 from photonic.views.datatable import datatable
 
-from photonic.base.crudview import CRUDView
-
-from luxon import GetLogger
-
-log = GetLogger(__name__)
-
-g.nav_menu.add('/System/Domains', href='/system/domains', view='role:root')
+g.nav_menu.add('/System/Domains', href='/system/domains', view='admin')
 
 @register_resources()
 class Domains():
@@ -55,10 +52,57 @@ class Domains():
                      self.list,
                      tag='role:root')
 
+        g.router.add('GET',
+                     '/system/domains/delete/{id}',
+                     self.delete,
+                     tag='role:root')
+
+        g.router.add('GET',
+                     '/system/domains/{id}',
+                     self.view,
+                     tag='role:root')
+
+        g.router.add(('GET', 'POST',),
+                     '/system/domains/add',
+                     self.add,
+                     tag='role:root')
+
+        g.router.add(('GET', 'POST',),
+                     '/system/domains/edit/{id}',
+                     self.edit,
+                     tag='role:root')
+
     def list(self, req, resp):
         list_html = datatable(req, 'domains_view',
                               '/v1/domains',
-                              ('name', 'region'))
-        return render_template('photonic/endpoints/list.html',
+                              ('name',),
+                              view_button=True)
+        return render_template('photonic/domains/list.html',
                                datatable=list_html,
                                view='Domains')
+
+    def delete(self, req, resp, id):
+        g.client.execute('DELETE', '/v1/domain/%s' % id)
+        resp.redirect('/system/domains')
+
+    def view(self, req, resp, id):
+        domain = g.client.execute('GET', '/v1/domain/%s' % id)
+        html_form = form(luxon_domain, domain.json, readonly=True)
+        return render_template('photonic/domains/view.html',
+                               view='View Domain',
+                               form=html_form,
+                               id=id)
+
+    def edit(self, req, resp, id):
+        domain = g.client.execute('GET', '/v1/domain/%s' % id)
+        html_form = form(luxon_domain, domain.json)
+        return render_template('photonic/domains/edit.html',
+                               view='Edit Domain',
+                               form=html_form,
+                               id=id)
+
+    def add(self, req, resp):
+        html_form = form(luxon_domain)
+        return render_template('photonic/domains/add.html',
+                               view='Add Domain',
+                               form=html_form)

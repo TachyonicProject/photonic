@@ -28,24 +28,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import g
-from luxon import register_middleware
-from luxon import error_template
-from luxon import ajax_error_template
+from luxon.exceptions import ValidationError
 
-from psychokinetic.middleware.client import Client
-from psychokinetic.middleware.policy import Policy
-from photonic.middleware.token import Token
+def parse_form(form):
+    parsed = {}
+    for field in form:
+        if field.startswith("confirm_"):
+            value1 = form.get(field)
+            compare = field[8:]
+            value2 = form.get(compare)
+            if value1 != value2:
+                raise ValidationError("Confirmation '%s' do not match" %
+                                      compare.title().replace('_', ' '))
+        else:
+            parsed[field] = form[field]
 
-register_middleware(Client)
-register_middleware(Token)
-register_middleware(Policy)
+    return parsed
 
-error_template('photonic/error.html')
-ajax_error_template('photonic/error_ajax.html')
 
-from luxon import UIMenu
-g.nav_menu = UIMenu()
-g.acc_menu = UIMenu()
-g.srv_menu = UIMenu()
-import photonic.views
 
