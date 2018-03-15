@@ -6,3 +6,4 @@ import photonic.views.domains
 import photonic.views.roles
 import photonic.views.tenants
 import photonic.views.users
+import photonic.views.rbac

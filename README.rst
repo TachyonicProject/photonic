@@ -13,8 +13,8 @@ Photonic Framework
 Quick Links
 -----------
 
-* `Website <http://www.tachyonic.org/photonic>`__.
-* `Documentation <http://tachyonic.readthedocs.io>`__.
+* `Website <http://www.tachyonic.org/rst/photonic>`__.
+* `Documentation <http://photonic.readthedocs.io>`__.
 
 Installation
 ------------
