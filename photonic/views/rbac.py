@@ -30,83 +30,27 @@
 import os
 
 from luxon import g
-from luxon import GetLogger
-from luxon.exceptions import AccessDenied
-from luxon.utils.imports import get_class
+
 from luxon import register_resources
-from luxon import render_template
-from luxon.constants import TEXT_HTML
-from luxon.utils.theme import Theme
-from luxon.utils.html import form
-
-from photonic.models.users import luxon_user
-from photonic.models.user_roles import luxon_user_role
-from photonic.views.datatable import datatable
-
-g.nav_menu.add('/System/Users', href='/system/users', view='admin')
 
 @register_resources()
-class Users():
+class UserRole():
     def __init__(self):
-        g.router.add('GET',
-                     '/system/users',
-                     self.list,
-                     tag='role:root')
+        g.router.add(['POST', 'DELETE'],
+                     '/system/rbac/user/{id}',
+                     self.userrole,
+                     tag='admin')
 
-        g.router.add('GET',
-                     '/system/users/delete/{id}',
-                     self.delete,
-                     tag='role:root')
-
-        g.router.add('GET',
-                     '/system/users/{id}',
-                     self.view,
-                     tag='role:root')
-
-        g.router.add(('GET', 'POST',),
-                     '/system/users/add',
-                     self.add,
-                     tag='role:root')
-
-        g.router.add(('GET', 'POST',),
-                     '/system/users/edit/{id}',
-                     self.edit,
-                     tag='role:root')
-
-    def list(self, req, resp):
-        list_html = datatable(req, 'users_view',
-                              '/v1/users',
-                              ('username', 'name',),
-                              view_button=True)
-        return render_template('photonic/users/list.html',
-                               datatable=list_html,
-                               view='Users')
-
-    def delete(self, req, resp, id):
-        g.client.execute('DELETE', '/v1/user/%s' % id)
-        resp.redirect('/system/users')
-
-    def view(self, req, resp, id):
-        user = g.client.execute('GET', '/v1/user/%s' % id)
-        html_form = form(luxon_user, user.json, readonly=True)
-        return render_template('photonic/users/view.html',
-                               view='View User',
-                               form=html_form,
-                               id=id)
-
-    def edit(self, req, resp, id):
-        user = g.client.execute('GET', '/v1/user/%s' % id)
-        html_form = form(luxon_user, user.json)
-        return render_template('photonic/users/edit.html',
-                               view='Edit User',
-                               form=html_form,
-                               id=id,
-                               resource='User')
-
-    def add(self, req, resp):
-        html_form = form(luxon_user)
-        role_form = form(luxon_user_role)
-        return render_template('photonic/users/add.html',
-                               view='Add User',
-                               form=html_form,
-                               role_form=role_form)
+    def userrole(self, req, resp, id):
+        url = 'v1/rbac/user/%s/' % id
+        values = req.form_dict
+        if not values['tenant_id']:
+            values['tenant_id'] = req.token.tenant_id
+        url += values['role']
+        if values['domain']:
+            url += '/' + values['domain']
+        if values['tenant_id'] and not values['domain']:
+            url += '/none/' + values['tenant_id']
+        elif values['tenant_id']:
+            url += '/' + values['tenant_id']
+        g.client.execute(req.method, url)
