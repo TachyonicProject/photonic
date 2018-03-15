@@ -27,11 +27,10 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-import os
-
 from luxon import g
 
 from luxon import register_resources
+
 
 @register_resources()
 class UserRole():
@@ -42,6 +41,17 @@ class UserRole():
                      tag='admin')
 
     def userrole(self, req, resp, id):
+        """View to assign Role to User.
+        View to assign Role to User.
+
+        URL Args:
+            id (str): UUID of User.
+
+        Form Args:
+            role (str): UUID of role.
+            domain (str): Optional Name of domain.
+            tenant_id (str): Optional UUID of tenant.
+        """
         url = 'v1/rbac/user/%s/' % id
         values = req.form_dict
         if not values['tenant_id']:
