@@ -426,8 +426,80 @@ function create(result) {
     window.location.replace(uri)
 }
 
+/**
+ * Function to add new form when role has successfully been assigned
+ */
+function assign(result) {
+    save(result);
+    var countVal = $(form).parent().attr("data-count");
+    var count = parseInt(countVal);
+    count++;
+    var toBeCopied = $(form).clone(true, true);
+    $(form).parent().attr("data-count", count);
+    $(form).attr("data-type", "revoke");
+    $(form).attr("data-method", "DELETE");
+    $(toBeCopied).attr('id', 'roleform' + String(count));
+    $(toBeCopied).find('input').attr('data-form_id', 'roleform' + String(count));
+    $(form).parent().append(toBeCopied);
+    $(form).find(".btn:first").show();
+    $(form).find(".btn:last").hide();
+}
 
+/**
+ * Function to remove role from User.
+ */
+function revoke(result) {
+    save(result);
+    var countVal = $(form).parent().attr("data-count");
+    var count = parseInt(countVal);
+    count--;
+    $(form).parent().attr("data-count",count)
+    $(form).remove();
+}
 
+function submitForm(form, e, method) {
+    if ("disabled" in form.dataset) {
+        e.preventDefault();
+    } else {
+        document.getElementById('loading').style.display = "block";
+        if (validate_form(form) == false) {
+            e.preventDefault();
+        }
+        if ("type" in form.dataset) {
+            if ("url" in form.dataset) {
+                url = form.dataset.url;
+                if (typeof method === 'undefined') {
+                    if ("method" in form.dataset) {
+                        method = form.dataset.method;
+                    }
+                }
+                if (typeof method === 'undefined') {
+                    log('form requires data-method');
+                } else {
+                    e.preventDefault();
+                    if (form.dataset.type == 'save') {
+                        ajax_query(method, url, form, save);
+                    }
+                    if (form.dataset.type == 'create') {
+                        ajax_query(method, url, form, create);
+                    }
+                    if (form.dataset.type == 'assign') {
+                        ajax_query(method, url, form, assign);
+                    }
+                    if (form.dataset.type == 'revoke') {
+                        ajax_query(method, url, form, revoke);
+                    }
+                }
+            } else {
+                log('form requires data-url');
+            }
+
+            e.preventDefault();
+        }
+    }
+}
+
+var form;
 
 $( document ).ready(function() {
     $("a").on("click", function(e) {
@@ -440,12 +512,20 @@ $( document ).ready(function() {
                 confirm = String(this.dataset.confirm);
                 document.getElementById('confirm').style.display = 'none';
 				window.location.replace(uri)
-            }   
+            };
             $('html, body').animate({ scrollTop: 0 }, 'fast');
             e.preventDefault();
         }
     });
     $("input").on("click", function(e) {
+        if ("form_id" in this.dataset) {
+            form = document.getElementById(this.dataset.form_id);
+            if ("method" in this.dataset) {
+                submitForm(form, e, this.dataset.method);
+            } else {
+                submitForm(form, e);
+            }
+        };
         if (String(this.type).toLowerCase() == 'checkbox') {
             var checkbox = $(this);
             parent = this.parentElement
@@ -458,33 +538,6 @@ $( document ).ready(function() {
         }
     });
     $("form").submit(function(e) {
-        if ("disabled" in this.dataset) {
-            e.preventDefault();
-        } else {
-            document.getElementById('loading').style.display = "block";
-            if (validate_form(this) == false) {
-                e.preventDefault();
-            }
-            if ("type" in this.dataset) {
-                if ("url" in this.dataset) {
-                    url = this.dataset.url;
-                    if ("method" in this.dataset) {
-                        method = this.dataset.method;
-                        if (this.dataset.type == 'save') {
-                            ajax_query(method, url, this, save);
-                        }
-                        if (this.dataset.type == 'create') {
-                            ajax_query(method, url, this, create);
-                        }
-                    } else {
-                        log('form requires data-method');
-                    }
-                } else {
-                    log('form requires data-url');
-                }
-
-                e.preventDefault();
-            }
-        }
+        submitForm(this, e);
     });
 });

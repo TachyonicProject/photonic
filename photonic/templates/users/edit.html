@@ -1,10 +1,50 @@
 {% extends "photonic/base.html" %}
 {% block content %}
-<form autocomplete="off" method='post' enctype="multipart/form-data" class="form-horizontal" data-type="save" data-method='PATCH' data-url="{{APP}}/apiproxy?url=v1/user/{{id}}">
+<form id="main" autocomplete="off" method='post' enctype="multipart/form-data" class="form-horizontal" data-type="save" data-method='PATCH' data-url="{{APP}}/apiproxy?url=v1/user/{{id}}">
     {{ form }}
+</form>
+<div class="row">
+<label class="control-label col-sm-2">Roles</label>
+    <div class="col-sm-10">
+        <div class="row" data-count={{ num_roles + 1 }}>
+            {% for a in assignments %}
+                <form id="roleform{{ loop.index }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="revoke" data-method='DELETE' data-url="{{APP}}/system/rbac/user/{{id}}">
+                    <div class="col-sm-3">
+                        <select class="col-sm-2 select" name="domain"><option>{{ a['domain'] }}</option></select>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="col-sm-2 select" name="tenant_id" ><option value="{{ a['tenant_id'] }}">{{ a['tenant_name'] }}</option></select>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="col-sm-2 select" name="role"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
+                    </div>
+                    <div class="col-sm-3">
+                        <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ loop.index }}" data-method="DELETE">
+                    </div>
+                </form>
+            {% endfor %}
+            <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="assign" data-method='POST' data-url="{{APP}}/system/rbac/user/{{id}}">
 
-    <input class="btn btn-primary" type="submit" value="Update">
+                    <div class="col-sm-3">
+                        {{ domain_select }}
+                    </div>
+                    <div class="col-sm-3">
+                        {{ tenant_select }}
+                    </div>
+                    <div class="col-sm-3">
+                        {{ role_select }}
+                    </div>
+                    <div class="col-sm-3">
+                        <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ num_roles + 1 }}" data-method="DELETE" style="display:none">
+                        <input class="btn btn-success" type="submit" value="+" data-form_id="roleform{{ num_roles + 1 }}">
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <hr>
+    <input class="btn btn-primary" type="submit" value="Update" data-form_id="main">
     <a data-confirm="Delete item?" href="{{ APP }}/system/users/delete/{{id}}" class="btn btn-danger">Delete</a>
     <a href="{{ APP }}/system/users/{{id}}" class="btn btn-default">Back</a>
-</form>
+
 {% endblock %}

@@ -38,11 +38,37 @@ from luxon import render_template
 from luxon.constants import TEXT_HTML
 from luxon.utils.theme import Theme
 from luxon.utils.html import form
+from luxon.utils.html import select
 
 from photonic.models.users import luxon_user
+from photonic.models.user_roles import luxon_user_role
 from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Users', href='/system/users', view='admin')
+
+
+def none_to_blank(lst):
+    """Replaces all None values with ""
+    
+    Args:
+        lst (list): list of list or dict objects to parse.
+
+    Return:
+        the list with the parsed objects
+    """
+    for j, object in enumerate(lst):
+        if isinstance(object, list):
+            for i,v in enumerate(object):
+                if v is None:
+                    object[i] = ""
+            lst[j] = object
+        elif isinstance(object, dict):
+            for v in object:
+                if object[v] is None:
+                    object[v] = ""
+            lst[j] = object
+    return lst
+
 
 @register_resources()
 class Users():
@@ -75,7 +101,7 @@ class Users():
     def list(self, req, resp):
         list_html = datatable(req, 'users_view',
                               '/v1/users',
-                              ('name',),
+                              ('username', 'name',),
                               view_button=True)
         return render_template('photonic/users/list.html',
                                datatable=list_html,
@@ -96,13 +122,48 @@ class Users():
     def edit(self, req, resp, id):
         user = g.client.execute('GET', '/v1/user/%s' % id)
         html_form = form(luxon_user, user.json)
+        domains = g.client.execute('GET', '/v1/rbac/domains').json
+        tenants = g.client.execute('GET', '/v1/rbac/tenants').json
+        roles = g.client.execute('GET', '/v1/rbac/roles').json
+        assignments = g.client.execute('GET', '/v1/rbac/user/%s' % id).json
+        assignments= none_to_blank(assignments)
+        num_roles = len(assignments)
+        domain_select = select("domain",
+                               domains,
+                               "",
+                               True,
+                               'select')
+        tenant_select = select("tenant_id",
+                               tenants,
+                               "",
+                               True,
+                               'select')
+        role_select = select("role",
+                               roles,
+                               "",
+                               False,
+                               'select')
+        # add_docready = "toSelect2('.domain','%s','/v1/domains','name'," \
+        #                "'Select Domain');" % req.app
+        # add_docready += "toSelect2('.tenant_id','%s','/v1/tenants','name'," \
+        #                "'Select Tenant');" % req.app
+        # add_docready += "toSelect2('.role','%s','/v1/roles','name'," \
+        #                 "'Select Role');" % req.app
         return render_template('photonic/users/edit.html',
                                view='Edit User',
                                form=html_form,
-                               id=id)
+                               id=id,
+                               resource='User',
+                               domain_select=domain_select,
+                               tenant_select=tenant_select,
+                               role_select=role_select,
+                               num_roles=num_roles,
+                               assignments=assignments)
 
     def add(self, req, resp):
         html_form = form(luxon_user)
+        role_form = form(luxon_user_role)
         return render_template('photonic/users/add.html',
                                view='Add User',
-                               form=html_form)
+                               form=html_form,
+                               role_form=role_form)
