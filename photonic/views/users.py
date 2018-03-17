@@ -114,10 +114,15 @@ class Users():
     def view(self, req, resp, id):
         user = g.client.execute('GET', '/v1/user/%s' % id)
         html_form = form(luxon_user, user.json, readonly=True)
+        assignments = g.client.execute('GET', '/v1/rbac/user/%s' % id).json
+        assignments = none_to_blank(assignments)
+        num_roles = len(assignments)
         return render_template('photonic/users/view.html',
                                view='View User',
                                form=html_form,
-                               id=id)
+                               id=id,
+                               num_roles=num_roles,
+                               assignments=assignments)
 
     def edit(self, req, resp, id):
         user = g.client.execute('GET', '/v1/user/%s' % id)
@@ -143,12 +148,6 @@ class Users():
                                "",
                                False,
                                'select')
-        # add_docready = "toSelect2('.domain','%s','/v1/domains','name'," \
-        #                "'Select Domain');" % req.app
-        # add_docready += "toSelect2('.tenant_id','%s','/v1/tenants','name'," \
-        #                "'Select Tenant');" % req.app
-        # add_docready += "toSelect2('.role','%s','/v1/roles','name'," \
-        #                 "'Select Role');" % req.app
         return render_template('photonic/users/edit.html',
                                view='Edit User',
                                form=html_form,
