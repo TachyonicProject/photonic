@@ -79,13 +79,6 @@ class Token(object):
                 else:
                     req.token.parse_token(token)
 
-                g.client.set_context(token,
-                                     scoped,
-                                     domain,
-                                     tenant_id,
-                                     region,
-                                     g.config.get('restapi', 'interface'))
-
                 req.token.domain = domain
                 req.token.tenant_id = tenant_id
 
