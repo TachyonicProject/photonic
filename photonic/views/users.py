@@ -128,11 +128,18 @@ class Users():
         user = g.client.execute('GET', '/v1/user/%s' % id)
         html_form = form(luxon_user, user.json)
         domains = g.client.execute('GET', '/v1/rbac/domains').json
-        tenants = g.client.execute('GET', '/v1/rbac/tenants').json
         roles = g.client.execute('GET', '/v1/rbac/roles').json
         assignments = g.client.execute('GET', '/v1/rbac/user/%s' % id).json
-        assignments= none_to_blank(assignments)
+        assignments = none_to_blank(assignments)
         num_roles = len(assignments)
+        tenants = g.client.execute('GET', '/v1/rbac/tenants').json
+        selected = ""
+        if req.token.tenant_id is not None:
+            tenant = g.client.execute('GET', '/v1/tenant/' +
+                                      req.token.tenant_id).json
+            tenants[req.token.tenant_id] = tenant['name']
+            selected = req.token.tenant_id
+
         domain_select = select("domain",
                                domains,
                                "",
@@ -140,7 +147,7 @@ class Users():
                                'select')
         tenant_select = select("tenant_id",
                                tenants,
-                               "",
+                               selected,
                                True,
                                'select')
         role_select = select("role",
