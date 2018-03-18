@@ -54,8 +54,6 @@ class UserRole():
         """
         url = 'v1/rbac/user/%s/' % id
         values = req.form_dict
-        if not values['tenant_id']:
-            values['tenant_id'] = req.token.tenant_id
         url += values['role']
         if values['domain']:
             url += '/' + values['domain']
