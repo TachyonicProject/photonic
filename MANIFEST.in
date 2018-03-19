@@ -19,5 +19,6 @@ include requirements.txt
 include setup.py
 include tox.ini
 
-# Default Templates
+# Default Static and Templates
 graft photonic/templates
+graft photonic/static
