@@ -255,20 +255,6 @@ function poll(site) {
 }
 
 /**
-  * Show menu item you clicked on.
-  */
-$( document ).ready(function() {
-    $(".nav-stacked .nav-link").on("click", function() {
-        $(".nav li").removeClass("active");
-        $(this).addClass("active");
-    });
-    $(".navbar-fixed-top .nav-link").on("click", function() {
-        $(".navbar-fixed-top .nav-link").removeClass("active");
-        $(this).addClass("active");
-    });
-});
-
-/**
   * Inactive user auto logout
   */
 var idleTime = 0;
@@ -541,3 +527,78 @@ $( document ).ready(function() {
         submitForm(this, e);
     });
 });
+
+/** Update nav bar to change to drop down menu when browser is scaled to less than 1000px.
+  * Design is intended for mobile devices such as mobile phone, tablets, etc.
+  */
+
+/** Georg Nieuwoudt
+  */
+
+(function($) {
+    $.fn.menumaker = function(elem, options) {
+        var cssmenu = elem,
+            settings = $.extend({
+                format: "dropdown",
+                sticky: false
+            }, options);
+        return this.each(function() {
+            $(this).find(".button").on('click', function() {
+                $(this).toggleClass('menu-opened');
+                var mainmenu = $(this).next('ol');
+                if (mainmenu.hasClass('open')) {
+                    mainmenu.slideToggle().removeClass('open');
+                } else {
+                    mainmenu.slideToggle().addClass('open');
+                    if (settings.format === "dropdown") {
+                        mainmenu.find('ol').show();
+                    }
+                }
+            });
+            cssmenu.find('li ol').parent().addClass('has-sub');
+            multiTg = function() {
+                cssmenu.find(".has-sub").prepend('<span class="submenu-button"></span>');
+                cssmenu.find('.submenu-button').on('click', function() {
+                    $(this).toggleClass('submenu-opened');
+                    if ($(this).siblings('ol').hasClass('open')) {
+                        $(this).siblings('ol').removeClass('open').slideToggle();
+                    } else {
+                        $(this).siblings('ol').addClass('open').slideToggle();
+                    }
+                });
+            };
+            if (settings.format === 'multitoggle') multiTg();
+            else cssmenu.addClass('dropdown');
+            if (settings.sticky === true) cssmenu.css('position', 'fixed');
+            resizeFix = function() {
+                var mediasize = 1000;
+                if ($(window).width() > mediasize) {
+                    cssmenu.find('ol').show();
+                }
+                if ($(window).width() <= mediasize) {
+                    cssmenu.find('ol').hide().removeClass('open');
+                }
+            };
+            resizeFix();
+            return $(window).on('resize', resizeFix);
+        });
+    };
+})(jQuery);
+
+(function($) {
+    $(document).ready(function() {
+        $("#nav-resp-menu-top").menumaker($("#nav-resp-menu-top"), {
+            format: "multitoggle"
+        });
+        $("#nav-resp-menu-acc").menumaker($("#nav-resp-menu-acc"), {
+            format: "multitoggle"
+        });
+        $("#nav-resp-menu-srv").menumaker($("#nav-resp-menu-srv"), {
+            format: "multitoggle"
+        });
+    });
+})(jQuery);
+
+/** End of nav bar responsive design
+  */
+

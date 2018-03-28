@@ -62,32 +62,12 @@
             </div>
         </div>
         {% endif %}
-        {% if REQ.is_mobile %}
-        <div class="top-navigation-section-mobile">
-        {% else %}
-        <div class="top-navigation-section">
-        {% endif %}
-            <div class="container">
-                <a href="#"><img src="{{ G.theme.logo }}" alt="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" title="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" id="nav_logo"></a>
-                {% if REQ.is_mobile %}
-                <button data-toggle="collapse" data-target="#menu-content">
-                    <div class="icon-bar"></div>
-                    <div class="icon-bar"></div>
-                    <div class="icon-bar"></div>
-                </button>
-                {% endif %} 
-
-                {% if REQ.is_mobile %}
-                <div class="collapse" id="menu-content">
-                    {{ MENU.admin.render(REQUEST, 'menu-mobile') }}
-                </div>
-                {% else %}
-                 <div class="menu-wrapper" id="menu-content">
-                     {{ G.nav_menu.render('menu menu-horizontal menu-top-theme') }}
-                 </div>
-                 {% endif %}
-            </div>
-        </div>
+        <nav class="top-navigation-section nav-resp-menu" id="nav-resp-menu-top">
+            <a href="#"><img src="{{ G.theme.logo }}" alt="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" title="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" id="nav_logo"></a>
+            <div class="head-mobile"></div>
+            <div class="button"></div>
+            {{ G.nav_menu.render('menu') }}
+        </nav>
         <div class="open_tenant-section">
             <div class="container">
                 <div class="tenant-bar">
@@ -165,11 +145,11 @@
                         <div class="block_title">
                             Tenant Account
                         </div>
-                        <div class="block_menu">
-                            <ul class="nav nav-pills nav-stacked">
-                                {{ G.acc_menu.render('menu menu-vertical menu-left-theme') }}
-                            </ul>
-                        </div>
+                        <nav class="top-navigation-section nav-resp-menu" id="nav-resp-menu-acc">
+                            <div class="head-mobile"></div>
+                            <div class="button"></div>
+                            {{ G.acc_menu.render('menu') }}
+                        </nav>
                     </div>
                     {% endif %}
                     {% if G.srv_menu.hasitems() %}
@@ -177,11 +157,11 @@
                         <div class="block_title">
                             Services
                         </div>
-                        <div class="block_menu">
-                            <ul class="nav nav-pills nav-stacked">
-                                {{ G.srv_menu.render('menu menu-vertical menu-left-theme') }}
-                            </ul>
-                        </div>
+                        <nav class="top-navigation-section nav-resp-menu" id="nav-resp-menu-srv">
+                            <div class="head-mobile"></div>
+                            <div class="button"></div>
+                            {{ G.srv_menu.render('menu') }}
+                        </nav>
                     </div>
                     {% endif %}
                     <div class="block">
