@@ -19,13 +19,13 @@
                 <div class="row">
                 <form id="roleform{{ loop.index }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="revoke" data-method='DELETE' data-url="{{APP}}/system/rbac/user/{{id}}">
                     <div class="col-sm-3">
-                        <select class="select" name="domain"{% if view=="View User" %} readonly="None" disabled="None" style="background:None;background-color:#eee"{% endif %}><option>{{ a['domain'] }}</option></select>
+                        <select class="select" name="domain" readonly="None" style="background:None;background-color:#eee"><option>{{ a['domain'] }}</option></select>
                     </div>
                     <div class="col-sm-3">
-                        <select class="select" name="tenant_id"{% if view=="View User" %} readonly="None" disabled="None" style="background:None;background-color:#eee"{% endif %}><option value="{{ a['tenant_id'] }}">{{ a['tenant_name'] }}</option></select>
+                        <select class="select" name="tenant_id"readonly="None" style="background:None;background-color:#eee"><option value="{{ a['tenant_id'] }}">{{ a['tenant_name'] }}</option></select>
                     </div>
                     <div class="col-sm-3">
-                        <select class="select" name="role"{% if view=="View User" %} readonly="None" disabled="None" style="background:None;background-color:#eee"{% endif %}><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
+                        <select class="select" name="role" readonly="None" style="background:None;background-color:#eee"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
                     </div>
                     <div class="col-sm-3">{% if view=="View User" %}&nbsp;{% else %}
                         <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ loop.index }}" data-method="DELETE">

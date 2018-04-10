@@ -1,3 +1,13 @@
+/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
+.select2 {
+    width: 100% !important;
+}
+
+.row {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
 select.select {
   display: block;
   width: 100%;
