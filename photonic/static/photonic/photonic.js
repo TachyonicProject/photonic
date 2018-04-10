@@ -339,15 +339,19 @@ function toSelect2(id, app, url, search_field, placeholder, text_field) {
             response = [];
             for (var i=0,  tot=data.length; i < tot; i++) {
                 if (data[i].constructor === String) {
-                    id = data[i]
-                    text = data[i]
+                    id = data[i];
+                    text = data[i];
+                }
+                else if (url == '/v1/domains') {
+                    id = data[i][text_field];
+                    text = data[i][text_field];
                 }
                 else {
-                    id = data[i]["id"]
-                    text = data[i][text_field]
+                    id = data[i]["id"];
+                    text = data[i][text_field];
 
                 }
-                response.push({'id': id, 'text': text})
+                response.push({'id': id, 'text': text});
             }
             return {
                 results: response
@@ -417,11 +421,12 @@ function create(result) {
  */
 function assign(result) {
     save(result);
-    var countVal = $(form).parent().attr("data-count");
+    var countVal = $(form).parent().parent().attr("data-count");
     var count = parseInt(countVal);
     count++;
+    $(form).find("select.select2").select2('destroy');
     var toBeCopied = $(form).clone(true, true);
-    $(form).parent().attr("data-count", count);
+    $(form).parent().parent().attr("data-count", count);
     $(form).attr("data-type", "revoke");
     $(form).attr("data-method", "DELETE");
     $(toBeCopied).attr('id', 'roleform' + String(count));
@@ -429,6 +434,13 @@ function assign(result) {
     $(form).parent().append(toBeCopied);
     $(form).find(".btn:first").show();
     $(form).find(".btn:last").hide();
+    $(form).find("select").removeAttr('id');
+    $(form).find('select').attr('class','select');
+    $(form).find('select').attr('readonly','None');
+    $(form).find('select').attr('style','background:None;background-color:#eee');
+    toSelect2('#role','/ui','/v1/roles','name','Select Role');
+    toSelect2('#tenant_id','/ui','/v1/tenants','name','Select Tenant');
+    toSelect2('#domain','/ui','/v1/domains','name','Select Domain');
 }
 
 /**
@@ -436,10 +448,10 @@ function assign(result) {
  */
 function revoke(result) {
     save(result);
-    var countVal = $(form).parent().attr("data-count");
+    var countVal = $(form).parent().parent().attr("data-count");
     var count = parseInt(countVal);
     count--;
-    $(form).parent().attr("data-count",count)
+    $(form).parent().parent().attr("data-count",count)
     $(form).remove();
 }
 

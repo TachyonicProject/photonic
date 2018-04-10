@@ -127,34 +127,26 @@ class Users():
     def edit(self, req, resp, id):
         user = g.client.execute('GET', '/v1/user/%s' % id)
         html_form = form(luxon_user, user.json)
-        domains = g.client.execute('GET', '/v1/rbac/domains').json
-        roles = g.client.execute('GET', '/v1/rbac/roles').json
         assignments = g.client.execute('GET', '/v1/rbac/user/%s' % id).json
         assignments = none_to_blank(assignments)
         num_roles = len(assignments)
-        tenants = g.client.execute('GET', '/v1/rbac/tenants').json
         selected = ""
+        tenants = {}
         if req.token.tenant_id is not None:
             tenant = g.client.execute('GET', '/v1/tenant/' +
                                       req.token.tenant_id).json
-            tenants[req.token.tenant_id] = tenant['name']
             selected = req.token.tenant_id
+            tenants[req.token.tenant_id] = tenant['name']
 
-        domain_select = select("domain",
-                               domains,
-                               "",
-                               True,
-                               'select')
-        tenant_select = select("tenant_id",
-                               tenants,
-                               selected,
-                               True,
-                               'select')
-        role_select = select("role",
-                               roles,
-                               "",
-                               False,
-                               'select')
+        domain_select = select("domain",[],"",True,'select2')
+        tenant_select = select("tenant_id",tenants,selected,True,'select2')
+        role_select = select("role",[],"",False,'select2')
+        add_docready = "toSelect2('#role','/ui','/v1/roles','name','Select " \
+                       "Role'); "
+        add_docready += "toSelect2('#domain','/ui','/v1/domains','name'," \
+                        "'Select Domain'); "
+        add_docready += "toSelect2('#tenant_id','/ui','/v1/tenants','name'," \
+                        "'Select Tenant');"
         return render_template('photonic/users/edit.html',
                                view='Edit User',
                                form=html_form,
@@ -164,7 +156,8 @@ class Users():
                                tenant_select=tenant_select,
                                role_select=role_select,
                                num_roles=num_roles,
-                               assignments=assignments)
+                               assignments=assignments,
+                               additional_docready=add_docready)
 
     def add(self, req, resp):
         html_form = form(luxon_user)
