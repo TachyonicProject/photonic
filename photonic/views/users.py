@@ -141,12 +141,15 @@ class Users():
         domain_select = select("domain",[],"",True,'select2')
         tenant_select = select("tenant_id",tenants,selected,True,'select2')
         role_select = select("role",[],"",False,'select2')
-        add_docready = "toSelect2('#role','/ui','/v1/roles','name','Select " \
-                       "Role'); "
-        add_docready += "toSelect2('#domain','/ui','/v1/domains','name'," \
-                        "'Select Domain'); "
-        add_docready += "toSelect2('#tenant_id','/ui','/v1/tenants','name'," \
-                        "'Select Tenant');"
+        app = g.current_request.app.strip('/').strip()
+        if app != '':
+            app = '/' + app
+        add_docready = "toSelect2('#role','%s','/v1/roles','name','Select " \
+                       "Role'); " % app
+        add_docready += "toSelect2('#domain','%s','/v1/domains','name'," \
+                        "'Select Domain'); " % app
+        add_docready += "toSelect2('#tenant_id','%s','/v1/tenants','name'," \
+                        "'Select Tenant');" % app
         return render_template('photonic/users/edit.html',
                                view='Edit User',
                                form=html_form,
