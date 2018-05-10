@@ -1,17 +1,7 @@
-==========================
-Tachyonic Project Photonic
-==========================
-
-Quick links
------------
-
-* `Website <http://www.tachyonic.org/>`__.
-* `Documentation <http://www.tachyonic.org/sphinx/photonic>`__.
-
 Installation
-------------
+============
 
-Tachyonic Project Photonic currently fully supports `CPython <https://www.python.org/downloads/>`__ 3.6.
+Tachyonic Project photonic currently fully supports `CPython <https://www.python.org/downloads/>`__ 3.6.
 
 
 CPython
@@ -40,7 +30,7 @@ the cythonized photonic framework with the system's default C compiler.
 Source Code
 -----------
 
-Tachyonic Project Photonic infrastructure and code is hosted on `GitHub <https://github.com/TachyonicProject/photonic>`_.
+Tachyonic Project photonic infrastructure and code is hosted on `GitHub <https://github.com/TachyonicProject/photonic>`_.
 Making the code easy to browse, download, fork, etc. Pull requests are always
 welcome!
 
