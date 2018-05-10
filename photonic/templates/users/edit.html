@@ -1,0 +1,12 @@
+{% extends "photonic/base.html" %}
+{% block content %}
+<form id="main" autocomplete="off" method='post' enctype="multipart/form-data" class="form-horizontal" data-type="save" data-method='PATCH' data-url="{{APP}}/apiproxy?url=v1/user/{{id}}">
+    {{ form }}
+</form>
+{%  include "photonic/users/assign.html" %}
+    <hr>
+    <input class="btn btn-primary" type="submit" value="Update" data-form_id="main">
+    <a data-confirm="Delete item?" href="{{ APP }}/system/users/delete/{{id}}" class="btn btn-danger">Delete</a>
+    <a href="{{ APP }}/system/users/{{id}}" class="btn btn-default">Back</a>
+
+{% endblock %}

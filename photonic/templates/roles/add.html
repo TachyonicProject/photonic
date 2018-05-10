@@ -1,0 +1,9 @@
+{% extends "photonic/base.html" %}
+{% block content %}
+<form method='post' enctype="multipart/form-data" class="form-horizontal" data-type="create" data-method='POST' data-url="{{APP}}/apiproxy?url=v1/role">
+    {{ form }}
+
+    <input class="btn btn-primary" type="submit" value="Add Role">
+    <a href="{{ APP }}/system/roles" class="btn btn-default">Back</a>
+</form>
+{% endblock %}

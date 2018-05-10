@@ -1,0 +1,11 @@
+{% extends "photonic/base.html" %}
+{% block content %}
+<form method='post' enctype="multipart/form-data" class="form-horizontal" data-disabled disabled onsubmit="return false;">
+    {{ form }}
+</form>
+{% include "photonic/users/assign.html" %}
+    <hr>
+    <a href="{{ APP }}/system/users/edit/{{id}}" class="btn btn-primary">Edit</a>
+    <a href="{{ APP }}/system/users" class="btn btn-default">Back</a>
+
+{% endblock %}
