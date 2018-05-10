@@ -1,7 +1,7 @@
 .. _install:
 
 Installation
-------------
+============
 
 Tachyonic Project photonic currently fully supports `CPython <https://www.python.org/downloads/>`__ 3.6.
 
