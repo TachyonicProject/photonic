@@ -1,5 +1,8 @@
 TODO.txt
 TODO
+.venv
+venv
+*.db
 
 #####=== Archives ===#####
 ## It's better to unpack these files and commit the raw source because
@@ -192,6 +195,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+test.db
 htmlcov/
 .tox/
 .coverage
@@ -308,6 +312,8 @@ Session.vim
 #####=== VirtualEnv ===#####
 # Virtualenv
 pythonenv
+venv
+.venv
 
 #####=== Windows ===#####
 # Windows image file caches
