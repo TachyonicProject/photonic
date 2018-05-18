@@ -27,12 +27,7 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-import os
-
 from luxon import g
-from luxon import GetLogger
-from luxon.exceptions import AccessDenied
-from luxon.utils.imports import get_class
 from luxon import register_resources
 from luxon import render_template
 from luxon.constants import TEXT_HTML
