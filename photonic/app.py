@@ -27,8 +27,12 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
+from luxon import g
 import photonic.models
-
-import luxon.resources.wsgi.index
-
+from luxon import Menu
+from luxon.utils.bootstrap4 import NAVMenu
+g.nav_menu = Menu(NAVMenu)
+from luxon import register
+register.error_template('photonic/error.html')
+register.ajax_error_template('photonic/error_ajax.html')
 import photonic.views

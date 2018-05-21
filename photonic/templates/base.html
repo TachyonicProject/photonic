@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="robots" content="index, follow">
 
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/jquery-ui/jquery-ui.min.css">
@@ -11,16 +11,16 @@
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/DataTables/datatables.min.css">
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/select2/css/select2.min.css">
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/photonic.css">
-        <link type="text/css" rel="stylesheet" href="{{ G.theme.css }}">
+        <link type="text/css" rel="stylesheet" href="{{ theme('theme.css') }}">
 
-        <script type="text/javascript" src="{{STATIC}}/photonic/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="{{STATIC}}/photonic/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/jquery-ui/jquery-ui.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/bootstrap/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/DataTables/datatables.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/select2/js/select2.min.js"></script>
         <script type="text/javascript" src="{{STATIC}}/photonic/photonic.js"></script>
 
-        <link rel="icon" href="{{ G.theme.icon }}">
+        <link rel="icon" href="{{ theme('icon-32x32.png') }}">
 
         {% for css in REQ.context.css %}
         <link type="text/css" rel="stylesheet" href="{{STATIC}}/{{css}}">
@@ -29,10 +29,10 @@
         <script type="text/javascript" src="{{STATIC}}/{{js}}"></script>
         {% endfor %}
 
-        <title>{{ G.config.get("application", 'name', fallback='Tachonic UI') }}</title>
+        <title>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</title>
     </head>
     <body>
-        {% if not REQ.token.authenticated %}
+        {% if not REQ.credentials.authenticated %}
         <div class="locked"></div>
         <div class="login modal">
             <div class="modal-header">
@@ -62,165 +62,30 @@
             </div>
         </div>
         {% endif %}
-        <div class="top-navigation-section">
-            <div class="container">
-                <a href="#"><img src="{{ G.theme.logo }}" alt="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" title="{{ G.config.get("application", 'name', fallback='Tachonic UI') }}" id="nav_logo"></a>
-                 <div class="menu-wrapper" id="menu-content">
-                     {{ G.nav_menu.render('menu menu-horizontal menu-top-theme') }}
-                 </div>
-            </div>
-        </div>
-        <div class="open_tenant-section">
-            <div class="container">
-                <div class="tenant-bar">
-                    {% if REQ.token.authenticated %}
-                    <div class="open_tenant">
-                        <form method="POST" action="{{APP}}/scope">
-                            {{ REQ.context.tenants_html }}
-                        </form>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="loading" id="loading"></div>
-        <div class="locked hidden" id="locked"></div>
-        <div class="confirm" id="confirm">
-            <div class="modal-header">
-                <button class="close" type="button" onclick="document.getElementById('confirm').style.display = 'none';">x</button>
-                <h4 class="modal-title">Confirmation</h4>
-            </div>
-            <div class="modal-body" id="confirmation">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" onclick="document.getElementById('confirm').style.display = 'none';">Cancel</button>
-                <button id='continue' class="btn btn-danger">Continue</button>
-            </div>
-        </div>
-        <div class="auto-logout" id="logout">
-            <div class="modal-header">
-                <h4 class="modal-title">Inactivity Logoff</h4>
-            </div>
-            <div class="modal-body">
-                Your session is about to expire in <b><span id='timer'></span></b> seconds<BR>
-                Do you want to continue?
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" onclick="document.getElementById('logout').style.display = 'none'; idleTime=0;">Continue</button>
-                <a class="btn btn-danger" href="{{APP}}/logout">Logout</a>
-            </div>
-        </div>
-        <div class="window" id="window">
-            <div class="modal-header">
-                <button class="close" type="button" onclick='close_window()'>x</button>
-                <h4 class="modal-title" id='window_title'>Title</h4>
-            </div>
-            <div class="modal-body" id="window_content">
-                Content
-            </div>
-            <div class="push_bottom"></div>
-        </div>
-
-        <div class="container">
+		<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+            <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
+            <form method="POST" action="{{APP}}/scope">
+                {{ REQ.context.tenants_html }}
+            </form>
+            <ul class="navbar-nav px-3">
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="{{APP}}/logout">Sign out</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-3">
-                    <div class="block">
-                        <form method="POST" action="{{APP}}/scope">
-                            <div class="form-group">
-                                <label for="email">Region:</label>
-                                {{ REQ.context.regions_html }}
-                                <input type="hidden" name="X-Domain">
-                                <input type="hidden" name="X-Tenant-Id">
-                            </div>
-                        </form>
-                        <form method="POST" action="{{APP}}/scope">
-                            <div class="form-group">
-                                <label for="email">Domain:</label>
-                                {{ REQ.context.domains_html }}
-                                <input type="hidden" name="X-Domain">
-                                <input type="hidden" name="X-Tenant-Id">
-                            </div>
-                        </form>
-                    </div>
-                    {% if G.acc_menu.hasitems() %}
-                    <div class="block menu_accounts">
-                        <div class="block_title">
-                            Tenant Account
-                        </div>
-                        <nav class="top-navigation-section nav-resp-menu" id="nav-resp-menu-acc">
-                            <div class="head-mobile"></div>
-                            <div class="button"></div>
-                            {{ G.acc_menu.render('menu') }}
-                        </nav>
-                    </div>
-                    {% endif %}
-                    {% if G.srv_menu.hasitems() %}
-                    <div class="block menu_services">
-                        <div class="block_title">
-                            Services
-                        </div>
-                        <nav class="top-navigation-section nav-resp-menu" id="nav-resp-menu-srv">
-                            <div class="head-mobile"></div>
-                            <div class="button"></div>
-                            {{ G.srv_menu.render('menu') }}
-                        </nav>
-                    </div>
-                    {% endif %}
-                    <div class="block">
-                        <div class="block_title">
-                            Login
-                        </div>
-                        <div class="block_content">
-                            <span class='title'>Username:</span>
-                            <div class="box">
-                                {{ REQ.token.username }}
-                            </div>
-                            <span class='title'>Active Roles:</span>
-                            <div class="box">
-                            {% for role in REQ.token.roles %}
-                            <div class="box">
-                                {{ role }}
-                            </div>
-                            {% endfor %}
-                            </div>
-                            <a href="{{ APP }}/logout" type="submit" class="btn btn-danger">Logout</a>
-                        </div>
-                    </div>
+                <div class="col">
+                hello
                 </div>
-                <div class="col-sm-9">
-                    {% set content = self.content() %} 
-                    {% if content %}
-                    <div class="block">
-                        <div class="block_title" id="title">{{ view }}</div>
-                        <div class="block_content" id="service">
-                            {{ content }}
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
+                <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                    <h1 class="h1">Dashboard</h1>
+                </main>
             </div>
         </div>
-        <script>
-        /**
-         * Run login client side javascript.
-         */
-        $( document ).ready(function() {
-            toSelect2('#X-Tenant-Id','{{APP}}','/v1/tenants','name','Select tenant');
-
-            {% if REQ.token.authenticated %}
-            // Start Message Polling
-            //poll('{{APP}}/messaging');
-            // Auto Logout
-            autoLogout('{{APP}}/logout', 600, 60);
-            {% endif %}
-            {{ additional_docready }}
-        });
-        </script>
-        <div id="popup"></div>
-            <div class="container">
-                <p class="pull-right"><a href="#">Back to top</a></p>
-            </div>
-        <div class="push_bottom"></div>
+        <div class="container">
+            <p class="pull-right"><a href="#">Back to top</a></p>
+        </div>
         <footer>
         </footer>
 

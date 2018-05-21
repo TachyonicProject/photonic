@@ -27,50 +27,45 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-import os
-
 from luxon import g
-from luxon import GetLogger
-from luxon.exceptions import AccessDenied
-from luxon.utils.imports import get_class
-from luxon import register_resources
+from luxon import router
+from luxon import register
 from luxon import render_template
-from luxon.constants import TEXT_HTML
-from luxon.utils.theme import Theme
-from luxon.utils.html import form
+from luxon.utils.bootstrap4 import form
 
 from photonic.models.roles import luxon_role
 from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Roles', href='/system/roles', view='admin')
 
-@register_resources()
+
+@register.resources()
 class Roles():
     def __init__(self):
-        g.router.add('GET',
-                     '/system/roles',
-                     self.list,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/roles',
+                   self.list,
+                   tag='role:root')
 
-        g.router.add('GET',
-                     '/system/roles/delete/{id}',
-                     self.delete,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/roles/delete/{id}',
+                   self.delete,
+                   tag='role:root')
 
-        g.router.add('GET',
-                     '/system/roles/{id}',
-                     self.view,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/roles/{id}',
+                   self.view,
+                   tag='role:root')
 
-        g.router.add(('GET', 'POST',),
-                     '/system/roles/add',
-                     self.add,
-                     tag='role:root')
+        router.add(('GET', 'POST',),
+                   '/system/roles/add',
+                   self.add,
+                   tag='role:root')
 
-        g.router.add(('GET', 'POST',),
-                     '/system/roles/edit/{id}',
-                     self.edit,
-                     tag='role:root')
+        router.add(('GET', 'POST',),
+                   '/system/roles/edit/{id}',
+                   self.edit,
+                   tag='role:root')
 
     def list(self, req, resp):
         list_html = datatable(req, 'roles_view',

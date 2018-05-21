@@ -1,10 +1,11 @@
 
 from luxon import g
+from luxon import router
 from luxon import js as json
 from luxon import constants as const
 from luxon.structs.htmldoc import HTMLDoc
 from luxon import GetLogger
-from luxon import register_resources
+from luxon import register
 from luxon.utils.uri import build_qs
 
 log = GetLogger(__name__)
@@ -135,7 +136,7 @@ def datatable(req, table_id, url,
     return dom.get()
 
 
-@register_resources()
+@register.resources()
 class DataTables(object):
     """class Datatables
 
@@ -144,8 +145,8 @@ class DataTables(object):
 
     """
     def __init__(self):
-        g.router.add(const.HTTP_GET, '/datatable', self.datatable)
-        g.router.add(const.HTTP_POST, '/datatable', self.datatable)
+        router.add(const.HTTP_GET, '/datatable', self.datatable)
+        router.add(const.HTTP_POST, '/datatable', self.datatable)
 
     def datatable(self, req, resp):
         """ method datatable(req, resp)

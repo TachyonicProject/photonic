@@ -27,15 +27,15 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from luxon import register_resource
-from luxon.constants import TEXT_HTML
+from luxon import register
 from luxon import g
 
 from photonic.utils.form import parse_form
 
-@register_resource('POST', '/scope')
+
+@register.resource('POST', '/scope')
 def scope(req, resp):
-    if req.token.authenticated:
+    if req.credentials.authenticated:
         if 'X-Region' in req.form:
             x_region = req.get_first('X-Region')
             req.session['region'] = x_region
@@ -60,7 +60,8 @@ def scope(req, resp):
         req.session.save()
     resp.redirect('/')
 
-@register_resource(['GET', 'POST', 'PATCH', 'DELETE', 'PUT'], '/apiproxy')
+
+@register.resource(['GET', 'POST', 'PATCH', 'DELETE', 'PUT'], '/apiproxy')
 def apiproxy(req, resp):
     endpoint = req.query_params.get('endpoint')
     term = req.query_params.get('term')

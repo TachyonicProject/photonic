@@ -30,24 +30,12 @@
 from uuid import uuid4
 
 from luxon import Model
-from luxon import Uuid
-from luxon import String
-from luxon import Text
-from luxon import DateTime
-from luxon import Boolean
-from luxon import Email
-from luxon import Phone
-from luxon import Enum
-from luxon import Index
-from luxon import ForeignKey
-from luxon import UniqueIndex
-from luxon import Username
-from luxon import Fqdn
 from luxon.utils.timezone import now
 
+
 class luxon_role(Model):
-    id = Uuid(default=uuid4, internal=True)
-    name = String(max_length=64, null=False)
-    description = Text()
-    creation_time = DateTime(default=now, readonly=True)
+    id = Model.Uuid(default=uuid4, internal=True)
+    name = Model.String(max_length=64, null=False)
+    description = Model.Text()
+    creation_time = Model.DateTime(default=now, readonly=True)
     primary_key = id
