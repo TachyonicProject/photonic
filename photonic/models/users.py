@@ -30,37 +30,24 @@
 from uuid import uuid4
 
 from luxon import Model
-from luxon import Uuid
-from luxon import String
-from luxon import Text
-from luxon import DateTime
-from luxon import Boolean
-from luxon import Email
-from luxon import Phone
-from luxon import Enum
-from luxon import Index
-from luxon import ForeignKey
-from luxon import UniqueIndex
-from luxon import Username
-from luxon import Fqdn
-from luxon import Confirm
 from luxon.utils.timezone import now
 
+
 class luxon_user(Model):
-    id = Uuid(default=uuid4, internal=True)
-    tag = String(hidden=True, max_length=30, null=False)
-    domain = Fqdn(internal=True)
-    tenant_id = Uuid(internal=True)
-    username = Username(max_length=100, null=False)
-    password = String(max_length=100, null=True, ignore_null=True,
-                      password=True)
-    confirm_password = Confirm(password)
-    email = Email(max_length=255)
-    name = String(max_length=100)
-    phone_mobile = Phone()
-    phone_office = Phone()
-    designation = Enum('', 'Mr','Mrs','Ms', 'Dr', 'Prof')
-    last_login = DateTime(readonly=True)
-    enabled = Boolean(default=True)
-    creation_time = DateTime(default=now, readonly=True)
+    id = Model.Uuid(default=uuid4, internal=True)
+    tag = Model.String(hidden=True, max_length=30, null=False)
+    domain = Model.Fqdn(internal=True)
+    tenant_id = Model.Uuid(internal=True)
+    username = Model.Username(max_length=100, null=False)
+    password = Model.String(max_length=100, null=True, ignore_null=True,
+                            password=True)
+    confirm_password = Model.Confirm(password)
+    email = Model.Email(max_length=255)
+    name = Model.String(max_length=100)
+    phone_mobile = Model.Phone()
+    phone_office = Model.Phone()
+    designation = Model.Enum('', 'Mr', 'Mrs', 'Ms', 'Dr', 'Prof')
+    last_login = Model.DateTime(readonly=True)
+    enabled = Model.Boolean(default=True)
+    creation_time = Model.DateTime(default=now, readonly=True)
     primary_key = id

@@ -28,17 +28,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import g
+from luxon import router
+from luxon import register
 
-from luxon import register_resources
 
-
-@register_resources()
+@register.resources()
 class UserRole():
     def __init__(self):
-        g.router.add(['POST', 'DELETE'],
-                     '/system/rbac/user/{id}',
-                     self.userrole,
-                     tag='admin')
+        router.add(['POST', 'DELETE'],
+                   '/system/rbac/user/{id}',
+                   self.userrole,
+                   tag='admin')
 
     def userrole(self, req, resp, id):
         """View to assign Role to User.
