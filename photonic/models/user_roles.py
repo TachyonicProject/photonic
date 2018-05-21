@@ -30,26 +30,14 @@
 from uuid import uuid4
 
 from luxon import Model
-from luxon import Uuid
-from luxon import String
-from luxon import Text
-from luxon import DateTime
-from luxon import Boolean
-from luxon import Email
-from luxon import Phone
-from luxon import Enum
-from luxon import Index
-from luxon import ForeignKey
-from luxon import UniqueIndex
-from luxon import Username
-from luxon import Fqdn
 from luxon.utils.timezone import now
 
+
 class luxon_user_role(Model):
-    id = Uuid(default=uuid4, internal=True)
-    role_id = Uuid()
-    domain = Fqdn(internal=True)
-    tenant_id = String()
-    user_id = Uuid()
-    creation_time = DateTime(readonly=True, default=now)
+    id = Model.Uuid(default=uuid4, internal=True)
+    role_id = Model.Uuid()
+    domain = Model.Fqdn(internal=True)
+    tenant_id = Model.String()
+    user_id = Model.Uuid()
+    creation_time = Model.DateTime(readonly=True, default=now)
     primary_key = id

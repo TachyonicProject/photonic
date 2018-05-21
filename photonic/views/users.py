@@ -27,18 +27,12 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-import os
-
 from luxon import g
-from luxon import GetLogger
-from luxon.exceptions import AccessDenied
-from luxon.utils.imports import get_class
-from luxon import register_resources
+from luxon import router
+from luxon import register
 from luxon import render_template
-from luxon.constants import TEXT_HTML
-from luxon.utils.theme import Theme
-from luxon.utils.html import form
-from luxon.utils.html import select
+from luxon.utils.bootstrap4 import form
+from luxon.utils.html5 import select
 
 from photonic.models.users import luxon_user
 from photonic.models.user_roles import luxon_user_role
@@ -58,7 +52,7 @@ def none_to_blank(lst):
     """
     for j, object in enumerate(lst):
         if isinstance(object, list):
-            for i,v in enumerate(object):
+            for i, v in enumerate(object):
                 if v is None:
                     object[i] = ""
             lst[j] = object
@@ -70,33 +64,33 @@ def none_to_blank(lst):
     return lst
 
 
-@register_resources()
+@register.resources()
 class Users():
     def __init__(self):
-        g.router.add('GET',
-                     '/system/users',
-                     self.list,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/users',
+                   self.list,
+                   tag='role:root')
 
-        g.router.add('GET',
-                     '/system/users/delete/{id}',
-                     self.delete,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/users/delete/{id}',
+                   self.delete,
+                   tag='role:root')
 
-        g.router.add('GET',
-                     '/system/users/{id}',
-                     self.view,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/users/{id}',
+                   self.view,
+                   tag='role:root')
 
-        g.router.add(('GET', 'POST',),
-                     '/system/users/add',
-                     self.add,
-                     tag='role:root')
+        router.add(('GET', 'POST',),
+                   '/system/users/add',
+                   self.add,
+                   tag='role:root')
 
-        g.router.add(('GET', 'POST',),
-                     '/system/users/edit/{id}',
-                     self.edit,
-                     tag='role:root')
+        router.add(('GET', 'POST',),
+                   '/system/users/edit/{id}',
+                   self.edit,
+                   tag='role:root')
 
     def list(self, req, resp):
         list_html = datatable(req, 'users_view',

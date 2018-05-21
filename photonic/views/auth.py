@@ -27,30 +27,36 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from luxon import register_resource
-from luxon.constants import TEXT_HTML
+from luxon import register
 from luxon import g
 
-@register_resource('POST', '/login')
+from psychokinetic.client import Client
+
+from luxon import GetLogger
+
+log = GetLogger()
+
+
+@register.resource('POST', '/login')
 def login(req, resp):
     username = req.get_first('username')
     password = req.get_first('password')
     domain = req.get_first('domain')
-    req.token.authenticate(username,
-                           password,
-                           domain)
-    req.session['token'] = req.token.encoded
-    req.session.save()
-    resp.redirect('/')
+    client = Client(url=g.app.config.get('restapi', 'url'))
+    token = client.password(username, password, domain)
+    token = token.json['token']
+    req.user_token = token
+    resp.redirect(req.app)
 
-@register_resource('GET', '/logout')
+
+@register.resource('GET', '/logout')
 def logout(req, resp):
-    req.session.clear()
-    req.session.save()
-    req.token.clear()
-    resp.redirect('/')
+    req.credentials.clear()
+    req.user_token = None
+    resp.redirect(req.app)
 
-@register_resource('POST', '/scope')
+
+@register.resource('POST', '/scope')
 def scope(req, resp):
     if req.token.authenticated:
         if 'X-Region' in req.form:

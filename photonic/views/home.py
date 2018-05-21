@@ -27,17 +27,16 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from luxon import g
-from luxon import register_resources
+from luxon import router
+from luxon import register
 from luxon import render_template
 from luxon.constants import TEXT_HTML
-from luxon.utils.theme import Theme
 
-@register_resources()
+
+@register.resources()
 class Tachyonic():
     def __init__(self):
-        g.router.add(('GET', 'POST',), '/', self.home)
-        g.theme = Theme()
+        router.add(('GET', 'POST',), '/', self.home)
 
     def home(self, req, resp):
         resp.content_type = TEXT_HTML

@@ -28,42 +28,44 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import g
-from luxon import register_resources
+from luxon import router
+from luxon import register
 from luxon import render_template
-from luxon.utils.html import form
+from luxon.utils.bootstrap4 import form
 
 from photonic.models.endpoints import luxon_endpoint
 from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Endpoints', href='/system/endpoints', view='role:root')
 
-@register_resources()
+
+@register.resources()
 class Endpoints():
     def __init__(self):
-        g.router.add('GET',
-                     '/system/endpoints',
-                     self.list,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/endpoints',
+                   self.list,
+                   tag='role:root')
 
-        g.router.add('GET',
-                     '/system/endpoints/delete/{id}',
-                     self.delete,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/endpoints/delete/{id}',
+                   self.delete,
+                   tag='role:root')
 
-        g.router.add('GET',
-                     '/system/endpoints/{id}',
-                     self.view,
-                     tag='role:root')
+        router.add('GET',
+                   '/system/endpoints/{id}',
+                   self.view,
+                   tag='role:root')
 
-        g.router.add(('GET', 'POST',),
-                     '/system/endpoints/add',
-                     self.add,
-                     tag='role:root')
+        router.add(('GET', 'POST',),
+                   '/system/endpoints/add',
+                   self.add,
+                   tag='role:root')
 
-        g.router.add(('GET', 'POST',),
-                     '/system/endpoints/edit/{id}',
-                     self.edit,
-                     tag='role:root')
+        router.add(('GET', 'POST',),
+                   '/system/endpoints/edit/{id}',
+                   self.edit,
+                   tag='role:root')
 
     def list(self, req, resp):
         list_html = datatable(req, 'endpoints_view',
