@@ -1,0 +1,9 @@
+<header>
+    <a class="header-brand" href="#"><img src="{{theme('logo.png') }}" alt="Logo" height="30">{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</a>
+
+    <form method="POST" action="{{APP}}/scope">
+        {{ REQ.context.tenants_html }}
+    </form>
+
+    <a class="header-link" href="{{APP}}/logout">Sign out</a>
+</header>

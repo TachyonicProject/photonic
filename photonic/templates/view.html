@@ -1,0 +1,11 @@
+<main role="main">
+    <div class="push_header"></div>
+    {% if content %}
+    {% if view %}
+    <h1 class="h1">{{ view }}</h1>
+    {% endif %}
+    {{ content }}
+    <span class="float-right"><a href="#">Back to top</a></span>
+    {% endif %}
+    <div class="push_footer"></div>
+</main>
