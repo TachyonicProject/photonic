@@ -42,8 +42,7 @@ def login(req, resp):
     username = req.get_first('username')
     password = req.get_first('password')
     domain = req.get_first('domain')
-    client = Client(url=g.app.config.get('restapi', 'url'))
-    token = client.password(username, password, domain)
+    token = req.context.api.password(username, password, domain)
     token = token.json['token']
     req.user_token = token
     resp.redirect(req.app)

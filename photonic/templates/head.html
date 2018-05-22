@@ -1,0 +1,31 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="index, follow">
+
+    <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/jquery-ui/jquery-ui.min.css">
+    <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/bootstrap/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/DataTables/datatables.min.css">
+    <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/select2/css/select2.min.css">
+    <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/photonic.css">
+    <link type="text/css" rel="stylesheet" href="{{ theme('theme.css') }}">
+
+    <script type="text/javascript" src="{{STATIC}}/photonic/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="{{STATIC}}/photonic/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{STATIC}}/photonic/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{STATIC}}/photonic/DataTables/datatables.min.js"></script>
+    <script type="text/javascript" src="{{STATIC}}/photonic/select2/js/select2.min.js"></script>
+    <script type="text/javascript" src="{{STATIC}}/photonic/photonic.js"></script>
+
+    <link rel="icon" href="{{ theme('icon-32x32.png') }}">
+
+    {% for css in REQ.context.css %}
+    <link type="text/css" rel="stylesheet" href="{{STATIC}}/{{css}}">
+    {% endfor %}
+    {% for js in REQ.context.js %}
+    <script type="text/javascript" src="{{STATIC}}/{{js}}"></script>
+    {% endfor %}
+
+    <title>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</title>
+</head>
