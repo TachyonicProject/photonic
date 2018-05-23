@@ -1,8 +1,8 @@
 <header>
-	<span class="toggler-icon" onclick="toggle_navigation();"></span>
+    <a class="toggler-icon"><span data-feather="menu" onclick="toggle_sidebar();"></span></a>
 
     <img class="header-brand" src="{{theme('logo.png') }}" alt="Logo">
-    <a class="header-brand" href="#">{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</a>
+    <span>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</span>
 
     <form method="POST" action="{{APP}}/scope">
         {{ REQ.context.tenants_html }}

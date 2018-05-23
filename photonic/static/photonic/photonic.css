@@ -27,6 +27,7 @@ body {
 header {
     display: flex;
     position: fixed;
+    align-items:center;
     padding-left: 1rem;
     padding-right: 1rem;
     height: 3rem;
@@ -36,24 +37,45 @@ header {
     z-index: 1000;
     background-color: #343a40;
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    font-size: 1rem;
 }
 
-.header-brand {
-    display: inline-block;
-    font-size: 1rem;
+
+header a {
+    display: flex;
+    align-items:center;
+    float: right;
+    padding-left: 5px;
+    padding-right: 5px;
     white-space: nowrap;
     line-height: inherit;
-    color: #fff;
-    padding-top: .75rem;
-    padding-bottom: .75rem;
+    color: #999;
 }
 
-.header-brand:hover, .header-brand:focus {
+header a .feather {
+    color: #999;
+    margin-right: 0.3rem;
+    height: 3rem;
+}
+
+header a:hover {
     color: #fff;
     text-decoration: none;
 }
 
-img.header-brand {
+header a:hover .feather {
+    color: #fff;
+}
+
+header span {
+    display: flex;
+    align-items:center;
+    white-space: nowrap;
+    color: #fff;
+}
+
+header img {
+    height: 3rem;
     padding-top: .2rem;
     padding-bottom: .2rem;
     margin-right: 5px;
@@ -66,27 +88,6 @@ div.header-links {
     justify-content: space-between;
 }
 
-.header-link {
-    align-items:center;
-    display: flex;
-    float: right;
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    padding-left: 5px;
-    padding-right: 5px;
-    white-space: nowrap;
-    line-height: inherit;
-    color: rgba(255,255,255,.5);
-}
-
-.header-link .feather {
-    padding-right: 0.3rem;
-}
-
-.header-link:hover, .header-link:focus {
-    color: rgba(255,255,255,.75);
-    text-decoration: none;
-}
 
 .application {
     height: 100%;
@@ -170,7 +171,8 @@ main {
     background-color: #ffffff;
     padding: 0px;
     margin-left: 250px;
-    max-width: 1000px;
+    width: calc(100% - 260px);
+    max-width: 1100px;
     border-right: 1px solid #ddd;
 }
 
@@ -179,32 +181,19 @@ div.view {
     padding-right: 5px;
 }
 
-span.toggler-icon {
+.toggler-icon {
     display: none;
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    margin: 0px;
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"); 
-    vertical-align: middle;
-    width: 1.5em;
-    height: 1.5em;
-    content: "";
-    height: 48px;
-    background-repeat: none;
-    background-position: center;
-    background-size: 100% 100%;
-    margin-right: 10px;
-
 }
 
 @media screen and (max-width: 1100px) {
-    div.navigation {
+    div.sidebar {
         display: none;
     }
     main {
         margin-left: 0px;
+        width: 100%;
     }
-    span.toggler-icon {
+    .toggler-icon {
         display: inline-block !important;
     }
 }
@@ -217,8 +206,8 @@ h1 {
     line-height: 1.5rem;
     color: #427FA2;
     display: block;
-    width: 100%;
     border-bottom: 1px solid #ddd;
+    width: 100%;
 }
 
 h1 .feather {
@@ -229,28 +218,6 @@ h1 .feather {
   width: 1.5rem;
   height: 1.5rem;
   vertical-align: text-bottom;
-}
-
-h1.page_view {
-    position: fixed;
-    z-index: 1000;
-}
-
-h1.page_view .feather {
-  position: fixed;
-  right: 0;
-  color: #999;
-  margin-right: 5px;
-  width: 1.5rem;
-  height: 1.5rem;
-  vertical-align: text-bottom;
-}
-
-div.push_page_view {
-    height: 2rem;
-    width: 100%;
-    clear: both;
-    z-index: 1;
 }
 
 footer {
