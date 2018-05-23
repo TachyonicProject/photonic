@@ -1,10 +1,15 @@
-/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
-.select2 {
-    width: 100% !important;
-}
 
 html {
     height: 100%;
+}
+
+.container {
+    margin-left: 4px !important;
+}
+
+/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
+.select2 {
+    width: 100% !important;
 }
 
 body {
@@ -98,6 +103,14 @@ main {
     margin-left: 250px;
 }
 
+h1 {
+    color: #427FA2;
+    display: block;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+}
+
+
 footer {
     background-color: #343a40;
     left: 0px;
@@ -133,7 +146,7 @@ div.locked {
     display: none
 }
 
-.display {
+.unhide {
     display: block !important;
 }
 
@@ -211,7 +224,7 @@ button.view_button {
     width: 24px;
     border-width: 1px;
     background-color: #FFFFFF;
-    background-image: url("/static/themes/default/view.png");
+    background-image: url("images/view.png");
     background-repeat: no-repeat;
     border-style: solid;
 }
@@ -221,7 +234,7 @@ button.edit_button {
     width: 24px;
     border-width: 1px;
     background-color: #FFFFFF;
-    background-image: url("/static/themes/default/edit.png");
+    background-image: url("images/edit.png");
     border-style: solid;
     background-repeat: no-repeat;
 }
