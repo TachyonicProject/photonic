@@ -31,7 +31,6 @@ header {
     left: 0;
     z-index: 1000;
     background-color: #343a40;
-    justify-content: space-between;
     display: flex;
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
 }
@@ -51,10 +50,24 @@ header {
     text-decoration: none;
 }
 
+.header-brand img {
+    margin-right: 5px;
+}
+
+div.header-links {
+    position: fixed;
+    right: 0px;
+    margin-right: 5px;
+    justify-content: space-between;
+}
+
 .header-link {
     padding-top: .75rem;
     padding-bottom: .75rem;
-    display: inline-block;
+    padding-left: 5px;
+    padding-right: 5px;
+    display: relative;
+    float: right;
     white-space: nowrap;
     line-height: inherit;
     color: rgba(255,255,255,.5);
@@ -92,6 +105,7 @@ div.navigation {
     width: 250px;
     overflow-x: scroll;
     overflow-y: none;
+    z-index: 999;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
@@ -101,6 +115,36 @@ main {
     background-color: #ffffff;
     padding: 5px;
     margin-left: 250px;
+}
+
+span.toggler-icon {
+    display: none;
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+    margin: 0px;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"); 
+    vertical-align: middle;
+    width: 1.5em;
+    height: 1.5em;
+    content: "";
+    height: 48px;
+    background-repeat: none;
+    background-position: center;
+    background-size: 100% 100%;
+    margin-right: 10px;
+
+}
+
+@media screen and (max-width: 1100px) {
+    div.navigation {
+        display: none;
+    }
+    main {
+        margin-left: 0px;
+    }
+    span.toggler-icon {
+        display: inline-block !important;
+    }
 }
 
 h1 {
