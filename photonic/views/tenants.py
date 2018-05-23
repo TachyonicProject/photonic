@@ -37,7 +37,7 @@ from photonic.models.tenants import luxon_tenant
 from photonic.views.datatable import datatable
 
 
-g.nav_menu.add('/System/Tenants', href='/system/tenants', view='admin')
+g.nav_menu.add('/System/Tenants', href='/system/tenants', tag='users:admin')
 
 
 @register.resources()
@@ -46,27 +46,27 @@ class Tenants():
         router.add('GET',
                    '/system/tenants',
                    self.list,
-                   tag='role:root')
-
-        router.add('GET',
-                   '/system/tenants/delete/{id}',
-                   self.delete,
-                   tag='role:root')
+                   tag='tenants:view')
 
         router.add('GET',
                    '/system/tenants/{id}',
                    self.view,
-                   tag='role:root')
+                   tag='tenants:view')
+
+        router.add('GET',
+                   '/system/tenants/delete/{id}',
+                   self.delete,
+                   tag='tenants:admin')
 
         router.add(('GET', 'POST',),
                    '/system/tenants/add',
                    self.add,
-                   tag='role:root')
+                   tag='tenants:admin')
 
         router.add(('GET', 'POST',),
                    '/system/tenants/edit/{id}',
                    self.edit,
-                   tag='role:root')
+                   tag='tenants:admin')
 
     def list(self, req, resp):
         list_html = datatable(req, 'tenants_view',

@@ -1,9 +1,10 @@
 <main role="main">
     <div class="push_header"></div>
-    <div class="container">
     {% if content %}
     {% if view %}
-    <h1>{{ view }}</h1>
+    <h1 class="page_view">{{ view }} <span data-feather="chevrons-down"></span></h1>
+    <div class="push_page_view"></div>
+    <div class="view">
     {% endif %}
     {{ content }}
     <BR><span class="float-right"><a href="#">Back to top</a></span>

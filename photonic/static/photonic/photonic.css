@@ -1,15 +1,7 @@
 
 html {
     height: 100%;
-}
-
-.container {
-    margin-left: 4px !important;
-}
-
-/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
-.select2 {
-    width: 100% !important;
+    font-size: 0.875rem !important;
 }
 
 body {
@@ -21,7 +13,19 @@ body {
     background-color: #fff;
 }
 
+/* Ensure bootstrap4 knows we working from left side */
+.container {
+    margin-left: 4px !important;
+}
+
+/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
+.select2 {
+    width: 100% !important;
+}
+
+
 header {
+    display: flex;
     position: fixed;
     padding-left: 1rem;
     padding-right: 1rem;
@@ -31,18 +35,17 @@ header {
     left: 0;
     z-index: 1000;
     background-color: #343a40;
-    display: flex;
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
 }
 
 .header-brand {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    font-size: 1rem;
     display: inline-block;
+    font-size: 1rem;
     white-space: nowrap;
     line-height: inherit;
     color: #fff;
+    padding-top: .75rem;
+    padding-bottom: .75rem;
 }
 
 .header-brand:hover, .header-brand:focus {
@@ -50,7 +53,9 @@ header {
     text-decoration: none;
 }
 
-.header-brand img {
+img.header-brand {
+    padding-top: .2rem;
+    padding-bottom: .2rem;
     margin-right: 5px;
 }
 
@@ -62,15 +67,20 @@ div.header-links {
 }
 
 .header-link {
+    align-items:center;
+    display: flex;
+    float: right;
     padding-top: .75rem;
     padding-bottom: .75rem;
     padding-left: 5px;
     padding-right: 5px;
-    display: relative;
-    float: right;
     white-space: nowrap;
     line-height: inherit;
     color: rgba(255,255,255,.5);
+}
+
+.header-link .feather {
+    padding-right: 0.3rem;
 }
 
 .header-link:hover, .header-link:focus {
@@ -96,9 +106,8 @@ div.push_footer {
     z-index: 1;
 }
 
-div.navigation {
+div.sidebar {
     position: fixed;
-    padding: 5px;
     background-color: #f8f9fa;
     top: 0px;
     bottom: 0px;
@@ -106,14 +115,68 @@ div.navigation {
     overflow-x: scroll;
     overflow-y: none;
     z-index: 999;
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    border-right: 1px solid #ddd;
 }
+
+div.navmenu {
+    margin-bottom: 1rem;
+}
+
+div.navmenu ul {
+    display: block;
+    margin: 0px;
+    padding-left: 15px;
+}
+
+div.navmenu li {
+    display: block;
+}
+
+div.navmenu a {
+    display: block;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+	font-weight: 500;
+    font-size: 1rem;
+	color: #333;
+}
+
+div.navmenu a:hover {
+	font-weight: 500;
+    color: #333;
+	text-decoration: None;
+}
+/*    color: #007bff; */
+
+div.navmenu a .feather {
+  color: #999;
+  margin-right: 5px;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+}
+
+div.navmenu a:hover .feather {
+  color: #000;
+  margin-right: 5px;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+}
+
 
 main {
     height: 100%;
     background-color: #ffffff;
-    padding: 5px;
+    padding: 0px;
     margin-left: 250px;
+    max-width: 1000px;
+    border-right: 1px solid #ddd;
+}
+
+div.view {
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 span.toggler-icon {
@@ -147,12 +210,48 @@ span.toggler-icon {
 }
 
 h1 {
+    background-color: #f8f9fa;
+    padding-left: 5px;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    line-height: 1.5rem;
     color: #427FA2;
     display: block;
     width: 100%;
     border-bottom: 1px solid #ddd;
 }
 
+h1 .feather {
+  display: relative;
+  float: right;
+  color: #999;
+  margin-right: 5px;
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: text-bottom;
+}
+
+h1.page_view {
+    position: fixed;
+    z-index: 1000;
+}
+
+h1.page_view .feather {
+  position: fixed;
+  right: 0;
+  color: #999;
+  margin-right: 5px;
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: text-bottom;
+}
+
+div.push_page_view {
+    height: 2rem;
+    width: 100%;
+    clear: both;
+    z-index: 1;
+}
 
 footer {
     background-color: #343a40;
