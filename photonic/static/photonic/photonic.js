@@ -26,6 +26,27 @@ function reloadStylesheets() {
 
 
 /**
+  * Toggle Navigation
+  */
+function toggle_navigation() {
+    var display = document.getElementById('navigation').style.display;
+    if (display == "none" || display == "") {
+        document.getElementById('navigation').style.display = "block";
+    }   
+    else {
+        document.getElementById('navigation').style.display = "none";
+    }   
+}
+window.onresize = function() {
+    if (window.innerWidth >= 1100) {
+        document.getElementById('navigation').style.display = "block";
+    }
+    else {
+        document.getElementById('navigation').style.display = "none";
+    }
+}
+
+/**
   * Lock or Unlock background
   */
 function toggle_locked() {
