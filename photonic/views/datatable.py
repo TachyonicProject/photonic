@@ -68,14 +68,14 @@ def datatable(req, table_id, url,
     field_name = api_fields[id_field_no]
     api_fields = ",".join(api_fields)
 
-    tfoot = table.create_element('tfoot')
-    tr = tfoot.create_element('tr')
-    for field in fields:
-        th = tr.create_element('th')
-        th.append(field.title)
-    if view_button is True or checkbox is True:
-        th = tr.create_element('th')
-        th.append('&nbsp;')
+    #tfoot = table.create_element('tfoot')
+    #tr = tfoot.create_element('tr')
+    #for field in fields:
+    #    th = tr.create_element('th')
+    #    th.append(field.title())
+    #if view_button is True or checkbox is True:
+    #    th = tr.create_element('th')
+    #    th.append('&nbsp;')
     if search:
         q = search
         search = "'search': {"
@@ -87,6 +87,7 @@ def datatable(req, table_id, url,
     js = "$(document).ready(function() {"
     js += "var table = $('#%s').DataTable( {" % (table_id,)
     js += "'processing': true,"
+    js += "'autoWidth': true,"
     js += search
     js += sort
     js += "'serverSide': true,"
@@ -189,17 +190,16 @@ class DataTables(object):
             params.append('range=%s,%s' % (start, length,))
 
         url = build_qs(params, url)
-        result = g.client.execute(const.HTTP_GET, url,
-                                  endpoint=endpoint)
-        recordsTotal = int(result.headers.get('X-Total-Rows', 0))
-        recordsFiltered = int(result.headers.get('X-Filtered-Rows', 0))
+        result = req.context.api.execute(const.HTTP_GET, url,
+                                         endpoint=endpoint)
+        recordsTotal = result.json['metadata']['records']
         response = {
             'draw': int(draw),
             'recordsTotal': recordsTotal,
             'recordsFiltered': recordsTotal
         }
         data = []
-        for row in result.json:
+        for row in result.json['payload']:
             fields = []
             for api_field in api_fields:
                 fields.append(row[api_field])
