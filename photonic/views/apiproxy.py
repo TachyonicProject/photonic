@@ -28,59 +28,34 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import register
-from luxon import g
 
 from photonic.utils.form import parse_form
-
-
-@register.resource('POST', '/scope')
-def scope(req, resp):
-    if req.credentials.authenticated:
-        if 'X-Region' in req.form:
-            x_region = req.get_first('X-Region')
-            req.session['region'] = x_region
-
-        if 'X-Domain' in req.form:
-            x_domain = req.get_first('X-Domain')
-        else:
-            x_domain = req.session.get('domain')
-
-        if 'X-Tenant-Id' in req.form:
-            x_tenant_id = req.get_first('X-Tenant-Id')
-        else:
-            x_tenant_id = req.session.get('tenant_id')
-
-        g.client.unscope()
-        scoped = g.client.scope(x_domain, x_tenant_id).json
-        scoped = scoped['token']
-        req.session['scoped'] = scoped
-        req.session['domain'] = x_domain
-        req.session['tenant_id'] = x_tenant_id
-
-        req.session.save()
-    resp.redirect('/')
 
 
 @register.resource(['GET', 'POST', 'PATCH', 'DELETE', 'PUT'], '/apiproxy')
 def apiproxy(req, resp):
     endpoint = req.query_params.get('endpoint')
-    term = req.query_params.get('term')
-    search_field = req.query_params.get('search_field')
     url = req.query_params.get('url')
-    url += '?'
+    if url is None:
+        raise ValueError('Requre url param')
+    url = url.split('?')[0]
 
-    if req.query_string:
-        url += req.query_string
+    params = req.query_params.copy()
 
-    url += '&range=5'
+    # Following used by Select2....
+    search_field = req.query_params.get('search_field')
+    term = req.query_params.get('term')
     if term is not None and search_field is not None:
-        url += '&search=%s:%s' % (search_field, term,)
+        params['search'] = "%s:%s" (search_field, term,)
 
     parsed = parse_form(req.form_dict)
 
-    response = g.client.execute(req.method, url, parsed,
-                                endpoint=endpoint)
+    response = req.context.api.execute(
+        req.method, url, params=params, data=parsed, endpoint=endpoint
+    )
+
     resp.set_headers(response.headers)
     resp.status = response.status_code
     resp.content_type = response.content_type
-    return response.body
+    
+    return response.content

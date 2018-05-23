@@ -102,13 +102,13 @@ class Users():
                                view='Users')
 
     def delete(self, req, resp, id):
-        g.client.execute('DELETE', '/v1/user/%s' % id)
+        req.context.api.execute('DELETE', '/v1/user/%s' % id)
         resp.redirect('/system/users')
 
     def view(self, req, resp, id):
-        user = g.client.execute('GET', '/v1/user/%s' % id)
+        user = req.context.api.execute('GET', '/v1/user/%s' % id)
         html_form = form(luxon_user, user.json, readonly=True)
-        assignments = g.client.execute('GET', '/v1/rbac/user/%s' % id).json
+        assignments = req.context.api.execute('GET', '/v1/rbac/user/%s' % id).json
         assignments = none_to_blank(assignments)
         num_roles = len(assignments)
         return render_template('photonic/users/view.html',
@@ -119,18 +119,18 @@ class Users():
                                assignments=assignments)
 
     def edit(self, req, resp, id):
-        user = g.client.execute('GET', '/v1/user/%s' % id)
+        user = req.context.api.execute('GET', '/v1/user/%s' % id)
         html_form = form(luxon_user, user.json)
-        assignments = g.client.execute('GET', '/v1/rbac/user/%s' % id).json
+        assignments = req.context.api.execute('GET', '/v1/rbac/user/%s' % id).json
         assignments = none_to_blank(assignments)
         num_roles = len(assignments)
         selected = ""
         tenants = {}
-        if req.token.tenant_id is not None:
-            tenant = g.client.execute('GET', '/v1/tenant/' +
-                                      req.token.tenant_id).json
-            selected = req.token.tenant_id
-            tenants[req.token.tenant_id] = tenant['name']
+        if req.context_tenant_id is not None:
+            tenant = req.context.api.execute('GET', '/v1/tenant/' +
+                                      req.context_tenant_id).json
+            selected = req.context_tenant_id
+            tenants[req.context_tenant_id] = tenant['name']
 
         domain_select = select("domain",[],"",True,'select2')
         tenant_select = select("tenant_id",tenants,selected,True,'select2')
