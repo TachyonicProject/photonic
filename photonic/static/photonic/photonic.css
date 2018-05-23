@@ -111,7 +111,6 @@ div.navigation {
 
 main {
     height: 100%;
-    width: calc(100% - 250px);
     background-color: #ffffff;
     padding: 5px;
     margin-left: 250px;
