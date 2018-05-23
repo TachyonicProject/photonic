@@ -28,21 +28,22 @@ function reloadStylesheets() {
 /**
   * Toggle Navigation
   */
-function toggle_navigation() {
-    var display = document.getElementById('navigation').style.display;
+function toggle_sidebar() {
+    var display = document.getElementById('sidebar').style.display;
     if (display == "none" || display == "") {
-        document.getElementById('navigation').style.display = "block";
+        document.getElementById('sidebar').style.display = "block";
     }   
     else {
-        document.getElementById('navigation').style.display = "none";
+        document.getElementById('sidebar').style.display = "none";
     }   
 }
+
 window.onresize = function() {
-    if (window.innerWidth >= 1100) {
-        document.getElementById('navigation').style.display = "block";
+    if (window.innerWidth > 1100) {
+        document.getElementById('sidebar').style.display = "block";
     }
     else {
-        document.getElementById('navigation').style.display = "none";
+        document.getElementById('sidebar').style.display = "none";
     }
 }
 
