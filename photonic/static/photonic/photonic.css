@@ -1,15 +1,7 @@
 
 html {
     height: 100%;
-}
-
-.container {
-    margin-left: 4px !important;
-}
-
-/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
-.select2 {
-    width: 100% !important;
+    font-size: 0.875rem !important;
 }
 
 body {
@@ -21,8 +13,21 @@ body {
     background-color: #fff;
 }
 
+/* Ensure bootstrap4 knows we working from left side */
+.container {
+    margin-left: 4px !important;
+}
+
+/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
+.select2 {
+    width: 100% !important;
+}
+
+
 header {
+    display: flex;
     position: fixed;
+    align-items:center;
     padding-left: 1rem;
     padding-right: 1rem;
     height: 3rem;
@@ -31,26 +36,48 @@ header {
     left: 0;
     z-index: 1000;
     background-color: #343a40;
-    display: flex;
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    font-size: 1rem;
 }
 
-.header-brand {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    font-size: 1rem;
-    display: inline-block;
+
+header a {
+    display: flex;
+    align-items:center;
+    float: right;
+    padding-left: 5px;
+    padding-right: 5px;
     white-space: nowrap;
     line-height: inherit;
-    color: #fff;
+    color: #999;
 }
 
-.header-brand:hover, .header-brand:focus {
+header a .feather {
+    color: #999;
+    margin-right: 0.3rem;
+    height: 3rem;
+}
+
+header a:hover {
     color: #fff;
     text-decoration: none;
 }
 
-.header-brand img {
+header a:hover .feather {
+    color: #fff;
+}
+
+header span {
+    display: flex;
+    align-items:center;
+    white-space: nowrap;
+    color: #fff;
+}
+
+header img {
+    height: 3rem;
+    padding-top: .2rem;
+    padding-bottom: .2rem;
     margin-right: 5px;
 }
 
@@ -61,22 +88,6 @@ div.header-links {
     justify-content: space-between;
 }
 
-.header-link {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    padding-left: 5px;
-    padding-right: 5px;
-    display: relative;
-    float: right;
-    white-space: nowrap;
-    line-height: inherit;
-    color: rgba(255,255,255,.5);
-}
-
-.header-link:hover, .header-link:focus {
-    color: rgba(255,255,255,.75);
-    text-decoration: none;
-}
 
 .application {
     height: 100%;
@@ -96,9 +107,8 @@ div.push_footer {
     z-index: 1;
 }
 
-div.navigation {
+div.sidebar {
     position: fixed;
-    padding: 5px;
     background-color: #f8f9fa;
     top: 0px;
     bottom: 0px;
@@ -106,53 +116,109 @@ div.navigation {
     overflow-x: scroll;
     overflow-y: none;
     z-index: 999;
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    border-right: 1px solid #ddd;
 }
+
+div.navmenu {
+    margin-bottom: 1rem;
+}
+
+div.navmenu ul {
+    display: block;
+    margin: 0px;
+    padding-left: 15px;
+}
+
+div.navmenu li {
+    display: block;
+}
+
+div.navmenu a {
+    display: block;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+	font-weight: 500;
+    font-size: 1rem;
+	color: #333;
+}
+
+div.navmenu a:hover {
+	font-weight: 500;
+    color: #333;
+	text-decoration: None;
+}
+/*    color: #007bff; */
+
+div.navmenu a .feather {
+  color: #999;
+  margin-right: 5px;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+}
+
+div.navmenu a:hover .feather {
+  color: #000;
+  margin-right: 5px;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: text-bottom;
+}
+
 
 main {
     height: 100%;
     background-color: #ffffff;
-    padding: 5px;
+    padding: 0px;
     margin-left: 250px;
+    width: calc(100% - 260px);
+    max-width: 1100px;
+    border-right: 1px solid #ddd;
 }
 
-span.toggler-icon {
-    display: none;
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    margin: 0px;
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"); 
-    vertical-align: middle;
-    width: 1.5em;
-    height: 1.5em;
-    content: "";
-    height: 48px;
-    background-repeat: none;
-    background-position: center;
-    background-size: 100% 100%;
-    margin-right: 10px;
+div.view {
+    padding-left: 5px;
+    padding-right: 5px;
+}
 
+.toggler-icon {
+    display: none;
 }
 
 @media screen and (max-width: 1100px) {
-    div.navigation {
+    div.sidebar {
         display: none;
     }
     main {
         margin-left: 0px;
+        width: 100%;
     }
-    span.toggler-icon {
+    .toggler-icon {
         display: inline-block !important;
     }
 }
 
 h1 {
+    background-color: #f8f9fa;
+    padding-left: 5px;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    line-height: 1.5rem;
     color: #427FA2;
     display: block;
-    width: 100%;
     border-bottom: 1px solid #ddd;
+    width: 100%;
 }
 
+h1 .feather {
+  display: relative;
+  float: right;
+  color: #999;
+  margin-right: 5px;
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: text-bottom;
+}
 
 footer {
     background-color: #343a40;

@@ -36,7 +36,7 @@ from luxon.utils.bootstrap4 import form
 from photonic.models.endpoints import luxon_endpoint
 from photonic.views.datatable import datatable
 
-g.nav_menu.add('/System/Endpoints', href='/system/endpoints', view='role:root')
+g.nav_menu.add('/System/Endpoints', href='/system/endpoints', tag='role:root')
 
 
 @register.resources()
@@ -45,27 +45,27 @@ class Endpoints():
         router.add('GET',
                    '/system/endpoints',
                    self.list,
-                   tag='role:root')
-
-        router.add('GET',
-                   '/system/endpoints/delete/{id}',
-                   self.delete,
-                   tag='role:root')
+                   tag='login')
 
         router.add('GET',
                    '/system/endpoints/{id}',
                    self.view,
-                   tag='role:root')
+                   tag='login')
+
+        router.add('GET',
+                   '/system/endpoints/delete/{id}',
+                   self.delete,
+                   tag='admin')
 
         router.add(('GET', 'POST',),
                    '/system/endpoints/add',
                    self.add,
-                   tag='role:root')
+                   tag='admin')
 
         router.add(('GET', 'POST',),
                    '/system/endpoints/edit/{id}',
                    self.edit,
-                   tag='role:root')
+                   tag='admin')
 
     def list(self, req, resp):
         list_html = datatable(req, 'endpoints_view',

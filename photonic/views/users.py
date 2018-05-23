@@ -38,12 +38,12 @@ from photonic.models.users import luxon_user
 from photonic.models.user_roles import luxon_user_role
 from photonic.views.datatable import datatable
 
-g.nav_menu.add('/System/Users', href='/system/users', view='admin')
+g.nav_menu.add('/System/Users', href='/system/users', tag='admin')
 
 
 def none_to_blank(lst):
     """Replaces all None values with ""
-    
+
     Args:
         lst (list): list of list or dict objects to parse.
 
@@ -70,27 +70,27 @@ class Users():
         router.add('GET',
                    '/system/users',
                    self.list,
-                   tag='role:root')
-
-        router.add('GET',
-                   '/system/users/delete/{id}',
-                   self.delete,
-                   tag='role:root')
+                   tag='users:view')
 
         router.add('GET',
                    '/system/users/{id}',
                    self.view,
-                   tag='role:root')
+                   tag='users:view')
+
+        router.add('GET',
+                   '/system/users/delete/{id}',
+                   self.delete,
+                   tag='users:admin')
 
         router.add(('GET', 'POST',),
                    '/system/users/add',
                    self.add,
-                   tag='role:root')
+                   tag='users:admin')
 
         router.add(('GET', 'POST',),
                    '/system/users/edit/{id}',
                    self.edit,
-                   tag='role:root')
+                   tag='users:admin')
 
     def list(self, req, resp):
         list_html = datatable(req, 'users_view',
