@@ -30,9 +30,9 @@
 from luxon import g
 import photonic.models
 from luxon import Menu
-from luxon.utils.bootstrap4 import NAVMenu
+from luxon.utils.html5 import HMenu
 from psychokinetic.middleware.client import Client
-g.nav_menu = Menu(NAVMenu)
+g.nav_menu = Menu(HMenu)
 from luxon import register
 register.error_template('photonic/error.html')
 register.ajax_error_template('photonic/error_ajax.html')
