@@ -36,7 +36,7 @@ from luxon.utils.bootstrap4 import form
 from photonic.models.domains import luxon_domain
 from photonic.views.datatable import datatable
 
-g.nav_menu.add('/System/Domains', href='/system/domains', view='admin')
+g.nav_menu.add('/System/Domains', href='/system/domains', tag='admin')
 
 
 @register.resources()
@@ -45,27 +45,27 @@ class Domains():
         router.add('GET',
                    '/system/domains',
                    self.list,
-                   tag='role:root')
-
-        router.add('GET',
-                   '/system/domains/delete/{id}',
-                   self.delete,
-                   tag='role:root')
+                   tag='domains:view')
 
         router.add('GET',
                    '/system/domains/{id}',
                    self.view,
-                   tag='role:root')
+                   tag='domains:view')
+
+        router.add('GET',
+                   '/system/domains/delete/{id}',
+                   self.delete,
+                   tag='domains:admin')
 
         router.add(('GET', 'POST',),
                    '/system/domains/add',
                    self.add,
-                   tag='role:root')
+                   tag='domains:admin')
 
         router.add(('GET', 'POST',),
                    '/system/domains/edit/{id}',
                    self.edit,
-                   tag='role:root')
+                   tag='domains:admin')
 
     def list(self, req, resp):
         list_html = datatable(req, 'domains_view',

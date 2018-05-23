@@ -2,10 +2,13 @@
 {% include "photonic/modals.html" %}
 {% include "photonic/header.html" %}
     <div class="application">
-        {% include "photonic/navigation.html" %}
+        {% include "photonic/sidebar.html" %}
         {% include "photonic/view.html" %}
     </div>
     <div class="loading" id="loading"></div>
     <div id="popup"></div>
+    <script>
+        feather.replace()
+    </script>
 {% include "photonic/footer.html" %}
 </body>

@@ -38,7 +38,7 @@ class UserRole():
         router.add(['POST', 'DELETE'],
                    '/system/rbac/user/{id}',
                    self.userrole,
-                   tag='admin')
+                   tag='users:admin')
 
     def userrole(self, req, resp, id):
         """View to assign Role to User.

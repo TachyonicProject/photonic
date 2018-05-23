@@ -36,7 +36,7 @@ from luxon.utils.bootstrap4 import form
 from photonic.models.roles import luxon_role
 from photonic.views.datatable import datatable
 
-g.nav_menu.add('/System/Roles', href='/system/roles', view='admin')
+g.nav_menu.add('/System/Roles', href='/system/roles', tag='admin')
 
 
 @register.resources()
@@ -45,27 +45,27 @@ class Roles():
         router.add('GET',
                    '/system/roles',
                    self.list,
-                   tag='role:root')
-
-        router.add('GET',
-                   '/system/roles/delete/{id}',
-                   self.delete,
-                   tag='role:root')
+                   tag='roles:view')
 
         router.add('GET',
                    '/system/roles/{id}',
                    self.view,
-                   tag='role:root')
+                   tag='roles:view')
+
+        router.add('GET',
+                   '/system/roles/delete/{id}',
+                   self.delete,
+                   tag='roles:admin')
 
         router.add(('GET', 'POST',),
                    '/system/roles/add',
                    self.add,
-                   tag='role:root')
+                   tag='roles:admin')
 
         router.add(('GET', 'POST',),
                    '/system/roles/edit/{id}',
                    self.edit,
-                   tag='role:root')
+                   tag='roles:admin')
 
     def list(self, req, resp):
         list_html = datatable(req, 'roles_view',
