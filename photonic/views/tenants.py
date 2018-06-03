@@ -34,7 +34,6 @@ from luxon import render_template
 from luxon.utils.bootstrap4 import form
 
 from photonic.models.tenants import luxon_tenant
-from photonic.views.datatable import datatable
 
 
 g.nav_menu.add('/System/Tenants', href='/system/tenants', tag='users:admin')
@@ -69,12 +68,7 @@ class Tenants():
                    tag='tenants:admin')
 
     def list(self, req, resp):
-        list_html = datatable(req, 'tenants_view',
-                              '/v1/tenants',
-                              ('name',),
-                              view_button=True)
         return render_template('photonic/tenants/list.html',
-                               datatable=list_html,
                                view='Tenants')
 
     def delete(self, req, resp, id):

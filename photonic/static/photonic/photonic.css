@@ -1,17 +1,7 @@
 
-html {
-    height: 100%;
-    font-size: 0.875rem !important;
-}
-
-body {
-    height: 100%;
-    margin-bottom: 0px;
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 0px;
-    background-color: #fff;
-}
+/*
+ * Override External CSS
+ */
 
 /* Ensure bootstrap4 knows we working from left side */
 .container {
@@ -24,12 +14,34 @@ body {
 }
 
 
+/*
+ * Internal Layout CSS
+ */
+
+html {
+    height: 100%;
+    height: 100vh;
+    font-size: 12px;
+}
+
+
+body {
+    height: 100%;
+    height: 100vh;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    background-color: #fff;
+}
+
+
 header {
     display: flex;
     position: fixed;
     align-items:center;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding: 0px;
+    margin: 0px;
     height: 3rem;
     top: 0;
     right: 0;
@@ -38,6 +50,30 @@ header {
     background-color: #343a40;
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
     font-size: 1rem;
+}
+
+
+header div.header-brand {
+    padding-left: 5px;
+    display: flex;
+    width: 200px;
+}
+
+
+header div.header-tenant {
+    padding-left: 5px;
+    padding-right: 5px;
+    display: flex;
+    width: calc(100% - 500px);
+}
+
+
+div.header-links {
+    width: 200px;
+    position: fixed;
+    right: 0px;
+    margin-right: 5px;
+    justify-content: space-between;
 }
 
 
@@ -52,27 +88,32 @@ header a {
     color: #999;
 }
 
+
 header a .feather {
     color: #999;
     margin-right: 0.3rem;
     height: 3rem;
 }
 
+
 header a:hover {
     color: #fff;
     text-decoration: none;
 }
 
+
 header a:hover .feather {
     color: #fff;
 }
 
-header span {
+
+header div.header-brand span {
     display: flex;
     align-items:center;
     white-space: nowrap;
     color: #fff;
 }
+
 
 header img {
     height: 3rem;
@@ -81,17 +122,10 @@ header img {
     margin-right: 5px;
 }
 
-div.header-links {
-    position: fixed;
-    right: 0px;
-    margin-right: 5px;
-    justify-content: space-between;
+
+div.application {
 }
 
-
-.application {
-    height: 100%;
-}
 
 div.push_header {
     height: 3rem;
@@ -99,6 +133,7 @@ div.push_header {
     clear: both;
     z-index: 1;
 }
+
 
 div.push_footer {
     height: 2rem;
@@ -110,82 +145,82 @@ div.push_footer {
 div.sidebar {
     position: fixed;
     background-color: #f8f9fa;
-    top: 0px;
-    bottom: 0px;
-    width: 250px;
-    overflow-x: scroll;
+    top: 3rem;
+    left: 0rem;
+    bottom: 2rem;
+    width: 200px;
+    overflow-x: hidden;
     overflow-y: none;
     z-index: 999;
     border-right: 1px solid #ddd;
+    padding: 0px;
 }
 
-div.navmenu {
-    margin-bottom: 1rem;
+div.sidebar span.select2,
+div.sidebar input {
+    margin-bottom: 5px;
 }
 
-div.navmenu ul {
-    display: block;
-    margin: 0px;
-    padding-left: 15px;
+div.sidebar span.select2-selection,
+div.sidebar span.select2-dropdown,
+div.sidebar input {
+    width: 100%;
+    border-left: 0px;
+    border-right: 0px;
+    border-radius: 0px;
 }
 
-div.navmenu li {
-    display: block;
+input, select, textarea {
+    display: inline-block;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 5px;
+    margin-top: 0px;
+    border: 1px solid #ddd;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 4px;
 }
 
-div.navmenu a {
-    display: block;
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
-	font-weight: 500;
-    font-size: 1rem;
-	color: #333;
+
+span.select2-selection {
+    border: 1px solid #ddd !important;
 }
 
-div.navmenu a:hover {
-	font-weight: 500;
-    color: #333;
-	text-decoration: None;
+span.select2-dropdown {
+    border-color: #ddd !important;
 }
-/*    color: #007bff; */
-
-div.navmenu a .feather {
-  color: #999;
-  margin-right: 5px;
-  width: 1rem;
-  height: 1rem;
-  vertical-align: text-bottom;
-}
-
-div.navmenu a:hover .feather {
-  color: #000;
-  margin-right: 5px;
-  width: 1rem;
-  height: 1rem;
-  vertical-align: text-bottom;
-}
-
 
 main {
-    height: 100%;
+    display: block;
     background-color: #ffffff;
     padding: 0px;
-    margin-left: 250px;
-    width: calc(100% - 260px);
-    max-width: 1100px;
+    margin-left: 200px;
+    width: calc(100% - 210px);
+    max-width: 900px;
     border-right: 1px solid #ddd;
+    min-height: calc(100vh - 2rem);
 }
+
 
 div.view {
     padding-left: 5px;
     padding-right: 5px;
 }
 
+
 .toggler-icon {
     display: none;
 }
 
-@media screen and (max-width: 1100px) {
+
+@media screen and (max-width: 900px) {
+    header div.header-tenant {
+        display: none;
+    }
+    div.sidebar div.header-tenant {
+        display: block !important;
+    }
     div.sidebar {
         display: none;
     }
@@ -197,6 +232,7 @@ div.view {
         display: inline-block !important;
     }
 }
+
 
 h1 {
     background-color: #f8f9fa;
@@ -210,15 +246,28 @@ h1 {
     width: 100%;
 }
 
-h1 .feather {
-  display: relative;
-  float: right;
-  color: #999;
-  margin-right: 5px;
-  width: 1.5rem;
-  height: 1.5rem;
-  vertical-align: text-bottom;
+h2 {
+    background-color: #f8f9fa;
+    padding-left: 5px;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: #427FA2;
+    display: block;
+    border-bottom: 1px solid #ddd;
+    width: 100%;
 }
+
+
+h1 .feather {
+    display: relative;
+    float: right;
+    color: #999;
+    margin-right: 5px;
+    width: 1.5rem;
+    height: 1.5rem;
+    vertical-align: text-bottom;
+}
+
 
 footer {
     background-color: #343a40;
@@ -239,93 +288,79 @@ footer {
     width: 100%;
 }
 
-div.locked {
-    background-color: #000000;
-    overflow: hidden;
-    position: fixed;
-    z-index: 100001;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    opacity: 0.5;
-}
 
 .hidden {
     display: none
 }
 
-.unhide {
-    display: block !important;
-}
 
 div.modal {
-    opacity: 0.97;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: fixed;
-    top: 4rem;
-    left: 15%;
-    right: 15%;
-    bottom: auto;
-    margin: auto;
-    background-color: #FFFFFF;
-    overflow: auto;
-    z-index: 1000;
+    overflow: hidden;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+    z-index: 100000;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+
+div.modal > div {
+    display: block;
+    position: absolute;
+    background-color: #fff;
     border: 1px solid rgba(0, 0, 0, .2);
     border-radius: 6px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+    min-width: 200px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    min-height: 100px;
 }
 
-.modal-header {
-    background-color: #29527f;
-    padding: 4px;
-    font-size: 1rem;
-    color: #fff;
-}
 
-.modal-login {
+div.modal > div > div {
     display: block;
-    z-index: 100002 !important;
-    width: 300px !important;
-}
-
-select.select {
-  display: block;
-  width: 100%;
-  border: 1px solid #ccc;
-  height: 28px;
-  background-color: #FFFFFF;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  padding-left: 4px;
-  padding-right: 2px;
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='black'><polygon points='0,0 100,0 50,50'/></svg>") no-repeat;
-  background-size: 12px;
-  background-position: calc(100% - 5px) center;
-  background-repeat: no-repeat;
+    max-height: 400px;
+    overflow-y: scroll;
+    overflow-x: scroll;
+    padding: 0px 5px 5px 5px;
 }
 
 
-/* CAUTION: IE hackery ahead */
-select.select::-ms-expand { 
-    display: none; /* remove default arrow in IE 10 and 11 */
-}
-
-/* target Internet Explorer 9 to undo the custom arrow */
-@media screen and (min-width:0\0) {
-    select.select {
-        background:none\9;
-        padding: 5px\9;
+@media screen and (max-height: 500px) {
+    div.modal > div {
+        overflow-y: scroll !important;
+        overflow-x: scroll !important;
+    }
+    div.modal > div > div {
+        max-height: 10000%;
+        overflow-y: hidden
+        overflow-x: hidden;
     }
 }
 
 
-.red {
-    color: red;
+div.modal-login {
+    display: flex;
 }
 
+div.modal-login > div {
+    max-width: 300px !important;
+}
+
+
+form {
+    width: 100%;
+}
 
 
 button.view_button {
@@ -338,6 +373,7 @@ button.view_button {
     border-style: solid;
 }
 
+
 button.edit_button {
     height: 24px;
     width: 24px;
@@ -347,10 +383,6 @@ button.edit_button {
     border-style: solid;
     background-repeat: no-repeat;
 }
-
-
-
-
 
 
 div.confirm {
@@ -370,6 +402,7 @@ div.confirm {
     box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
 }
 
+
 div.auto-logout {
     display: none;
     position: absolute;
@@ -386,6 +419,7 @@ div.auto-logout {
     border-radius: 6px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
 }
+
 
 div.window {
     opacity: 0.9;
@@ -405,19 +439,23 @@ div.window {
     box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
 }
 
+
 div.loading {
     z-index: 200000;
     height: 100%;
     width: 100%;
-    background: rgba( 255, 255, 255, .6 )url('/static/photonic/images/loader.gif')50% 50% no-repeat;
+    background-image: url('images/loader.gif');
+    background-repeat: no-repeat;
+    background-position: center;
     top: 0;
     left: 0;
     position: fixed;
     display: none;
 }
 
+
 #popup {
-    z-index: 4000;
+    z-index: 100002;
     width: 300px;
     position: fixed;
     top: 50px;
@@ -425,29 +463,6 @@ div.loading {
     right: 10px;
 }
 
-div.error {
-    background-color: #f4e2e3;
-    color: #9a6e6f;
-    display: none;
-}
-
-div.warning {
-    background-color: #fff4c3;
-    color: #b09100;
-    display: none;
-}
-
-div.info {
-    background-color: #deeff7;
-    color: #6d8a98;
-    display: none;
-}
-
-div.success {
-    background-color: #e2f2dd;
-    color: #598766;
-    display: none;
-}
 
 div.popup {
     border-color: #D8D8D8;
@@ -466,6 +481,35 @@ div.popup {
     overflow: hidden;
 }
 
+
+div.error {
+    background-color: #f4e2e3;
+    color: #9a6e6f;
+    display: none;
+}
+
+
+div.warning {
+    background-color: #fff4c3;
+    color: #b09100;
+    display: none;
+}
+
+
+div.info {
+    background-color: #deeff7;
+    color: #6d8a98;
+    display: none;
+}
+
+
+div.success {
+    background-color: #e2f2dd;
+    color: #598766;
+    display: none;
+}
+
+
 div.box {
     width: auto;
     border-style: solid;
@@ -483,6 +527,6 @@ div.box {
     min-height: 12px;
 }
 
-
-
-
+table.dataTable .feather {
+    height: 1.3rem;
+}

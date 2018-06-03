@@ -1,13 +1,24 @@
+{% if REQ.is_ajax %}
+    {% if content %}
+    <h1>{{ view }} <a href='#' onclick="close_window();"><span data-feather="x-circle"></span></a></h1>
+    <div class="view">
+        {{ content }}
+        <BR><span class="float-right"><a href="#">Back to top</a></span><BR>
+    {% endif %}
+    </div>
+{% else %}
 <main role="main">
     <div class="push_header"></div>
-    {% if content %}
-    {% if view %}
-    <h1>{{ view }} <span data-feather="chevrons-down"></span></h1>
-    <div class="view">
-    {% endif %}
-    {{ content }}
-    <BR><span class="float-right"><a href="#">Back to top</a></span>
-    {% endif %}
+    <div id="main">
+        {% if content %}
+        <h1>{{ view }} <a href='#' onclick="close_window();"><span data-feather="x-circle"></span></a></h1>
+        <div class="view">
+
+        {{ content }}
+
+        <BR><span class="float-right"><a href="#">Back to top</a></span><BR>
+        {% endif %}
     </div>
     <div class="push_footer"></div>
 </main>
+{% endif %}

@@ -29,9 +29,9 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import g
 import photonic.models
+from psychokinetic.middleware.client import Client
 from luxon import Menu
 from luxon.utils.html5 import HMenu
-from psychokinetic.middleware.client import Client
 g.nav_menu = Menu(HMenu)
 from luxon import register
 register.error_template('photonic/error.html')

@@ -34,7 +34,6 @@ from luxon import render_template
 from luxon.utils.bootstrap4 import form
 
 from photonic.models.roles import luxon_role
-from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Roles', href='/system/roles', tag='admin')
 
@@ -68,12 +67,7 @@ class Roles():
                    tag='roles:admin')
 
     def list(self, req, resp):
-        list_html = datatable(req, 'roles_view',
-                              '/v1/roles',
-                              ('name',),
-                              view_button=True)
         return render_template('photonic/roles/list.html',
-                               datatable=list_html,
                                view='Roles')
 
     def delete(self, req, resp, id):

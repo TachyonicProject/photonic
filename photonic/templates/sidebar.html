@@ -1,11 +1,26 @@
 <div class="sidebar" id="sidebar">
-    <div class="push_header"></div>
+    <div class="header-tenant" style="display: none;">
+        <form method="POST" action="{{APP}}/scope">
+            <select data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
+            </select>
+        </form>
+    </div>
 
     <h1>Navigation <span data-feather="chevrons-down"></span></h1>
+    <input type="text" data-event="search-nav" placeholder='Search Navigation'>
     {{ G.nav_menu.render() }}
 
-    <h1>Environment Context <span data-feather="chevrons-down"></span></h1>
-
-    <h1>User Credentials <span data-feather="chevrons-down"></span></h1>
-    <div class="push_footer"></div>
+    <h1>Context <span data-feather="chevrons-down"></span></h1>
+    <select data-url="/v1/regions" data-allow-clear data-placeholder="Select Region">
+    </select>
+    <select data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain">
+    </select>
+    <h1>Credentials <span data-feather="chevrons-down"></span></h1>
+    {% if REQ.credentials.authenticated %}
+    <input type="text" value="{{ REQ.credentials.username }}" disabled readonly>
+    {% for role in REQ.credentials.roles %}
+    <h2>Assigned Roles</h2>
+    <input type="text" value="{{ role }}" disabled readonly>
+    {% endfor %}
+    {% endif %}
 </div>

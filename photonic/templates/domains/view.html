@@ -1,6 +1,6 @@
 {% extends "photonic/base.html" %}
 {% block content %}
-<form method='post' enctype="multipart/form-data" class="form-horizontal" data-disabled disabled onsubmit="return false;">
+<form method='post' enctype="multipart/form-data" disabled>
     {{ form }}
 
     <a href="{{ APP }}/system/domains/edit/{{id}}" class="btn btn-primary">Edit</a>

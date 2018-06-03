@@ -34,7 +34,6 @@ from luxon import render_template
 from luxon.utils.bootstrap4 import form
 
 from photonic.models.endpoints import luxon_endpoint
-from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Endpoints', href='/system/endpoints', tag='role:root')
 
@@ -68,12 +67,7 @@ class Endpoints():
                    tag='admin')
 
     def list(self, req, resp):
-        list_html = datatable(req, 'endpoints_view',
-                              '/v1/endpoints',
-                              ('name', 'region'),
-                              view_button=True)
         return render_template('photonic/endpoints/list.html',
-                               datatable=list_html,
                                view='Endpoints')
 
     def delete(self, req, resp, id):

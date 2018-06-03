@@ -1,5 +1,17 @@
 {% extends "photonic/base.html" %}
 {% block content %}
-{{ datatable }}
+<table class="display" data-url="/v1/endpoints" width="100%">
+    <thead>
+        <tr>
+            <th id='name'>Name</th>
+            <th id='name'>Region</th>
+            <th id='name'>Type</th>
+            <th id='url'>Location</th>
+            <th data-href="/system/endpoints" width="2rem">
+                <span data-feather="edit"></span>
+            </th>
+        </tr>
+    </thead>
+</table>
 <a class="btn btn-primary" href="{{APP}}/system/endpoints/add">Add Endpoint</a>
 {% endblock %}

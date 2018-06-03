@@ -1,13 +1,17 @@
 <header>
-    <a class="toggler-icon"><span data-feather="menu" onclick="toggle_sidebar();"></span></a>
+    <div class="header-brand">
+        <a class="toggler-icon" data-no-ajax><span data-feather="menu" onclick="toggle_sidebar();"></span></a>
 
-    <img class="header-brand" src="{{theme('logo.png') }}" alt="Logo">
-    <span>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</span>
-
-    <form method="POST" action="{{APP}}/scope">
-        {{ REQ.context.tenants_html }}
-    </form>
-	<div class="header-links">
-		<a class="header-link" href="{{APP}}/logout"> <span data-feather="log-out"></span>Sign out</a>
-	</div>
+        <img src="{{theme('logo.png') }}" alt="Logo">
+        <span>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</span>
+    </div>
+    <div class="header-tenant">
+        <form method="POST" action="{{APP}}/scope">
+            <select data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
+            </select>
+        </form>
+    </div>
+    <div class="header-links">
+        <a class="header-link" href="{{APP}}/logout" data-no-ajax> <span data-feather="log-out"></span>Sign out</a>
+    </div>
 </header>
