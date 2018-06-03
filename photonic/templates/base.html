@@ -1,6 +1,10 @@
 {% set content = self.content() %} 
+{% if not REQ.is_ajax %}
 <!DOCTYPE html>
 <html lang="en">
 {% include "photonic/head.html" %}
+{% endif %}
 {% include "photonic/body.html" %}
+{% if not REQ.is_ajax %}
 </html>
+{% endif %}

@@ -27,9 +27,13 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
+import re
+
 from luxon import register
 
 from photonic.utils.form import parse_form
+
+DT_COL_NAMES_RE = re.compile(r'^columns\[(.*)\]\[data\]$')
 
 
 @register.resource(['GET', 'POST', 'PATCH', 'DELETE', 'PUT'], '/apiproxy')
@@ -42,12 +46,48 @@ def apiproxy(req, resp):
 
     params = req.query_params.copy()
 
-    # Following used by Select2....
+    # Following used by Select2.
     search_field = req.query_params.get('search_field')
     term = req.query_params.get('term')
     if term is not None and search_field is not None:
-        params['search'] = "%s:%s" (search_field, term,)
+        params['search'] = "%s:%s" % (search_field, term,)
 
+    # Detect Datatables....
+    if 'order[0][column]' in params:
+
+        # Following used by Datatables Paging.
+        if 'length' in params:
+            params['limit'] = params['length']
+
+        if 'start' in params:
+            limit = int(params['limit'])
+            start = int(params['start'])
+            params['page'] = str(int((start / limit) + 1))
+
+        # Following used by Datatables Order.
+        dt_col = params['order[0][column]']
+        dt_dir = params['order[0][dir]']
+        dt_col_name = params.get('columns[' + dt_col + '][data]')
+        if dt_col_name is not None:
+            params['sort'] = "%s:%s" % (dt_col_name, dt_dir,)
+
+        # Following used by Datatables Search.
+        if 'search' not in params:
+            dt_search = params.get('search[value]')
+            params['search'] = []
+            if dt_search is not None and dt_search.strip() != '':
+                for param in params:
+                    match = DT_COL_NAMES_RE.match(param);
+                    if match:
+                        index = match.groups()
+                        searchable = params.get(
+                            "columns[%s][searchable]" % index)
+                        if searchable == 'true':
+                            dt_field = params[param]
+                            params['search'].append(
+                                '%s:%s' % (dt_field, dt_search,))
+
+    # HTML Post form data.
     parsed = parse_form(req.form_dict)
 
     response = req.context.api.execute(
