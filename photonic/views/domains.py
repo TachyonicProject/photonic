@@ -34,7 +34,6 @@ from luxon import render_template
 from luxon.utils.bootstrap4 import form
 
 from photonic.models.domains import luxon_domain
-from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Domains', href='/system/domains', tag='admin')
 
@@ -68,12 +67,7 @@ class Domains():
                    tag='domains:admin')
 
     def list(self, req, resp):
-        list_html = datatable(req, 'domains_view',
-                              '/v1/domains',
-                              ('name',),
-                              view_button=True)
         return render_template('photonic/domains/list.html',
-                               datatable=list_html,
                                view='Domains')
 
     def delete(self, req, resp, id):

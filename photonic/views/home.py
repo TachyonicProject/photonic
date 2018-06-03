@@ -27,10 +27,13 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
+from luxon import g
 from luxon import router
 from luxon import register
 from luxon import render_template
 from luxon.constants import TEXT_HTML
+
+g.nav_menu.add('/Home', href='/', feather='home')
 
 
 @register.resources()

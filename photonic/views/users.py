@@ -36,7 +36,6 @@ from luxon.utils.html5 import select
 
 from photonic.models.users import luxon_user
 from photonic.models.user_roles import luxon_user_role
-from photonic.views.datatable import datatable
 
 g.nav_menu.add('/System/Users', href='/system/users', tag='admin')
 
@@ -93,12 +92,7 @@ class Users():
                    tag='users:admin')
 
     def list(self, req, resp):
-        list_html = datatable(req, 'users_view',
-                              '/v1/users',
-                              ('username', 'name',),
-                              view_button=True)
         return render_template('photonic/users/list.html',
-                               datatable=list_html,
                                view='Users')
 
     def delete(self, req, resp, id):
