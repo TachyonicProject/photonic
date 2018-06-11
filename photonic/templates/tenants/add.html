@@ -1,9 +1,10 @@
-{% extends "photonic/base.html" %}
+{% extends "photonic/view.html" %}
 {% block content %}
-<form method='post' enctype="multipart/form-data">
+<form id="form" method='post' enctype="multipart/form-data">
     {{ form }}
-
-    <input class="btn btn-primary" type="submit" value="Add Tenant">
-    <a href="{{ APP }}/system/tenants" class="btn btn-default">Back</a>
 </form>
+{% endblock %}
+{% block buttons %}
+<a href="#" onclick="close_window();" class="btn btn-default">Cancel</a>
+<a href="{{ APP }}/accounts/tenants/add" data-form="form" class="btn btn-primary">Add Tenant</a>
 {% endblock %}

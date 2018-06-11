@@ -1,15 +1,17 @@
-{% extends "photonic/base.html" %}
+{% extends "photonic/view.html" %}
 {% block content %}
 <table class="display" data-url="/v1/users" width="100%">
     <thead>
         <tr>
             <th id='username'>Login</th>
             <th id='name'>Name</th>
-            <th data-href="/system/users" width="2rem">
+            <th data-href="/accounts/users" width="2rem">
                 <span data-feather="edit"></span>
             </th>
         </tr>
     </thead>
 </table>
-<a class="btn btn-primary" href="{{APP}}/system/users/add" data-modal>Add User</a>
+{% endblock %}
+{% block buttons %}
+<a class="btn btn-primary" href="{{APP}}/accounts/users/add" data-modal>Add User</a>
 {% endblock %}

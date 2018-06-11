@@ -36,34 +36,37 @@ from luxon.utils.bootstrap4 import form
 from photonic.models.tenants import luxon_tenant
 
 
-g.nav_menu.add('/System/Tenants', href='/system/tenants', tag='users:admin')
+g.nav_menu.add('/Accounts/Tenants',
+               href='/accounts/tenants',
+               tag='users:admin',
+               feather='paperclip')
 
 
 @register.resources()
 class Tenants():
     def __init__(self):
         router.add('GET',
-                   '/system/tenants',
+                   '/accounts/tenants',
                    self.list,
                    tag='tenants:view')
 
         router.add('GET',
-                   '/system/tenants/{id}',
+                   '/accounts/tenants/{id}',
                    self.view,
                    tag='tenants:view')
 
         router.add('GET',
-                   '/system/tenants/delete/{id}',
+                   '/accounts/tenants/delete/{id}',
                    self.delete,
                    tag='tenants:admin')
 
         router.add(('GET', 'POST',),
-                   '/system/tenants/add',
+                   '/accounts/tenants/add',
                    self.add,
                    tag='tenants:admin')
 
         router.add(('GET', 'POST',),
-                   '/system/tenants/edit/{id}',
+                   '/accounts/tenants/edit/{id}',
                    self.edit,
                    tag='tenants:admin')
 
@@ -72,11 +75,10 @@ class Tenants():
                                view='Tenants')
 
     def delete(self, req, resp, id):
-        g.client.execute('DELETE', '/v1/tenant/%s' % id)
-        resp.redirect('/system/tenants')
+        tenant = req.context.api.execute('DELETE', '/v1/tenant/%s' % id)
 
     def view(self, req, resp, id):
-        tenant = g.client.execute('GET', '/v1/tenant/%s' % id)
+        tenant = req.context.api.execute('GET', '/v1/tenant/%s' % id)
         html_form = form(luxon_tenant, tenant.json, readonly=True)
         return render_template('photonic/tenants/view.html',
                                view='View Tenant',
@@ -84,15 +86,23 @@ class Tenants():
                                id=id)
 
     def edit(self, req, resp, id):
-        tenant = g.client.execute('GET', '/v1/tenant/%s' % id)
-        html_form = form(luxon_tenant, tenant.json)
-        return render_template('photonic/tenants/edit.html',
-                               view='Edit Tenant',
-                               form=html_form,
-                               id=id)
+        if req.method == 'POST':
+            req.context.api.execute('PUT', '/v1/tenant/%s' % id, data=req.form_dict)
+            return self.view(req, resp, id)
+        else:
+            tenant = req.context.api.execute('GET', '/v1/tenant/%s' % id)
+            html_form = form(luxon_tenant, tenant.json)
+            return render_template('photonic/tenants/edit.html',
+                                   view='Edit Tenant',
+                                   form=html_form,
+                                   id=id)
 
     def add(self, req, resp):
-        html_form = form(luxon_tenant)
-        return render_template('photonic/tenants/add.html',
-                               view='Add Tenant',
-                               form=html_form)
+        if req.method == 'POST':
+            response = req.context.api.execute('POST', '/v1/tenant', data=req.form_dict)
+            return self.view(req, resp, response.json['id'])
+        else:
+            html_form = form(luxon_tenant)
+            return render_template('photonic/tenants/add.html',
+                                   view='Add Tenant',
+                                   form=html_form)
