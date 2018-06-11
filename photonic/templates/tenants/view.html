@@ -1,9 +1,11 @@
-{% extends "photonic/base.html" %}
-{% block content %}
-<form method='post' enctype="multipart/form-data" disabled>
-    {{ form }}
+{% extends "photonic/view.html" %}
 
-    <a href="{{ APP }}/system/tenants/edit/{{id}}" class="btn btn-primary">Edit</a>
-    <a href="{{ APP }}/system/tenants" class="btn btn-default">Back</a>
-</form>
+{% block content %}
+    <form method='post' enctype="multipart/form-data" disabled>
+        {{ form }}
+    </form>
+{% endblock %}
+{% block buttons %}
+    <a href="#" onclick="close_window();" class="btn btn-default">Back</a>
+    <a href="{{ APP }}/accounts/tenants/edit/{{id}}" class="btn btn-primary">Edit</a>
 {% endblock %}

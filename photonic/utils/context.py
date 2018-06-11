@@ -27,55 +27,11 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from luxon import register
-from luxon import g
-
-from psychokinetic.client import Client
-
-from luxon import GetLogger
-
-log = GetLogger()
 
 
-@register.resource('POST', '/login')
-def login(req, resp):
-    username = req.get_first('username')
-    password = req.get_first('password')
-    domain = req.get_first('domain')
-    token = req.context.api.password(username, password, domain)
-    token = token.json['token']
-    req.user_token = token
-    resp.redirect(req.app)
-
-
-@register.resource('GET', '/logout')
-def logout(req, resp):
-    req.credentials.clear()
-    req.user_token = None
-    resp.redirect(req.app)
-
-
-@register.resource('POST', '/scope')
-def scope(req, resp):
-    if req.credentials.authenticated:
-        if 'X-Region' in req.form:
-            x_region = req.get_first('X-Region')
-            req.session['region'] = x_region
-
-        if 'X-Domain' in req.form:
-            x_domain = req.get_first('X-Domain')
-        else:
-            x_domain = req.session.get('domain');
-
-        if 'X-Tenant-Id' in req.form:
-            x_tenant_id = req.get_first('X-Tenant-Id')
-        else:
-            x_tenant_id = req.session.get('tenant_id')
-
-        req.context.api.unscope()
-        req.context.api.scope(x_domain, x_tenant_id).json
-        req.session['domain'] = x_domain
-        req.session['tenant_id'] = x_tenant_id
-        req.session.save();
-
-    resp.redirect(req.app)
+def tenant_name(req):
+    if req.credentials.authenticated and req.context_tenant_id:
+        response = req.context.api.execute('get',
+                                           '/v1/tenant/%s' % req.context_tenant_id)
+        return response.json['name']
+    return None

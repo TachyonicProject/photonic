@@ -35,7 +35,10 @@ from luxon.utils.bootstrap4 import form
 
 from photonic.models.domains import luxon_domain
 
-g.nav_menu.add('/System/Domains', href='/system/domains', tag='admin')
+g.nav_menu.add('/System/Domains',
+               href='/system/domains',
+               tag='admin',
+               feather='at-sign')
 
 
 @register.resources()

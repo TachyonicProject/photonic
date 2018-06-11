@@ -35,7 +35,10 @@ from luxon.utils.bootstrap4 import form
 
 from photonic.models.roles import luxon_role
 
-g.nav_menu.add('/System/Roles', href='/system/roles', tag='admin')
+g.nav_menu.add('/System/Roles',
+               href='/system/roles',
+               tag='admin',
+               feather='shield')
 
 
 @register.resources()

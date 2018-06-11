@@ -1,3 +1,5 @@
+{% extends "photonic/base.html" %}  
+{% block body %}
 {% if not REQ.is_ajax %}
 <body>
 {% include "photonic/modals.html" %}
@@ -5,7 +7,7 @@
     <div id='application' class="application">
         {% include "photonic/sidebar.html" %}
 {% endif %}
-        {% include "photonic/view.html" %}
+{% block view %}{% endblock %}
 {% if not REQ.is_ajax %}
     </div>
     <div class="loading" id="loading"></div>
@@ -16,3 +18,4 @@
 </script>
 </body>
 {% endif %}
+{% endblock %}
