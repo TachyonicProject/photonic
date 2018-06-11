@@ -37,7 +37,10 @@ from luxon.utils.html5 import select
 from photonic.models.users import luxon_user
 from photonic.models.user_roles import luxon_user_role
 
-g.nav_menu.add('/System/Users', href='/system/users', tag='admin')
+g.nav_menu.add('/Accounts/Users',
+               href='/accounts/users',
+               tag='admin',
+               feather='users')
 
 
 def none_to_blank(lst):
@@ -67,27 +70,27 @@ def none_to_blank(lst):
 class Users():
     def __init__(self):
         router.add('GET',
-                   '/system/users',
+                   '/accounts/users',
                    self.list,
                    tag='users:view')
 
         router.add('GET',
-                   '/system/users/{id}',
+                   '/accounts/users/{id}',
                    self.view,
                    tag='users:view')
 
         router.add('GET',
-                   '/system/users/delete/{id}',
+                   '/accounts/users/delete/{id}',
                    self.delete,
                    tag='users:admin')
 
         router.add(('GET', 'POST',),
-                   '/system/users/add',
+                   '/accounts/users/add',
                    self.add,
                    tag='users:admin')
 
         router.add(('GET', 'POST',),
-                   '/system/users/edit/{id}',
+                   '/accounts/users/edit/{id}',
                    self.edit,
                    tag='users:admin')
 
@@ -97,7 +100,6 @@ class Users():
 
     def delete(self, req, resp, id):
         req.context.api.execute('DELETE', '/v1/user/%s' % id)
-        resp.redirect('/system/users')
 
     def view(self, req, resp, id):
         user = req.context.api.execute('GET', '/v1/user/%s' % id)

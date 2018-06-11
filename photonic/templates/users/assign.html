@@ -17,7 +17,7 @@
         <div class="row" data-count={{ num_roles + 1 }}>
             {% for a in assignments %}
                 <div class="row">
-                <form id="roleform{{ loop.index }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="revoke" data-method='DELETE' data-url="{{APP}}/system/rbac/user/{{id}}">
+                <form id="roleform{{ loop.index }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="revoke" data-method='DELETE' data-url="{{APP}}/accounts/rbac/user/{{id}}">
                     <div class="col-sm-3">
                         <select class="select" name="domain" readonly="None" style="background:None;background-color:#eee"><option>{{ a['domain'] }}</option></select>
                     </div>
@@ -36,7 +36,7 @@
             {% endfor %}
             {% if view=="Edit User" %}
             <div class="row">
-                <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="assign" data-method='POST' data-url="{{APP}}/system/rbac/user/{{id}}">
+                <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="assign" data-method='POST' data-url="{{APP}}/accounts/rbac/user/{{id}}">
 
                     <div class="col-sm-3">
                         {{ domain_select }}

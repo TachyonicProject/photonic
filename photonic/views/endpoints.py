@@ -35,7 +35,10 @@ from luxon.utils.bootstrap4 import form
 
 from photonic.models.endpoints import luxon_endpoint
 
-g.nav_menu.add('/System/Endpoints', href='/system/endpoints', tag='role:root')
+g.nav_menu.add('/System/Endpoints',
+               href='/system/endpoints',
+               tag='role:root',
+               feather='grid')
 
 
 @register.resources()

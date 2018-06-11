@@ -37,4 +37,8 @@ from luxon import register
 register.error_template('photonic/error.html')
 register.ajax_error_template('photonic/error_ajax.html')
 register.middleware(Client)
+
+from photonic.utils.context import tenant_name
+g.tenant_name = tenant_name
+
 import photonic.views
