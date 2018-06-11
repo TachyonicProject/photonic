@@ -24,23 +24,24 @@ RUN apt-get --assume-yes install screen
 RUN apt-get --assume-yes install vim
 RUN apt-get clean 
 
-WORKDIR /root
-ADD https://api.github.com/repos/TachyonicProject/luxon/git/refs/heads/development /root/luxon.json
+RUN mkdir /opt/tachyonic
+WORKDIR /opt/tachyonic
+ADD https://api.github.com/repos/TachyonicProject/luxon/git/refs/heads/development luxon.json
 RUN git clone -b development https://github.com/TachyonicProject/luxon.git
-ADD https://api.github.com/repos/TachyonicProject/psychokinetic/git/refs/heads/development /root/psychokinetic.json
+ADD https://api.github.com/repos/TachyonicProject/psychokinetic/git/refs/heads/development psychokinetic.json
 RUN git clone -b development https://github.com/TachyonicProject/psychokinetic.git
-ADD https://api.github.com/repos/TachyonicProject/photonic/git/refs/heads/development /root/photonic.json
+ADD https://api.github.com/repos/TachyonicProject/photonic/git/refs/heads/development photonic.json
 RUN git clone -b development https://github.com/TachyonicProject/photonic.git
-ADD https://api.github.com/repos/TachyonicProject/infinitystone/git/refs/heads/development /root/infinitystone.json
+ADD https://api.github.com/repos/TachyonicProject/infinitystone/git/refs/heads/development infinitystone.json
 RUN git clone -b development https://github.com/TachyonicProject/infinitystone.git
-WORKDIR /root/luxon
 
+WORKDIR /opt/tachyonic/luxon
 RUN pip3 install .
-WORKDIR /root/psychokinetic
+WORKDIR /opt/tachyonic/psychokinetic
 RUN pip3 install .
-WORKDIR /root/photonic
+WORKDIR /opt/tachyonic/photonic
 RUN pip3 install .
-WORKDIR /root/infinitystone
+WORKDIR /opt/tachyonic/infinitystone
 RUN pip3 install .
 
 WORKDIR /var/www
@@ -55,12 +56,11 @@ RUN luxon -r infinitystone
 RUN mkdir photonic
 RUN luxon -i photonic photonic
 RUN ln -s ../infinitystone/public.pem  photonic/public.pem
-RUN ln -s /root/photonic/photonic/static /var/www/html/static
+RUN ln -s /opt/tachyonic/photonic/photonic/static /var/www/html/static
 
 RUN chown -R www-data:www-data infinitystone
 RUN chown -R www-data:www-data photonic
-RUN chown -R www-data:www-data /root/photonic
-RUN chmod 701 /root
+RUN chown -R www-data:www-data /opt/tachyonic/photonic
 
 COPY 000-default.conf /etc/apache2/sites-available/
 
