@@ -11,6 +11,11 @@ RUN apt-get --assume-yes install git
 RUN apt-get --assume-yes install sqlite3
 RUN apt-get --assume-yes install libapache2-mod-wsgi-py3
 
+# @Vuader: For some reason, even though requests is in the install-requires.txt file
+# and is installed when luxon is installed, without the following luxon -i failes with
+# "The 'idna<2.7,>=2.5' distribution was not found and is required by requests"
+RUN pip3 install requests
+
 # @Vuader: There is no neat cross-platform way to link host tz to container
 # (https://forums.docker.com/t/synchronize-timezone-from-host-to-container/39116)
 # Just this hack:
@@ -22,7 +27,8 @@ RUN export tz=`wget -qO - http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZ
 RUN apt-get --assume-yes install ansible
 RUN apt-get --assume-yes install screen
 RUN apt-get --assume-yes install vim
-RUN apt-get clean 
+
+RUN apt-get clean
 
 RUN mkdir /opt/tachyonic
 WORKDIR /opt/tachyonic
