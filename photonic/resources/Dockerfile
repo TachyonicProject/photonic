@@ -10,6 +10,14 @@ RUN apt-get --assume-yes install python3-pip
 RUN apt-get --assume-yes install git
 RUN apt-get --assume-yes install sqlite3
 RUN apt-get --assume-yes install libapache2-mod-wsgi-py3
+
+# @Vuader: There is no neat cross-platform way to link host tz to container
+# (https://forums.docker.com/t/synchronize-timezone-from-host-to-container/39116)
+# Just this hack:
+RUN apt-get --assume-yes install wget
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get --assume-yes install tzdata
+RUN export tz=`wget -qO - http://geoip.ubuntu.com/lookup | sed -n -e 's/.*<TimeZone>\(.*\)<\/TimeZone>.*/\1/p'` &&  dpkg-reconfigure -f noninteractive tzdata
+
 # @Vuader: The following 3 are not nessecary for Photonic, but I enjoy them:
 RUN apt-get --assume-yes install ansible
 RUN apt-get --assume-yes install screen
