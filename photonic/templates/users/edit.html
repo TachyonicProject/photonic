@@ -1,12 +1,14 @@
 {% extends "photonic/view.html" %}
-{% block content %}
-<form id="main" autocomplete="off" method='post' enctype="multipart/form-data">
-    {{ form }}
-</form>
-{%  include "photonic/users/assign.html" %}
-    <hr>
-    <input class="btn btn-primary" type="submit" value="Update" data-form_id="main">
-    <a data-confirm="Delete item?" href="{{ APP }}/accounts/users/delete/{{id}}" class="btn btn-danger">Delete</a>
-    <a href="{{ APP }}/accounts/users/{{id}}" class="btn btn-default">Back</a>
 
+{% block content %}
+    <form id="form" autocomplete="off" method='post' enctype="multipart/form-data">
+        {{ form }}
+    </form>
+    {%  include "photonic/users/assign.html" %}
+{% endblock %}
+
+{% block buttons %}
+    <a href="{{ APP }}/accounts/users/{{id}}" class="btn btn-default">Cancel</a>
+    <a data-confirm="Delete user?" data-close href="{{ APP }}/accounts/users/delete/{{id}}" class="btn btn-danger">Delete</a>
+    <a href="{{ APP }}/accounts/users/edit/{{id}}" data-form="form" class="btn btn-primary">Update</a>
 {% endblock %}
