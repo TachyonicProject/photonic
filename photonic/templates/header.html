@@ -6,15 +6,7 @@
         <span>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</span>
     </div>
     <div class="header-tenant">
-        <form method="POST" action="{{APP}}/scope">
-            <select name="X-Tenant-Id" data-url="/v1/tenants" onchange="this.form.submit()" data-allow-clear data-placeholder="Select Tenant">
-                <option value=""></option>
-
-                {% if REQ.context_tenant_id %} 
-                <option value="{{ REQ.context_tenant_id }}" selected> {{ G.tenant_name(REQ) }}</option>
-                {% endif %}
-            </select>
-        </form>
+        {% include "photonic/tenant.html" %}
     </div>
     <div class="header-links">
         <a class="header-link" href="{{APP}}/logout" data-no-ajax> <span data-feather="log-out"></span>Sign out</a>

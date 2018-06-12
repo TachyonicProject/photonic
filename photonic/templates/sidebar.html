@@ -1,9 +1,6 @@
 <div class="sidebar" id="sidebar">
     <div class="header-tenant" style="display: none;">
-        <form method="POST" action="{{APP}}/scope">
-            <select data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
-            </select>
-        </form>
+        {% include "photonic/tenant.html" %}
     </div>
 
     <h1>Navigation <span data-feather="chevrons-down"></span></h1>
@@ -11,10 +8,20 @@
     {{ G.nav_menu.render() }}
 
     <h1>Context <span data-feather="chevrons-down"></span></h1>
-    <select data-url="/v1/regions" data-allow-clear data-placeholder="Select Region">
-    </select>
-    <select data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain">
-    </select>
+    <form method="POST" action="{{APP}}/scope">
+        <select name="X-Region" data-allow-clear data-placeholder="Select Region" onchange="this.form.submit()">
+            <option value=""></option>
+            {% if REQ.context_region %}
+                <option value="{{ REQ.context_region }}" selected> {{ REQ.context_region }}</option>
+            {% endif %}
+        </select>
+        <select name="X-Domain" data-id="name" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain" onchange="this.form.submit()">
+            <option value=""></option>
+            {% if REQ.context_domain %}
+                <option value="{{ REQ.context_domain }}" selected> {{ REQ.context_domain }}</option>
+            {% endif %}
+        </select>
+    </form>
     <h1>Credentials <span data-feather="chevrons-down"></span></h1>
     {% if REQ.credentials.authenticated %}
     <input type="text" value="{{ REQ.credentials.username }}" disabled readonly>
