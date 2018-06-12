@@ -648,6 +648,12 @@ function toSelect2(element) {
         return;
     }
 
+    if ('id' in data) {
+        id_field = data.id;
+    } else {
+        id_field = 'id';
+    }
+
     if ('text' in data) {
         text_field = data.text;
     } else {
@@ -690,7 +696,7 @@ function toSelect2(element) {
                         text = payload[i];
                     }
                     else {
-                        id = payload[i]["id"]; 
+                        id = payload[i][id_field]; 
                         text = payload[i][text_field];
                     }
                     response.push({'id': id, 'text': text});

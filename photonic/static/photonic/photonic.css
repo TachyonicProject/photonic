@@ -351,7 +351,7 @@ div.modal > div {
     min-width: 200px;
     max-width: 700px;
     width: 100%;
-    max-height: 100%;
+    max-height: 400px;
     overflow: hidden;
     min-height: 100px;
 }
@@ -359,9 +359,9 @@ div.modal > div {
 
 div.modal > div > div {
     display: block;
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: scroll;
-    overflow-x: scroll;
+    overflow-x: hidden;
     padding: 0px 5px 5px 5px;
 }
 
@@ -370,11 +370,12 @@ div.modal > div > div {
     div.modal > div {
         overflow-y: scroll !important;
         overflow-x: scroll !important;
+        max-height: calc(100% - 5rem) !important;
     }
     div.modal > div > div {
-        max-height: 10000%;
-        overflow-y: hidden
-        overflow-x: hidden;
+        max-height: 100% !important;
+        overflow-y: hidden !important;
+        overflow-x: hidden !important;
     }
 }
 
