@@ -1,18 +1,59 @@
-<div class="row">
-<label class="col-sm-2" style="text-align:right">Roles</label>
-    <div class="col-sm-10">
+<div class="form-group">
+    <label>Roles</label>
+</div>
+<div class="form-group">
+    <div class="row">
+        <div class="control-label col-sm-4">
+            Domain
+        </div>
+        <div class="control-label col-sm-4">
+            Tenant
+        </div>
+        <div class="control-label col-sm-4">
+            Role
+        </div>
+    </div>
+    <div class="row">
+        <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="assign" data-method='POST' data-url="{{APP}}/accounts/rbac/user/{{id}}">
+            <div class="col-md-3">
+                <select name="domain" data-id="domain" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain">
+                    <option value=""></option>
+                    {% if REQ.context_domain %}
+                        <option value="{{ REQ.context_domain }}" selected> {{ REQ.context_domain }}</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="tenant" data-id="tenant" data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
+                    <option value=""></option>
+                    {% if REQ.context_tenant %}
+                        <option value="{{ REQ.context_tenant }}" selected> {{ tenant_name }}</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="role" data-id="role" data-url="/v1/roles" data-placeholder="Select Role">
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ num_roles + 1 }}" data-method="DELETE" style="display:none">
+                <input class="btn btn-success" type="submit" value="+" data-form_id="roleform{{ num_roles + 1 }}">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-12">
         <div class="row">
-            <b>
-            <div class="control-label col-sm-3">
+            <div class="control-label col-sm-4">
                 Domain
             </div>
-            <div class="control-label col-sm-3">
+            <div class="control-label col-sm-4">
                 Tenant
             </div>
-            <div class="control-label col-sm-3">
+            <div class="control-label col-sm-4">
                 Role
             </div>
-            </b>
         </div>
         <div class="row" data-count={{ num_roles + 1 }}>
             {% for a in assignments %}

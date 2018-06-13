@@ -120,42 +120,33 @@ class Users():
         assignments = req.context.api.execute('GET', '/v1/rbac/user/%s' % id).json
         assignments = none_to_blank(assignments)
         num_roles = len(assignments)
-        selected = ""
-        tenants = {}
+        tenant_name = ""
         if req.context_tenant_id is not None:
             tenant = req.context.api.execute('GET', '/v1/tenant/' +
                                       req.context_tenant_id).json
-            selected = req.context_tenant_id
-            tenants[req.context_tenant_id] = tenant['name']
+            selected_tenant = req.context_tenant_id
+            tenant_name = tenant['name']
 
-        domain_select = select("domain",[],"",True,'select2')
-        tenant_select = select("tenant_id",tenants,selected,True,'select2')
-        role_select = select("role",[],"",False,'select2')
-        app = g.current_request.app.strip('/').strip()
-        if app != '':
-            app = '/' + app
-        add_docready = "toSelect2('#role','%s','/v1/roles','name','Select " \
-                       "Role'); " % app
-        add_docready += "toSelect2('#domain','%s','/v1/domains','name'," \
-                        "'Select Domain'); " % app
-        add_docready += "toSelect2('#tenant_id','%s','/v1/tenants','name'," \
-                        "'Select Tenant');" % app
         return render_template('photonic/users/edit.html',
                                view='Edit User',
                                form=html_form,
                                id=id,
                                resource='User',
-                               domain_select=domain_select,
-                               tenant_select=tenant_select,
-                               role_select=role_select,
                                num_roles=num_roles,
                                assignments=assignments,
-                               additional_docready=add_docready)
+                               tenant_name=tenant_name)
 
     def add(self, req, resp):
-        html_form = form(luxon_user)
-        role_form = form(luxon_user_role)
-        return render_template('photonic/users/add.html',
-                               view='Add User',
-                               form=html_form,
-                               role_form=role_form)
+        if req.method == 'POST':
+            data = req.form_dict
+            data['tag'] = "tachyonic"
+            response = req.context.api.execute('POST', '/v1/user',
+                                               data=data)
+            return self.view(req, resp, response.json['id'])
+        else:
+            html_form = form(luxon_user)
+            role_form = form(luxon_user_role)
+            return render_template('photonic/users/add.html',
+                                   view='Add User',
+                                   form=html_form,
+                                   role_form=role_form)
