@@ -1,100 +1,48 @@
-<div class="form-group">
-    <label>Roles</label>
-</div>
-<div class="form-group">
+<div class="form-group" data-count={{ num_roles + 1 }}>
+    {% for a in assignments %}
     <div class="row">
-        <div class="control-label col-sm-4">
-            Domain
-        </div>
-        <div class="control-label col-sm-4">
-            Tenant
-        </div>
-        <div class="control-label col-sm-4">
-            Role
-        </div>
+        <form id="roleform{{ loop.index }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="revoke" data-method='DELETE' data-url="{{APP}}/accounts/rbac/user/{{id}}">
+            <div class="col-sm-3">
+                <select class="select" name="domain" data-url="/v1/domains"><option value="{{ a['domain'] }}" selected>{{ a['domain'] }}</option></select>
+            </div>
+            <div class="col-sm-3">
+                <select class="select" name="tenant_id"><option value="{{ a['tenant_id'] }}">{{ a['tenant_name'] }}</option></select>
+            </div>
+            <div class="col-sm-3">
+                <select class="select" name="tenant_id"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
+            </div>
+            <div class="col-sm-3">
+                <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ loop.index }}" data-method="DELETE">
+            </div>
+        </form>
     </div>
+    {% endfor %}
     <div class="row">
         <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="assign" data-method='POST' data-url="{{APP}}/accounts/rbac/user/{{id}}">
-            <div class="col-md-3">
-                <select name="domain" data-id="domain" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain">
+            <div class="col-sm-3">
+                <select class="select" name="domain" data-id="domain" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain">
                     <option value=""></option>
                     {% if REQ.context_domain %}
                         <option value="{{ REQ.context_domain }}" selected> {{ REQ.context_domain }}</option>
                     {% endif %}
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-sm-3">
                 <select name="tenant" data-id="tenant" data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
                     <option value=""></option>
                     {% if REQ.context_tenant %}
-                        <option value="{{ REQ.context_tenant }}" selected> {{ tenant_name }}</option>
+                    <option value="{{ REQ.context_tenant }}" selected> {{ tenant_name }}</option>
                     {% endif %}
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-sm-3">
                 <select name="role" data-id="role" data-url="/v1/roles" data-placeholder="Select Role">
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-sm-3">
                 <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ num_roles + 1 }}" data-method="DELETE" style="display:none">
                 <input class="btn btn-success" type="submit" value="+" data-form_id="roleform{{ num_roles + 1 }}">
             </div>
         </form>
-    </div>
-</div>
-<div class="form-group">
-    <div class="col-sm-12">
-        <div class="row">
-            <div class="control-label col-sm-4">
-                Domain
-            </div>
-            <div class="control-label col-sm-4">
-                Tenant
-            </div>
-            <div class="control-label col-sm-4">
-                Role
-            </div>
-        </div>
-        <div class="row" data-count={{ num_roles + 1 }}>
-            {% for a in assignments %}
-                <div class="row">
-                <form id="roleform{{ loop.index }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="revoke" data-method='DELETE' data-url="{{APP}}/accounts/rbac/user/{{id}}">
-                    <div class="col-sm-3">
-                        <select class="select" name="domain" readonly="None" style="background:None;background-color:#eee"><option>{{ a['domain'] }}</option></select>
-                    </div>
-                    <div class="col-sm-3">
-                        <select class="select" name="tenant_id"readonly="None" style="background:None;background-color:#eee"><option value="{{ a['tenant_id'] }}">{{ a['tenant_name'] }}</option></select>
-                    </div>
-                    <div class="col-sm-3">
-                        <select class="select" name="role" readonly="None" style="background:None;background-color:#eee"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
-                    </div>
-                    <div class="col-sm-3">{% if view=="View User" %}&nbsp;{% else %}
-                        <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ loop.index }}" data-method="DELETE">
-                        {% endif %}
-                    </div>
-                </form>
-                </div>
-            {% endfor %}
-            {% if view=="Edit User" %}
-            <div class="row">
-                <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="assign" data-method='POST' data-url="{{APP}}/accounts/rbac/user/{{id}}">
-
-                    <div class="col-sm-3">
-                        {{ domain_select }}
-                    </div>
-                    <div class="col-sm-3">
-                        {{ tenant_select }}
-                    </div>
-                    <div class="col-sm-3">
-                        {{ role_select }}
-                    </div>
-                    <div class="col-sm-3">
-                        <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ num_roles + 1 }}" data-method="DELETE" style="display:none">
-                        <input class="btn btn-success" type="submit" value="+" data-form_id="roleform{{ num_roles + 1 }}">
-                    </div>
-                </form>
-            </div>
-            {% endif %}
-        </div>
     </div>
 </div>
