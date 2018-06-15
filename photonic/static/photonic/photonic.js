@@ -534,51 +534,47 @@ function load_modal(content) {
  * Function to add new form when role has successfully been assigned
  */
 function assign(result) {
-    var countVal = $(form).parent().parent().attr("data-count");
+    var countVal = $(form).parent().attr("data-count");
     var count = parseInt(countVal);
     count++;
-    var toBeCopied = $(form).parent().clone(true, true);
+    var toBeCopied = $(form).clone(true, true);
     var remover = document.createElement('input');
     $(remover).attr('type', 'hidden');
     $(remover).attr('name','remove');
     $(remover).attr('value','True');
     $(form).append(remover);
-    $(form).parent().parent().attr("data-count", count);
-    $(form).attr("data-type", "revoke");
-    $(form).attr("data-method", "POST");
-    $(toBeCopied).find("form:first").attr('id', 'roleform' + String(count));
+    $(form).parent().attr("data-count", count);
+    $(toBeCopied).attr('id', 'roleform' + String(count));
     $(toBeCopied).find("a").attr('data-form', 'roleform' + String(count));
     $(toBeCopied).find("a").attr('onclick', 'link_handler(event, this)');
-    $(toBeCopied).find("form:first").attr('data-select2-id','roleform' + String(count));
-    $(form).find("a:first").show();
-    $(form).find("a:last").hide();
+    $(toBeCopied).attr('data-select2-id','roleform' + String(count));
     // as per https://github.com/select2/select2/issues/5269
     // $(form).find("select").select2('destroy') is not working properly,
     // so doing it manually, before rerunning select2 on it.
-    $(toBeCopied).find("form:last").each(function() {
-        $(this).find('span').remove();
-        $(this).find('select').removeAttr('data-select2-id');
-        $(this).find('select').removeAttr('tabindex');
-        $(this).find('select').removeAttr('class');
-        $(this).find('select').removeAttr('aria-hidden');
-        $(this).find('option').removeAttr('data-select2-id');
-        $(this).find('div').removeAttr('data-select2-id');
-        $(this).find('select').each(function () {
-            toSelect2(this);
-        });
+    $(toBeCopied).find('span').remove();
+    $(toBeCopied).find('select').removeAttr('data-select2-id');
+    $(toBeCopied).find('select').removeAttr('tabindex');
+    $(toBeCopied).find('select').removeAttr('class');
+    $(toBeCopied).find('select').removeAttr('aria-hidden');
+    $(toBeCopied).find('option').removeAttr('data-select2-id');
+    $(toBeCopied).find('div').removeAttr('data-select2-id');
+    $(toBeCopied).find('select').each(function () {
+        toSelect2(this);
     });
-    $(form).parent().parent().append(toBeCopied);
+    $(form).find("a:first").show();
+    $(form).find("a:last").hide();
+    $(form).parent().append(toBeCopied);
 }
 
 /**
  * Function to remove role from User.
  */
 function revoke(result) {
-    // var countVal = $(form).parent().parent().attr("data-count");
+    // var countVal = $(form).parent().attr("data-count");
     // var count = parseInt(countVal);
     // count--;
-    // $(form).parent().parent().attr("data-count",count)
-    $(form).parent().remove();
+    // $(form).parent().attr("data-count",count)
+    $(form).remove();
 }
 
 /*
