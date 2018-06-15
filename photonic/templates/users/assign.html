@@ -1,7 +1,6 @@
 <div class="form-group" data-count="{{ num_roles + 1 }}" id="role_assignments">
     {% for a in assignments %}
-    <div class="row">
-        <form id="roleform{{ loop.index }}" autocomplete="off" enctype="multipart/form-data">
+        <form id="roleform{{ loop.index }}" autocomplete="off" enctype="multipart/form-data" class="row">
             <div class="col-sm-3">
                 <select data-id="name" name="domain"><option value="{{ a['domain'] }}" selected>{{ a['domain'] }}</option></select>
             </div>
@@ -16,10 +15,8 @@
             </div>
             <input type="hidden" name="remove" value="True">
         </form>
-    </div>
     {% endfor %}
-    <div class="row">
-        <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data">
+        <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" class="row">
             <div class="col-sm-3">
                 <select name="domain" data-id="name" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain">
                     <option value=""></option>
@@ -45,5 +42,4 @@
                 <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-assign><span data-feather="plus-square"></span></a>
             </div>
         </form>
-    </div>
 </div>
