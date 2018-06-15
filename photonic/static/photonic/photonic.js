@@ -530,12 +530,62 @@ function load_modal(content) {
     ajax(focus());
 } 
 
+/**
+ * Function to add new form when role has successfully been assigned
+ */
+function assign(result) {
+    var countVal = $(form).parent().parent().attr("data-count");
+    var count = parseInt(countVal);
+    count++;
+    var toBeCopied = $(form).parent().clone(true, true);
+    var remover = document.createElement('input');
+    $(remover).attr('type', 'hidden');
+    $(remover).attr('name','remove');
+    $(remover).attr('value','True');
+    $(form).append(remover);
+    $(form).parent().parent().attr("data-count", count);
+    $(form).attr("data-type", "revoke");
+    $(form).attr("data-method", "POST");
+    $(toBeCopied).find("form:first").attr('id', 'roleform' + String(count));
+    $(toBeCopied).find("a").attr('data-form', 'roleform' + String(count));
+    $(toBeCopied).find("a").attr('onclick', 'link_handler(event, this)');
+    $(toBeCopied).find("form:first").attr('data-select2-id','roleform' + String(count));
+    $(form).find("a:first").show();
+    $(form).find("a:last").hide();
+    // as per https://github.com/select2/select2/issues/5269
+    // $(form).find("select").select2('destroy') is not working properly,
+    // so doing it manually, before rerunning select2 on it.
+    $(toBeCopied).find("form:last").each(function() {
+        $(this).find('span').remove();
+        $(this).find('select').removeAttr('data-select2-id');
+        $(this).find('select').removeAttr('tabindex');
+        $(this).find('select').removeAttr('class');
+        $(this).find('select').removeAttr('aria-hidden');
+        $(this).find('option').removeAttr('data-select2-id');
+        $(this).find('div').removeAttr('data-select2-id');
+        $(this).find('select').each(function () {
+            toSelect2(this);
+        });
+    });
+    $(form).parent().parent().append(toBeCopied);
+}
+
+/**
+ * Function to remove role from User.
+ */
+function revoke(result) {
+    // var countVal = $(form).parent().parent().attr("data-count");
+    // var count = parseInt(countVal);
+    // count--;
+    // $(form).parent().parent().attr("data-count",count)
+    $(form).parent().remove();
+}
 
 /*
  * Link Handler triggered by event.
  */
 function link_handler(e, element) {
-    // IE Compatible.... just incase..
+    // IE Compatible.... just in case..
     e = e || window.event;
 
     if (typeof(element) == 'undefined') {
@@ -569,6 +619,10 @@ function link_handler(e, element) {
                     ajax_query('get', element.href, close_window, form);
                 } else if ('modal' in element.dataset) {
                     ajax_query('get', element.href, load_modal, form);
+                } else if ('assign' in element.dataset) {
+                    ajax_query('get', element.href, assign, form);
+                } else if ('revoke' in element.dataset) {
+                    ajax_query('get', element.href, revoke, form);
                 } else {
                     ajax_query('get', element.href, load_html, form);
                 }
@@ -637,6 +691,37 @@ function done_loading() {
     }
 }
 
+/*
+ * A function to generate a function to use
+ * in select2's ajax.processResults.
+ * (@vuader): Without this, the id_field and text_field
+ * are not expanded correctly during run time.
+ */
+function genS2ProcessFunc(id_field, text_field) {
+    function select2ProcessResults(data) {
+        // Tranforms the top-level key of the select2 response object to 'results'
+        response = [];
+        if (!'payload' in data) {
+            alert('API responded with error');
+        }
+        payload = data.payload
+        for (i = 0; i < payload.length; i++) {
+            if (payload[i].constructor === String) {
+                id = payload[i];
+                text = payload[i];
+            }
+            else {
+                id = payload[i][id_field];
+                text = payload[i][text_field];
+            }
+            response.push({'id': id, 'text': text});
+        }
+        return {
+            results: response
+        }
+    };
+    return select2ProcessResults;
+}
 
 /*
  * Function to turn a select into select2
@@ -678,33 +763,14 @@ function toSelect2(element) {
         config.placeholder = data.placeholder;
     }
 
+    select2ProcessResults = genS2ProcessFunc(id_field, text_field);
+
     if ('url' in data) {
         config.ajax = {
             dataType: "json",
             delay: 250,
             url: app + "/apiproxy?url=" + data.url + '&search_field=' + search_field,
-            processResults: function (data) {
-                // Tranforms the top-level key of the response object to 'results'
-                response = [];
-                if (!'payload' in data) {
-                    alert('API responded with error');
-                }
-                payload = data.payload
-                for (i=0; i < payload.length; i++) {
-                    if (payload[i].constructor === String) {
-                        id = payload[i];
-                        text = payload[i];
-                    }
-                    else {
-                        id = payload[i][id_field]; 
-                        text = payload[i][text_field];
-                    }
-                    response.push({'id': id, 'text': text});
-                }
-                return {
-                    results: response
-                }
-            }
+            processResults: select2ProcessResults
         }
     }
     element.dataset = {}

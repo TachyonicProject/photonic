@@ -108,10 +108,8 @@ class Users():
         assignments = none_to_blank(assignments)
         num_roles = len(assignments)
         return render_template('photonic/users/view.html',
-                               view='View User',
                                form=html_form,
                                id=id,
-                               num_roles=num_roles,
                                assignments=assignments)
 
     def edit(self, req, resp, id):
@@ -128,10 +126,8 @@ class Users():
             tenant_name = tenant['name']
 
         return render_template('photonic/users/edit.html',
-                               view='Edit User',
                                form=html_form,
                                id=id,
-                               resource='User',
                                num_roles=num_roles,
                                assignments=assignments,
                                tenant_name=tenant_name)
