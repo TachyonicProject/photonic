@@ -133,8 +133,6 @@ class Users():
             return self.view(req, resp, response.json['id'])
         else:
             html_form = form(luxon_user)
-            role_form = form(luxon_user_role)
             return render_template('photonic/users/add.html',
                                    view='Add User',
-                                   form=html_form,
-                                   role_form=role_form)
+                                   form=html_form)
