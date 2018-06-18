@@ -28,9 +28,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import register
-from luxon import g
-
-from psychokinetic.client import Client
 
 from luxon import GetLogger
 
@@ -45,14 +42,16 @@ def login(req, resp):
     token = req.context.api.password(username, password, domain)
     token = token.json['token']
     req.user_token = token
-    resp.redirect(req.app)
+    _app = req.app if req.app else '/'
+    resp.redirect(_app)
 
 
 @register.resource('GET', '/logout')
 def logout(req, resp):
     req.credentials.clear()
     req.user_token = None
-    resp.redirect(req.app)
+    _app = req.app if req.app else '/'
+    resp.redirect(_app)
 
 
 @register.resource('POST', '/scope')
@@ -65,7 +64,7 @@ def scope(req, resp):
         if 'X-Domain' in req.form:
             x_domain = req.get_first('X-Domain')
         else:
-            x_domain = req.session.get('domain');
+            x_domain = req.session.get('domain')
 
         if 'X-Tenant-Id' in req.form:
             x_tenant_id = req.get_first('X-Tenant-Id')
@@ -76,11 +75,8 @@ def scope(req, resp):
         req.context.api.scope(x_domain, x_tenant_id).json
         req.session['domain'] = x_domain
         req.session['tenant_id'] = x_tenant_id
-        req.session.save();
+        req.session.save()
 
+    _app = req.app if req.app else '/'
 
-    if req.app == '':
-        resp.redirect('/')
-        return
-
-    resp.redirect(req.app)
+    resp.redirect(_app)
