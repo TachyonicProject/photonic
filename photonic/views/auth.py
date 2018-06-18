@@ -42,16 +42,16 @@ def login(req, resp):
     token = req.context.api.password(username, password, domain)
     token = token.json['token']
     req.user_token = token
-    _app = req.app if req.app else '/'
-    resp.redirect(_app)
+    _home = req.app if req.app else '/'
+    resp.redirect(_home)
 
 
 @register.resource('GET', '/logout')
 def logout(req, resp):
     req.credentials.clear()
     req.user_token = None
-    _app = req.app if req.app else '/'
-    resp.redirect(_app)
+    _home = req.app if req.app else '/'
+    resp.redirect(_home)
 
 
 @register.resource('POST', '/scope')
@@ -77,6 +77,5 @@ def scope(req, resp):
         req.session['tenant_id'] = x_tenant_id
         req.session.save()
 
-    _app = req.app if req.app else '/'
-
-    resp.redirect(_app)
+    _home = req.app if req.app else '/'
+    resp.redirect(_home)
