@@ -28,8 +28,8 @@
             <div class="col-sm-3">
                 <select name="tenant_id" data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
                     <option value=""></option>
-                    {% if REQ.context_tenant %}
-                    <option value="{{ REQ.context_tenant }}" selected> {{ tenant_name }}</option>
+                    {% if REQ.context_tenant_id %}
+                    <option value="{{ REQ.context_tenant_id }}" selected> {{ G.tenant_name(REQ) }}</option>
                     {% endif %}
                 </select>
             </div>

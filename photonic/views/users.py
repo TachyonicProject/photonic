@@ -106,7 +106,6 @@ class Users():
         html_form = form(luxon_user, user.json, readonly=True)
         assignments = req.context.api.execute('GET', '/v1/rbac/user/%s' % id).json
         assignments = none_to_blank(assignments)
-        num_roles = len(assignments)
         return render_template('photonic/users/view.html',
                                form=html_form,
                                id=id,
@@ -118,19 +117,12 @@ class Users():
         assignments = req.context.api.execute('GET', '/v1/rbac/user/%s' % id).json
         assignments = none_to_blank(assignments)
         num_roles = len(assignments)
-        tenant_name = ""
-        if req.context_tenant_id is not None:
-            tenant = req.context.api.execute('GET', '/v1/tenant/' +
-                                      req.context_tenant_id).json
-            selected_tenant = req.context_tenant_id
-            tenant_name = tenant['name']
-
         return render_template('photonic/users/edit.html',
                                form=html_form,
                                id=id,
                                num_roles=num_roles,
-                               assignments=assignments,
-                               tenant_name=tenant_name)
+                               assignments=assignments)
+
 
     def add(self, req, resp):
         if req.method == 'POST':
