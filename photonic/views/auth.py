@@ -78,4 +78,9 @@ def scope(req, resp):
         req.session['tenant_id'] = x_tenant_id
         req.session.save();
 
+
+    if req.app == '':
+        resp.redirect('/')
+        return
+
     resp.redirect(req.app)
