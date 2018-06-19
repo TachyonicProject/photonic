@@ -109,6 +109,7 @@ class Users():
         return render_template('photonic/users/view.html',
                                form=html_form,
                                id=id,
+                               view="View User",
                                assignments=assignments)
 
     def edit(self, req, resp, id):
@@ -120,6 +121,7 @@ class Users():
         return render_template('photonic/users/edit.html',
                                form=html_form,
                                id=id,
+                               view="Edit User",
                                num_roles=num_roles,
                                assignments=assignments)
 
