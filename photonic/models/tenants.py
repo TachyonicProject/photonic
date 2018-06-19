@@ -37,7 +37,8 @@ class luxon_tenant(Model):
     id = Model.Uuid(default=uuid4, internal=True)
     domain = Model.Fqdn(internal=True)
     tenant_id = Model.Uuid(internal=True)
-    name = Model.String(max_length=100, null=False)
+    name = Model.String(placeholder="Acme Corporation",
+                        max_length=100, null=False)
     enabled = Model.Boolean(default=True)
     creation_time = Model.DateTime(default=now, readonly=True)
     primary_key = id

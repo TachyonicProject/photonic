@@ -9,12 +9,14 @@
 
     <h1>Context <span data-feather="chevrons-down"></span></h1>
     <form method="POST" action="{{APP}}/scope">
-        <select name="X-Region" data-allow-clear data-placeholder="Select Region" onchange="this.form.submit()">
+        <select name="X-Region" data-placeholder="Select Region" onchange="this.form.submit()">
             <option value=""></option>
             {% if REQ.context_region %}
                 <option value="{{ REQ.context_region }}" selected> {{ REQ.context_region }}</option>
             {% endif %}
         </select>
+    </form>
+    <form method="POST" action="{{APP}}/scope">
         <select name="X-Domain" data-id="name" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain" onchange="this.form.submit()">
             <option value=""></option>
             {% if REQ.context_domain %}
