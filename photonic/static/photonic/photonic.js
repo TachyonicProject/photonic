@@ -430,7 +430,7 @@ function close_window() {
         }
         var modal = modals.pop();
         modal.parentNode.parentNode.removeChild(modal.parentNode);
-
+        reload_dt();
     }
 }
 
@@ -447,6 +447,9 @@ function close_windows() {
         var modal = modals.pop();
         modal.parentNode.parentNode.removeChild(modal.parentNode);
     }
+
+    reload_dt();
+
 }
 
 
@@ -514,6 +517,7 @@ function load_html(content) {
     }   
     ajax(focus());
     modal_drag(focus());
+    reload_dt();
 } 
 
 
@@ -528,6 +532,7 @@ function load_modal(content) {
         eval(scripts[i].innerHTML); 
     }   
     ajax(focus());
+    reload_dt();
 } 
 
 
@@ -556,6 +561,10 @@ function link_handler(e, element) {
             confirm += '</div>';
             load_modal(confirm);
         } else {
+            nav = getElementByTagName('nav')
+            if (nav.contains(element)) {
+                dt = null;
+            }
             if (element.href.endsWith("#")) {
                 $('html, body').animate({ scrollTop: 0 }, 'fast');
             }
@@ -575,14 +584,21 @@ function link_handler(e, element) {
                 if (window.innerWidth <= 900) {
                     document.getElementById('sidebar').style.display = "none";
                 }
-                try {
-                    dt.ajax.reload( null, false ); // user paging is not reset on reload
-                } catch(err) {
-                    log('No Datatable to reload');
-                }
                 e.preventDefault();
             }
         }
+    }
+}
+
+
+/* 
+ * Reload Datatable
+ */
+function reload_dt() {
+    try {
+        dt.ajax.reload( null, false ); // user paging is not reset on reload
+    } catch(err) {
+        log('No Datatable to reload');
     }
 }
 

@@ -1,14 +1,18 @@
 {% extends "photonic/view.html" %}
+
 {% block content %}
 <table class="display" data-url="/v1/roles" id="test" width="100%">
     <thead>
         <tr>
             <th id='name'>Role</th>
-            <th data-href="/system/roles" width="2rem">
+            <th data-href="/system/roles" data-modal width="2rem">
                 <span data-feather="edit"></span>
             </th>
         </tr>
     </thead>
 </table>
-<a class="btn btn-primary" href="{{APP}}/system/roles/add">Add Role</a>
+
+{% endblock %}
+{% block buttons %}
+<a class="btn btn-primary" data-modal href="{{APP}}/system/roles/add">Add Role</a>
 {% endblock %}

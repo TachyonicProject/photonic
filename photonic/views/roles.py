@@ -74,11 +74,10 @@ class Roles():
                                view='Roles')
 
     def delete(self, req, resp, id):
-        g.client.execute('DELETE', '/v1/role/%s' % id)
-        resp.redirect('/system/roles')
+        req.context.api.execute('DELETE', '/v1/role/%s' % id)
 
     def view(self, req, resp, id):
-        role = g.client.execute('GET', '/v1/role/%s' % id)
+        role = req.context.api.execute('GET', '/v1/role/%s' % id)
         html_form = form(luxon_role, role.json, readonly=True)
         return render_template('photonic/roles/view.html',
                                view='View Role',
@@ -86,15 +85,25 @@ class Roles():
                                id=id)
 
     def edit(self, req, resp, id):
-        role = g.client.execute('GET', '/v1/role/%s' % id)
-        html_form = form(luxon_role, role.json)
-        return render_template('photonic/roles/edit.html',
-                               view='Edit Role',
-                               form=html_form,
-                               id=id)
+        if req.method == 'POST':
+            req.context.api.execute('PUT', '/v1/role/%s' % id,
+                                    data=req.form_dict)
+            return self.view(req, resp, id)
+        else:
+            role = req.context.api.execute('GET', '/v1/role/%s' % id)
+            html_form = form(luxon_role, role.json)
+            return render_template('photonic/roles/edit.html',
+                                   view='Edit Role',
+                                   form=html_form,
+                                   id=id)
 
     def add(self, req, resp):
-        html_form = form(luxon_role)
-        return render_template('photonic/roles/add.html',
-                               view='Add Role',
-                               form=html_form)
+        if req.method == 'POST':
+            response = req.context.api.execute('POST', '/v1/role',
+                                               data=req.form_dict)
+            return self.view(req, resp, response.json['id'])
+        else:
+            html_form = form(luxon_role)
+            return render_template('photonic/roles/add.html',
+                                   view='Add Role',
+                                   form=html_form)
