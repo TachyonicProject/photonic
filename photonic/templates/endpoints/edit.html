@@ -1,10 +1,13 @@
 {% extends "photonic/view.html" %}
-{% block content %}
-<form method='post' enctype="multipart/form-data">
-    {{ form }}
 
-    <input class="btn btn-primary" type="submit" value="Update">
-    <a data-confirm="Delete item?" href="{{ APP }}/system/endpoints/delete/{{id}}" class="btn btn-danger">Delete</a>
-    <a href="{{ APP }}/system/endpoints/{{id}}" class="btn btn-default">Back</a>
-</form>
+{% block content %}
+    <form id="form" method='post' enctype="multipart/form-data">
+        {{ form }}
+    </form>
+{% endblock %}
+
+{% block buttons %}
+    <a href="{{ APP }}/system/endpoints/{{id}}" class="btn btn-default">Cancel</a>
+    <a data-confirm="Delete item?" data-close href="{{ APP }}/system/endpoints/delete/{{id}}" class="btn btn-danger">Delete</a>
+    <a href="{{ APP }}/system/endpoints/edit/{{id}}" data-form="form" class="btn btn-primary">Update</a>
 {% endblock %}

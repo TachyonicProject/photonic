@@ -430,7 +430,7 @@ function close_window() {
         }
         var modal = modals.pop();
         modal.parentNode.parentNode.removeChild(modal.parentNode);
-
+        reload_dt();
     }
 }
 
@@ -447,6 +447,9 @@ function close_windows() {
         var modal = modals.pop();
         modal.parentNode.parentNode.removeChild(modal.parentNode);
     }
+
+    reload_dt();
+
 }
 
 
@@ -514,6 +517,7 @@ function load_html(content) {
     }   
     ajax(focus());
     modal_drag(focus());
+    reload_dt();
 } 
 
 
@@ -528,14 +532,61 @@ function load_modal(content) {
         eval(scripts[i].innerHTML); 
     }   
     ajax(focus());
+    reload_dt();
 } 
 
+/**
+ * Function to add new form when role has successfully been assigned
+ */
+function assign(result) {
+    var countVal = $(form).parent().attr("data-count");
+    var count = parseInt(countVal);
+    count++;
+    var toBeCopied = $(form).clone(true, true);
+    var remover = document.createElement('input');
+    $(remover).attr('type', 'hidden');
+    $(remover).attr('name','remove');
+    $(remover).attr('value','True');
+    $(form).append(remover);
+    $(form).parent().attr("data-count", count);
+    $(toBeCopied).attr('id', 'roleform' + String(count));
+    $(toBeCopied).find("a").attr('data-form', 'roleform' + String(count));
+    $(toBeCopied).find("a").attr('onclick', 'link_handler(event, this)');
+    $(toBeCopied).attr('data-select2-id','roleform' + String(count));
+    // as per https://github.com/select2/select2/issues/5269
+    // $(form).find("select").select2('destroy') is not working properly,
+    // so doing it manually, before rerunning select2 on it.
+    $(toBeCopied).find('span').remove();
+    $(toBeCopied).find('select').removeAttr('data-select2-id');
+    $(toBeCopied).find('select').removeAttr('tabindex');
+    $(toBeCopied).find('select').removeAttr('class');
+    $(toBeCopied).find('select').removeAttr('aria-hidden');
+    $(toBeCopied).find('option').removeAttr('data-select2-id');
+    $(toBeCopied).find('div').removeAttr('data-select2-id');
+    $(toBeCopied).find('select').each(function () {
+        toSelect2(this);
+    });
+    $(form).find("a:first").show();
+    $(form).find("a:last").hide();
+    $(form).parent().append(toBeCopied);
+}
+
+/**
+ * Function to remove role from User.
+ */
+function revoke(result) {
+    // var countVal = $(form).parent().attr("data-count");
+    // var count = parseInt(countVal);
+    // count--;
+    // $(form).parent().attr("data-count",count)
+    $(form).remove();
+}
 
 /*
  * Link Handler triggered by event.
  */
 function link_handler(e, element) {
-    // IE Compatible.... just incase..
+    // IE Compatible.... just in case..
     e = e || window.event;
 
     if (typeof(element) == 'undefined') {
@@ -556,6 +607,10 @@ function link_handler(e, element) {
             confirm += '</div>';
             load_modal(confirm);
         } else {
+            nav = getElementByTagName('nav')
+            if (nav.contains(element)) {
+                dt = null;
+            }
             if (element.href.endsWith("#")) {
                 $('html, body').animate({ scrollTop: 0 }, 'fast');
             }
@@ -569,20 +624,31 @@ function link_handler(e, element) {
                     ajax_query('get', element.href, close_window, form);
                 } else if ('modal' in element.dataset) {
                     ajax_query('get', element.href, load_modal, form);
+                } else if ('assign' in element.dataset) {
+                    ajax_query('get', element.href, assign, form);
+                } else if ('revoke' in element.dataset) {
+                    ajax_query('get', element.href, revoke, form);
                 } else {
                     ajax_query('get', element.href, load_html, form);
                 }
                 if (window.innerWidth <= 900) {
                     document.getElementById('sidebar').style.display = "none";
                 }
-                try {
-                    dt.ajax.reload( null, false ); // user paging is not reset on reload
-                } catch(err) {
-                    log('No Datatable to reload');
-                }
                 e.preventDefault();
             }
         }
+    }
+}
+
+
+/* 
+ * Reload Datatable
+ */
+function reload_dt() {
+    try {
+        dt.ajax.reload( null, false ); // user paging is not reset on reload
+    } catch(err) {
+        log('No Datatable to reload');
     }
 }
 
@@ -637,6 +703,37 @@ function done_loading() {
     }
 }
 
+/*
+ * A function to generate a function to use
+ * in select2's ajax.processResults.
+ * (@vuader): Without this, the id_field and text_field
+ * are not expanded correctly during run time.
+ */
+function genS2ProcessFunc(id_field, text_field) {
+    function select2ProcessResults(data) {
+        // Tranforms the top-level key of the select2 response object to 'results'
+        response = [];
+        if (!'payload' in data) {
+            alert('API responded with error');
+        }
+        payload = data.payload
+        for (i = 0; i < payload.length; i++) {
+            if (payload[i].constructor === String) {
+                id = payload[i];
+                text = payload[i];
+            }
+            else {
+                id = payload[i][id_field];
+                text = payload[i][text_field];
+            }
+            response.push({'id': id, 'text': text});
+        }
+        return {
+            results: response
+        }
+    };
+    return select2ProcessResults;
+}
 
 /*
  * Function to turn a select into select2
@@ -678,33 +775,14 @@ function toSelect2(element) {
         config.placeholder = data.placeholder;
     }
 
+    select2ProcessResults = genS2ProcessFunc(id_field, text_field);
+
     if ('url' in data) {
         config.ajax = {
             dataType: "json",
             delay: 250,
             url: app + "/apiproxy?url=" + data.url + '&search_field=' + search_field,
-            processResults: function (data) {
-                // Tranforms the top-level key of the response object to 'results'
-                response = [];
-                if (!'payload' in data) {
-                    alert('API responded with error');
-                }
-                payload = data.payload
-                for (i=0; i < payload.length; i++) {
-                    if (payload[i].constructor === String) {
-                        id = payload[i];
-                        text = payload[i];
-                    }
-                    else {
-                        id = payload[i][id_field]; 
-                        text = payload[i][text_field];
-                    }
-                    response.push({'id': id, 'text': text});
-                }
-                return {
-                    results: response
-                }
-            }
+            processResults: select2ProcessResults
         }
     }
     element.dataset = {}

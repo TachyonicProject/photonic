@@ -35,8 +35,8 @@ from luxon import register
 @register.resources()
 class UserRole():
     def __init__(self):
-        router.add(['POST', 'DELETE'],
-                   '/system/rbac/user/{id}',
+        router.add('POST',
+                   '/accounts/rbac/user/{id}',
                    self.userrole,
                    tag='users:admin')
 
@@ -61,4 +61,7 @@ class UserRole():
             url += '/none/' + values['tenant_id']
         elif values['tenant_id']:
             url += '/' + values['tenant_id']
-        g.client.execute(req.method, url)
+        method = 'POST'
+        if 'remove' in values:
+            method = 'DELETE'
+        req.context.api.execute(method, url)

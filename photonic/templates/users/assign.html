@@ -1,59 +1,45 @@
-<div class="row">
-<label class="col-sm-2" style="text-align:right">Roles</label>
-    <div class="col-sm-10">
-        <div class="row">
-            <b>
-            <div class="control-label col-sm-3">
-                Domain
+<div class="form-group" data-count="{{ num_roles + 1 }}" id="role_assignments">
+    {% for a in assignments %}
+        <form id="roleform{{ loop.index }}" autocomplete="off" enctype="multipart/form-data" class="row">
+            <div class="col-sm-3">
+                <select data-id="name" name="domain"><option value="{{ a['domain'] }}" selected>{{ a['domain'] }}</option></select>
             </div>
-            <div class="control-label col-sm-3">
-                Tenant
+            <div class="col-sm-3">
+                <select name="tenant_id"><option value="{{ a['tenant_id'] }}">{{ a['tenant_name'] }}</option></select>
             </div>
-            <div class="control-label col-sm-3">
-                Role
+            <div class="col-sm-3">
+                <select name="role"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
             </div>
-            </b>
-        </div>
-        <div class="row" data-count={{ num_roles + 1 }}>
-            {% for a in assignments %}
-                <div class="row">
-                <form id="roleform{{ loop.index }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="revoke" data-method='DELETE' data-url="{{APP}}/accounts/rbac/user/{{id}}">
-                    <div class="col-sm-3">
-                        <select class="select" name="domain" readonly="None" style="background:None;background-color:#eee"><option>{{ a['domain'] }}</option></select>
-                    </div>
-                    <div class="col-sm-3">
-                        <select class="select" name="tenant_id"readonly="None" style="background:None;background-color:#eee"><option value="{{ a['tenant_id'] }}">{{ a['tenant_name'] }}</option></select>
-                    </div>
-                    <div class="col-sm-3">
-                        <select class="select" name="role" readonly="None" style="background:None;background-color:#eee"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
-                    </div>
-                    <div class="col-sm-3">{% if view=="View User" %}&nbsp;{% else %}
-                        <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ loop.index }}" data-method="DELETE">
-                        {% endif %}
-                    </div>
-                </form>
-                </div>
-            {% endfor %}
-            {% if view=="Edit User" %}
-            <div class="row">
-                <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" data-type="assign" data-method='POST' data-url="{{APP}}/accounts/rbac/user/{{id}}">
-
-                    <div class="col-sm-3">
-                        {{ domain_select }}
-                    </div>
-                    <div class="col-sm-3">
-                        {{ tenant_select }}
-                    </div>
-                    <div class="col-sm-3">
-                        {{ role_select }}
-                    </div>
-                    <div class="col-sm-3">
-                        <input class="btn btn-danger" type="submit" value="-" data-form_id="roleform{{ num_roles + 1 }}" data-method="DELETE" style="display:none">
-                        <input class="btn btn-success" type="submit" value="+" data-form_id="roleform{{ num_roles + 1 }}">
-                    </div>
-                </form>
+            <div class="col-sm-3">
+                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ loop.index }}" data-revoke><span data-feather="minus-square"></span></a>
             </div>
-            {% endif %}
-        </div>
-    </div>
+            <input type="hidden" name="remove" value="True">
+        </form>
+    {% endfor %}
+        <form id="roleform{{ num_roles + 1 }}" autocomplete="off" method='post' enctype="multipart/form-data" class="row">
+            <div class="col-sm-3">
+                <select name="domain" data-id="name" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain">
+                    <option value=""></option>
+                    {% if REQ.context_domain %}
+                        <option value="{{ REQ.context_domain }}" selected> {{ REQ.context_domain }}</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <select name="tenant_id" data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
+                    <option value=""></option>
+                    {% if REQ.context_tenant %}
+                    <option value="{{ REQ.context_tenant }}" selected> {{ tenant_name }}</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <select name="role" data-url="/v1/roles" data-placeholder="Select Role">
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-revoke style="display:none"><span data-feather="minus-square"></span></a>
+                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-assign><span data-feather="plus-square"></span></a>
+            </div>
+        </form>
 </div>

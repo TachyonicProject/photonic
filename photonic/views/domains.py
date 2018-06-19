@@ -74,11 +74,10 @@ class Domains():
                                view='Domains')
 
     def delete(self, req, resp, id):
-        g.client.execute('DELETE', '/v1/domain/%s' % id)
-        resp.redirect('/system/domains')
+        req.context.api.execute('DELETE', '/v1/domain/%s' % id)
 
     def view(self, req, resp, id):
-        domain = g.client.execute('GET', '/v1/domain/%s' % id)
+        domain = req.context.api.execute('GET', '/v1/domain/%s' % id)
         html_form = form(luxon_domain, domain.json, readonly=True)
         return render_template('photonic/domains/view.html',
                                view='View Domain',
@@ -86,15 +85,25 @@ class Domains():
                                id=id)
 
     def edit(self, req, resp, id):
-        domain = g.client.execute('GET', '/v1/domain/%s' % id)
-        html_form = form(luxon_domain, domain.json)
-        return render_template('photonic/domains/edit.html',
-                               view='Edit Domain',
-                               form=html_form,
-                               id=id)
+        if req.method == 'POST':
+            req.context.api.execute('PUT', '/v1/domain/%s' % id,
+                                    data=req.form_dict)
+            return self.view(req, resp, id)
+        else:
+            domain = req.context.api.execute('GET', '/v1/domain/%s' % id)
+            html_form = form(luxon_domain, domain.json)
+            return render_template('photonic/domains/edit.html',
+                                   view='Edit Domain',
+                                   form=html_form,
+                                   id=id)
 
     def add(self, req, resp):
-        html_form = form(luxon_domain)
-        return render_template('photonic/domains/add.html',
-                               view='Add Domain',
-                               form=html_form)
+        if req.method == 'POST':
+            response = req.context.api.execute('POST', '/v1/domain',
+                                               data=req.form_dict)
+            return self.view(req, resp, response.json['id'])
+        else:
+            html_form = form(luxon_domain)
+            return render_template('photonic/domains/add.html',
+                                   view='Add Domain',
+                                   form=html_form)

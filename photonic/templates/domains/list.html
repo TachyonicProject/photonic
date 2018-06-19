@@ -4,11 +4,13 @@
     <thead>
         <tr>
             <th id='name'>Name</th>
-            <th data-href="/system/domains" width="2rem">
+            <th data-href="/system/domains" data-modal width="2rem">
                 <span data-feather="edit"></span>
             </th>
         </tr>
     </thead>
 </table>
-<a class="btn btn-primary" href="{{APP}}/system/domains/add">Add Domain</a>
+{% endblock %}
+{% block buttons %}
+<a class="btn btn-primary" data-modal href="{{APP}}/system/domains/add">Add Domain</a>
 {% endblock %}
