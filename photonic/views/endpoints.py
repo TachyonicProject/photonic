@@ -74,11 +74,10 @@ class Endpoints():
                                view='Endpoints')
 
     def delete(self, req, resp, id):
-        g.client.execute('DELETE', '/v1/endpoint/%s' % id)
-        resp.redirect('/system/endpoints')
+        req.context.api.execute('DELETE', '/v1/endpoint/%s' % id)
 
     def view(self, req, resp, id):
-        endpoint = g.client.execute('GET', '/v1/endpoint/%s' % id)
+        endpoint = req.context.api.execute('GET', '/v1/endpoint/%s' % id)
         html_form = form(luxon_endpoint, endpoint.json, readonly=True)
         return render_template('photonic/endpoints/view.html',
                                view='View Endpoint',
@@ -86,15 +85,25 @@ class Endpoints():
                                id=id)
 
     def edit(self, req, resp, id):
-        endpoint = g.client.execute('GET', '/v1/endpoint/%s' % id)
-        html_form = form(luxon_endpoint, endpoint.json)
-        return render_template('photonic/endpoints/edit.html',
-                               view='Edit Endpoint',
-                               form=html_form,
-                               id=id)
+        if req.method == 'POST':
+            req.context.api.execute('PUT', '/v1/endpoint/%s' % id,
+                                    data=req.form_dict)
+            return self.view(req, resp, id)
+        else:
+            endpoint = req.context.api.execute('GET', '/v1/endpoint/%s' % id)
+            html_form = form(luxon_endpoint, endpoint.json)
+            return render_template('photonic/endpoints/edit.html',
+                                   view='Edit Endpoint',
+                                   form=html_form,
+                                   id=id)
 
     def add(self, req, resp):
-        html_form = form(luxon_endpoint)
-        return render_template('photonic/endpoints/add.html',
-                               view='Add Endpoint',
-                               form=html_form)
+        if req.method == 'POST':
+            response = req.context.api.execute('POST', '/v1/endpoint',
+                                               data=req.form_dict)
+            return self.view(req, resp, response.json['id'])
+        else:
+            html_form = form(luxon_endpoint)
+            return render_template('photonic/endpoints/add.html',
+                                   view='Add Endpoint',
+                                   form=html_form)

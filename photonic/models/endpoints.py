@@ -35,9 +35,12 @@ from luxon.utils.timezone import now
 
 class luxon_endpoint(Model):
     id = Model.Uuid(default=uuid4, internal=True)
-    name = Model.Fqdn(max_length=64, null=False)
-    interface = Model.Enum('public', 'internal', 'admin', null=False)
-    region = Model.String(max_length=64, null=False)
-    uri = Model.Uri(max_length=64, null=False)
+    name = Model.Fqdn(max_length=64, null=False,
+                      placeholder="infinitystone / netrino / yohsii")
+    interface = Model.Enum('public', 'internal', 'admin', null=False,
+                           default="public")
+    region = Model.String(max_length=64, null=False, default="Region1")
+    uri = Model.Uri(max_length=64, null=False,
+                    placeholder="https://oss.tachyonic.org:8080")
     creation_time = Model.DateTime(default=now, internal=True)
     primary_key = id

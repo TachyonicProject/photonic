@@ -35,7 +35,7 @@ from luxon.utils.timezone import now
 
 class luxon_role(Model):
     id = Model.Uuid(default=uuid4, internal=True)
-    name = Model.String(max_length=64, null=False)
-    description = Model.Text()
+    name = Model.String(placeholder="Netops...", max_length=64, null=False)
+    description = Model.String(placeholder="Network Operations Team")
     creation_time = Model.DateTime(default=now, readonly=True)
     primary_key = id

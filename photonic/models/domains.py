@@ -35,7 +35,7 @@ from luxon.utils.timezone import now
 
 class luxon_domain(Model):
     id = Model.Uuid(default=uuid4, internal=True)
-    name = Model.Fqdn(null=False)
+    name = Model.Fqdn(null=False, placeholder="department1")
     description = Model.Text()
     enabled = Model.Boolean(default=True)
     creation_time = Model.DateTime(default=now, readonly=True)
