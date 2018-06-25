@@ -460,6 +460,17 @@ function ajax_query(method, url, success, form) {
     loading();
     $('html, body').animate({ scrollTop: 0 }, 'fast');
     if (typeof(form) !== 'undefined' && form != null) {
+        inputs = form.getElementsByTagName('input');
+        for (a = 0; a < inputs.length; a++) {
+            if ('boolean' in inputs[a].dataset) {
+                if (inputs[a].type == 'checkbox') {
+                    checkbox = $(inputs[a]);
+                    if(!(checkbox.is(':checked'))) {
+                        checkbox.after().append(checkbox.clone().attr({type:'hidden', value:'False'}));
+                    }
+                }
+            }
+        }
         if (method.toLowerCase() == 'get') {
             method = 'post';
         }

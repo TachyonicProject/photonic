@@ -187,6 +187,24 @@ input, select, textarea {
     border-radius: 4px;
 }
 
+input.form-control:disabled::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #e9ecef;
+    opacity: 1; /* Firefox */
+}
+
+input.form-control:disabled::-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #e9ecef;
+}
+
+input.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #ccc;
+}
+
+input.form-control::-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #ccc;
+}
+
+
 label {
     color: #3498db;
     font-weight: 500;
@@ -216,6 +234,7 @@ main {
 div.view {
     padding-left: 5px;
     padding-right: 5px;
+    width: 100%;
 }
 
 

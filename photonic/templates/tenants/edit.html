@@ -8,6 +8,6 @@
 
 {% block buttons %}
     <a href="{{ APP }}/accounts/tenants/{{id}}" class="btn btn-default">Cancel</a>
-    <a data-confirm="Delete item?" data-close href="{{ APP }}/accounts/tenants/delete/{{id}}" class="btn btn-danger">Delete</a>
+    <a data-confirm="Delete tenant?" data-close href="{{ APP }}/accounts/tenants/delete/{{id}}" class="btn btn-danger">Delete</a>
     <a href="{{ APP }}/accounts/tenants/edit/{{id}}" data-form="form" class="btn btn-primary">Update</a>
 {% endblock %}
