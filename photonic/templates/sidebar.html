@@ -10,10 +10,14 @@
     <h1>Context <span data-feather="chevrons-down"></span></h1>
     <form method="POST" action="{{APP}}/scope">
         <select name="X-Region" data-placeholder="Select Region" onchange="this.form.submit()">
-            <option value=""></option>
             {% if REQ.context_region %}
                 <option value="{{ REQ.context_region }}" selected> {{ REQ.context_region }}</option>
             {% endif %}
+            {% for region in REQ.context.api.regions %}
+                {% if REQ.context_region != region %}
+            <option value="{{ region }}">{{ region }}</option>
+                {% endif %}
+            {% endfor %}
         </select>
     </form>
     <form method="POST" action="{{APP}}/scope">
