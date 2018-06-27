@@ -113,17 +113,26 @@ class Users():
                                assignments=assignments)
 
     def edit(self, req, resp, id):
-        user = req.context.api.execute('GET', '/v1/user/%s' % id)
-        html_form = form(luxon_user, user.json)
-        assignments = req.context.api.execute('GET', '/v1/rbac/user/%s' % id).json
-        assignments = none_to_blank(assignments)
-        num_roles = len(assignments)
-        return render_template('photonic/users/edit.html',
-                               form=html_form,
-                               id=id,
-                               view="Edit User",
-                               num_roles=num_roles,
-                               assignments=assignments)
+        if req.method == 'POST':
+            data = req.form_dict
+            data['tag'] = "tachyonic"
+            req.context.api.execute('PUT', '/v1/user/%s' % id,
+                                               data=data)
+            req.method = 'GET'
+            return self.edit(req, resp, id)
+        else:
+            user = req.context.api.execute('GET', '/v1/user/%s' % id)
+            html_form = form(luxon_user, user.json)
+            assignments = req.context.api.execute('GET',
+                                                  '/v1/rbac/user/%s' % id).json
+            assignments = none_to_blank(assignments)
+            num_roles = len(assignments)
+            return render_template('photonic/users/edit.html',
+                                   form=html_form,
+                                   id=id,
+                                   view="Edit User",
+                                   num_roles=num_roles,
+                                   assignments=assignments)
 
 
     def add(self, req, resp):
