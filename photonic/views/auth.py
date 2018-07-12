@@ -49,6 +49,9 @@ def login(req, resp):
 @register.resource('GET', '/logout')
 def logout(req, resp):
     req.credentials.clear()
+    req.session['tenant_name'] = None
+    req.session['tenant_id'] = None
+    req.session['domain'] = None
     req.user_token = None
     req.scope_token = None
     _home = req.app if req.app else '/'
