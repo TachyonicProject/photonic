@@ -466,7 +466,7 @@ function ajax_query(method, url, success, form) {
                 if (inputs[a].type == 'checkbox') {
                     checkbox = $(inputs[a]);
                     if(!(checkbox.is(':checked'))) {
-                        checkbox.after().append(checkbox.clone().attr({type:'hidden', value:'False'}));
+                        checkbox.after().append(checkbox.clone().attr({type:'hidden', value:'False', class:'photonic-checkbox'}));
                     }
                 }
             }
@@ -501,14 +501,15 @@ function ajax_query(method, url, success, form) {
         },  
         complete: function() {
            done_loading();
-        },  
+        },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             document.getElementById('loading').style.display = "none";
             if (XMLHttpRequest.status == 500) {
                 error(XMLHttpRequest.responseText);
             } else {
                 warning(XMLHttpRequest.responseText);
-            }   
+            }
+            $('.photonic-checkbox').remove();
             done_loading();
         }   
     }); 
