@@ -11,7 +11,7 @@
                 <select name="role"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
             </div>
             <div class="col-sm-3">
-                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ loop.index }}" data-revoke><span data-feather="minus-square"></span></a>
+                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ loop.index }}" data-revoke><span class="text-danger" data-feather="minus-square"></span></a>
             </div>
             <input type="hidden" name="remove" value="True">
         </form>
@@ -38,7 +38,7 @@
                 </select>
             </div>
             <div class="col-sm-3">
-                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-revoke style="display:none"><span data-feather="minus-square"></span></a>
+                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-revoke style="display:none"><span class="text-danger" data-feather="minus-square"></span></a>
                 <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-assign><span data-feather="plus-square"></span></a>
             </div>
         </form>
