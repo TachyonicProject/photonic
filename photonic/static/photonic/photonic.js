@@ -789,11 +789,17 @@ function toSelect2(element) {
 
     select2ProcessResults = genS2ProcessFunc(id_field, text_field);
 
+    endpoint = "";
+
+    if ('endpoint' in data) {
+        endpoint = "&endpoint=" + data.endpoint;
+    }
+
     if ('url' in data) {
         config.ajax = {
             dataType: "json",
             delay: 250,
-            url: app + "/apiproxy?url=" + data.url + '&search_field=' + search_field,
+            url: app + "/apiproxy?url=" + data.url + '&search_field=' + search_field + endpoint,
             processResults: select2ProcessResults
         }
     }
@@ -861,8 +867,12 @@ function toDataTables(element) {
         feather.replace();
     }
     if ('url' in data) {
+        endpoint = "";
+        if ('endpoint' in data) {
+            endpoint = "&endpoint=" + data.endpoint;
+        }
         config.ajax = {
-            url: app + "/apiproxy?url=" + data.url,
+            url: app + "/apiproxy?url=" + data.url + endpoint,
             dataSrc: function (json) {
                 json.recordsTotal = json.metadata.records;
                 json.recordsFiltered = json.metadata.records;
