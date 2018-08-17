@@ -17,8 +17,9 @@ Documentation
 -------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    license
    install
+   index1
 
