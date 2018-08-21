@@ -11,7 +11,7 @@
                 <select name="role"><option value="{{ a['role_id'] }}">{{ a['role_name'] }}</option></select>
             </div>
             <div class="col-sm-3">
-                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ loop.index }}" data-revoke><span data-feather="minus-square"></span></a>
+                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ loop.index }}" data-revoke><span class="text-danger" data-feather="minus-square"></span></a>
             </div>
             <input type="hidden" name="remove" value="True">
         </form>
@@ -29,7 +29,7 @@
                 <select name="tenant_id" data-url="/v1/tenants" data-allow-clear data-placeholder="Select Tenant">
                     <option value=""></option>
                     {% if REQ.context_tenant_id %}
-                    <option value="{{ REQ.context_tenant_id }}" selected> {{ G.tenant_name(REQ) }}</option>
+                    <option value="{{ REQ.context_tenant_id }}" selected> {{ REQ.session.tenant_name }}</option>
                     {% endif %}
                 </select>
             </div>
@@ -38,7 +38,7 @@
                 </select>
             </div>
             <div class="col-sm-3">
-                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-revoke style="display:none"><span data-feather="minus-square"></span></a>
+                <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-revoke style="display:none"><span class="text-danger" data-feather="minus-square"></span></a>
                 <a href="{{APP}}/accounts/rbac/user/{{id}}" data-form="roleform{{ num_roles + 1 }}" data-assign><span data-feather="plus-square"></span></a>
             </div>
         </form>

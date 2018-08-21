@@ -466,7 +466,7 @@ function ajax_query(method, url, success, form) {
                 if (inputs[a].type == 'checkbox') {
                     checkbox = $(inputs[a]);
                     if(!(checkbox.is(':checked'))) {
-                        checkbox.after().append(checkbox.clone().attr({type:'hidden', value:'False'}));
+                        checkbox.after().append(checkbox.clone().attr({type:'hidden', value:'False', class:'photonic-checkbox'}));
                     }
                 }
             }
@@ -501,14 +501,15 @@ function ajax_query(method, url, success, form) {
         },  
         complete: function() {
            done_loading();
-        },  
+        },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             document.getElementById('loading').style.display = "none";
             if (XMLHttpRequest.status == 500) {
                 error(XMLHttpRequest.responseText);
             } else {
                 warning(XMLHttpRequest.responseText);
-            }   
+            }
+            $('.photonic-checkbox').remove();
             done_loading();
         }   
     }); 
@@ -788,11 +789,17 @@ function toSelect2(element) {
 
     select2ProcessResults = genS2ProcessFunc(id_field, text_field);
 
+    endpoint = "";
+
+    if ('endpoint' in data) {
+        endpoint = "&endpoint=" + data.endpoint;
+    }
+
     if ('url' in data) {
         config.ajax = {
             dataType: "json",
             delay: 250,
-            url: app + "/apiproxy?url=" + data.url + '&search_field=' + search_field,
+            url: app + "/apiproxy?url=" + data.url + '&search_field=' + search_field + endpoint,
             processResults: select2ProcessResults
         }
     }
@@ -860,8 +867,12 @@ function toDataTables(element) {
         feather.replace();
     }
     if ('url' in data) {
+        endpoint = "";
+        if ('endpoint' in data) {
+            endpoint = "&endpoint=" + data.endpoint;
+        }
         config.ajax = {
-            url: app + "/apiproxy?url=" + data.url,
+            url: app + "/apiproxy?url=" + data.url + endpoint,
             dataSrc: function (json) {
                 json.recordsTotal = json.metadata.records;
                 json.recordsFiltered = json.metadata.records;
