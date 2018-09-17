@@ -503,14 +503,19 @@ function ajax_query(method, url, success, form) {
            done_loading();
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            document.getElementById('loading').style.display = "none";
-            if (XMLHttpRequest.status == 500) {
-                error(XMLHttpRequest.responseText);
+            if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
+                alert('Your session has expired, please login again.');
+                reload();
             } else {
-                warning(XMLHttpRequest.responseText);
+                document.getElementById('loading').style.display = "none";
+                if (XMLHttpRequest.status == 500) {
+                    error(XMLHttpRequest.responseText);
+                } else {
+                    warning(XMLHttpRequest.responseText);
+                }
+                $('.photonic-checkbox').remove();
+                done_loading();
             }
-            $('.photonic-checkbox').remove();
-            done_loading();
         }   
     }); 
 }
