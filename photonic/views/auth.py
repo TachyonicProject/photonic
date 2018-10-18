@@ -75,22 +75,6 @@ def scope(req, resp):
         else:
             x_tenant_id = req.session.get('tenant_id')
 
-        # Need tenant_name for the Tenant header.
-        # Must store the Tenant name in the session before we change
-        # scope, otherwise won't be able to grab tenant name afterwards
-        # because it will be out of scope. Only required for first
-        # Tenant scoping, ie when we don't have any tenant_name in the session
-        # yet, or tenant scope change.
-        if x_tenant_id:
-            if not 'tenant_name' in req.session or not req.session[
-                'tenant_name'] or x_tenant_id != req.session[
-                'tenant_id']:
-                x_tenant_name = req.context.api.execute('GET',
-                                                        '/v1/tenant/%s' %
-                                                        x_tenant_id)
-                x_tenant_name = x_tenant_name.json['name']
-                req.session['tenant_name'] = x_tenant_name
-
         req.context.api.unscope()
         # Only require a scoped token when domain or tenant_id is received.
         # api.unscope() will remove our scoped_token, and set_context is called
