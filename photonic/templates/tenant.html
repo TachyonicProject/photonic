@@ -3,7 +3,7 @@
 	<option value=""></option>
 
 	{% if REQ.context_tenant_id %}  
-	<option value="{{ REQ.context_tenant_id }}" selected> {{ REQ.session.tenant_name }}</option>
+	<option value="{{ REQ.context_tenant_id }}" selected> {{ G.tenant_name(REQ) }}</option>
 	{% endif %}
     </select>
 </form>
