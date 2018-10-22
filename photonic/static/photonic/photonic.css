@@ -161,6 +161,10 @@ div.sidebar {
     padding: 0px;
 }
 
+div.sidebar a.btn {
+    width: 100%;
+}
+
 div.sidebar span.select2,
 div.sidebar input {
     margin-bottom: 5px;

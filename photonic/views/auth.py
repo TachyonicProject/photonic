@@ -28,10 +28,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import register
-
+from luxon import render_template
 from luxon import GetLogger
 
 log = GetLogger()
+
+
+@register.resource('GET', '/token')
+def token(req, resp):
+    return render_template('photonic/token.html',
+                           token=req.user_token,
+                           view='Current Scope Token')
 
 
 @register.resource('POST', '/login')

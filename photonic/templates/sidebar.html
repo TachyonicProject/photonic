@@ -35,5 +35,6 @@
     {% for role in REQ.credentials.roles %}
         <input type="text" value="{{ role }}" disabled readonly>
     {% endfor %}
+    <a href="{{APP}}/token" class="btn btn-warning"  data-modal>View Token</a>
     {% endif %}
 </div>
