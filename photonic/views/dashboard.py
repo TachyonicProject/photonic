@@ -27,20 +27,29 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from uuid import uuid4
+from luxon import g
+from luxon import router
+from luxon import register
+from luxon import render_template
+from luxon.constants import TEXT_HTML
 
-from luxon import Model
-from luxon.utils.timezone import now
+g.nav_menu.add('/Dashboard', href='/', feather='home')
 
 
-class luxon_endpoint(Model):
-    id = Model.Uuid(default=uuid4, internal=True)
-    name = Model.Fqdn(max_length=64, null=False,
-                      placeholder="infinitystone / netrino / yohsii")
-    interface = Model.Enum('public', 'internal', 'admin', null=False,
-                           default="public")
-    region = Model.String(max_length=64, null=False, default="Region1")
-    uri = Model.Uri(max_length=64, null=False,
-                    placeholder="https://oss.tachyonic.org:8080")
-    creation_time = Model.DateTime(default=now, internal=True)
-    primary_key = id
+@register.resources()
+class Tachyonic():
+    def __init__(self):
+        router.add(('GET', 'POST',), '/', self.home)
+
+    def home(self, req, resp):
+        resp.content_type = TEXT_HTML
+        dashboards = []
+        if req.credentials.authenticated:
+            for dashboard in g.dashboards:
+                view = dashboard[0]
+                func = dashboard[1]
+                dashboards.append((view, func(req, resp),))
+
+        return render_template('photonic/dashboard.html',
+                               view='Dashboard',
+                               dashboards=dashboards)

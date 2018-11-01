@@ -1,0 +1,23 @@
+{% extends "photonic/view.html" %}
+
+{% block content %}
+<table class="display" width="100%">
+    <thead>
+        <tr>
+            <th>Rule Name</th>
+            <th>Conditions</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for rule in policy %}
+        <tr>
+            <td>{{rule}}</td>
+            <td>{{policy[rule]}}</td>
+        </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+
