@@ -1,9 +1,0 @@
-{% extends "photonic/view.html" %}
-{% block content %}
-<form method='post' enctype="multipart/form-data" disabled>
-    {{ form }}
-
-    <a href="{{ APP }}/system/roles/edit/{{id}}" class="btn btn-primary">Edit</a>
-    <a href="{{ APP }}/system/roles" class="btn btn-default">Back</a>
-</form>
-{% endblock %}

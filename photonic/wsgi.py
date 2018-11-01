@@ -33,4 +33,4 @@ application = Wsgi(__name__, content_type='text/html; charset=utf-8')
 
 # This the place to start importing luxon packages/modules.
 import photonic.app
-
+import infinitystone.ui.app

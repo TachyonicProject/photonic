@@ -1,0 +1,10 @@
+{% extends "photonic/view.html" %}
+{% block content %}
+
+{% for dashboard in dashboards %}
+<div class='card'>
+    <H2>{{ dashboard[0] }}</H2>
+    <div class='card-body'>{{ dashboard[1] }}</div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -7,7 +7,9 @@
     <input type="text" id='search-nav' data-event="search-nav" placeholder='Search Navigation'>
     {{ G.nav_menu.render() }}
 
+    {% if not G.app.config.get('identity', 'region', fallback=None) or not G.app.config.get('identity', 'domain', fallback=None) %} 
     <h1>Context <span data-feather="chevrons-down"></span></h1>
+    {% if not G.app.config.get('identity', 'region', fallback=None) %}
     <form method="POST" action="{{APP}}/scope">
         <select name="X-Region" data-placeholder="Select Region" onchange="this.form.submit()">
             {% if REQ.context_region %}
@@ -20,6 +22,8 @@
             {% endfor %}
         </select>
     </form>
+    {% endif %}
+    {% if not G.app.config.get('identity', 'domain', fallback=None) %}
     <form method="POST" action="{{APP}}/scope">
         <select name="X-Domain" data-id="name" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain" onchange="this.form.submit()">
             <option value=""></option>
@@ -28,6 +32,8 @@
             {% endif %}
         </select>
     </form>
+    {% endif %}
+    {% endif %}
     <h1>Credentials <span data-feather="chevrons-down"></span></h1>
     {% if REQ.credentials.authenticated %}
     <input type="text" value="{{ REQ.credentials.username }}" disabled readonly>
@@ -35,6 +41,6 @@
     {% for role in REQ.credentials.roles %}
         <input type="text" value="{{ role }}" disabled readonly>
     {% endfor %}
-    <a href="{{APP}}/token" class="btn btn-warning"  data-modal>View Token</a>
+    <a href="{{APP}}/env" class="btn btn-warning"  data-modal>Environment</a>
     {% endif %}
 </div>
