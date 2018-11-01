@@ -28,7 +28,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 from luxon import g
-import photonic.models
 from psychokinetic.middleware.client import Client
 from luxon import Menu
 from luxon.utils.html5 import HMenu

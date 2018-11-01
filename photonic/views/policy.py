@@ -27,16 +27,47 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-from uuid import uuid4
+from luxon import g
+from luxon import router
+from luxon import register
+from luxon import render_template
+from luxon.constants import TEXT_HTML
+from luxon.utils.files import is_file
+from luxon.utils.pkg import Module 
+from luxon.exceptions import JSONDecodeError
+from luxon import js
 
-from luxon import Model
-from luxon.utils.timezone import now
+g.nav_menu.add('/System/Policy', href='/policy', feather='eye',
+               tag='infrastructure:admin')
 
 
-class luxon_domain(Model):
-    id = Model.Uuid(default=uuid4, internal=True)
-    name = Model.Fqdn(null=False, placeholder="department1")
-    description = Model.Text()
-    enabled = Model.Boolean(default=True)
-    creation_time = Model.DateTime(default=now, readonly=True)
-    primary_key = id
+@register.resources()
+class Tachyonic():
+    def __init__(self):
+        router.add('GET', '/policy', self.policy, tag='infrastructure:admin')
+
+    def policy(self, req, resp):
+        override_file = g.app.path + '/policy.json'
+        luxon = Module('luxon')
+        policy = luxon.read('policy.json')
+        try:
+            policy = js.loads(policy)
+        except JSONDecodeError as exception:
+            raise JSONDecodeError("Invalid Luxon 'policy.json' %s" %
+                                  exception)
+        if is_file(override_file):
+            with open(override_file, 'r') as override:
+                override = override.read()
+                try:
+                    override = js.loads(override)
+                except JSONDecodeError as exception:
+                    raise JSONDecodeError("Invalid Override 'policy.json' %s" %
+                                          exception)
+        else:
+            override = {}
+
+        policy.update(override)
+
+        return render_template('photonic/policy.html',
+                               policy=policy,
+                               view="RBAC Policy Engine Rules")

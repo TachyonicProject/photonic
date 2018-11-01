@@ -10,6 +10,9 @@
     <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/ext/select2/css/select2.min.css">
     <link type="text/css" rel="stylesheet" href="{{STATIC}}/photonic/photonic.css">
     <link type="text/css" rel="stylesheet" href="{{ theme('theme.css') }}">
+    {% for stylesheet in G.stylesheets %}
+    <link type="text/css" rel="stylesheet" href="{{STATIC}}/{{ stylesheet }}">
+    {% endfor %}
 
     <script type="text/javascript" src="{{STATIC}}/photonic/ext/jquery/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="{{STATIC}}/photonic/ext/jquery-ui/jquery-ui.min.js"></script>
@@ -18,6 +21,10 @@
     <script type="text/javascript" src="{{STATIC}}/photonic/ext/select2/js/select2.min.js"></script>
     <script type="text/javascript" src="{{STATIC}}/photonic/photonic.js"></script>
     <script type="text/javascript" src="{{STATIC}}/photonic/ext/feather-icons/feather.min.js"></script>
+    {% for javascript in G.javascripts %}
+    <script type="text/javascript" src="{{STATIC}}/{{javascript}}"></script>
+    {% endfor %}
+
     <link rel="icon" href="{{ theme('icon-32x32.png') }}">
 
     {% for css in REQ.context.css %}

@@ -19,6 +19,9 @@ var dt = null;
 /*
  * Log Debug output to console.
  */
+$.fn.dataTable.ext.errMode = 'none'
+
+http://datatables.net/tn/7
 function log(msg) {
     if (window.console) {
         window.console.log("Photonic " + msg)
@@ -424,16 +427,20 @@ function close_window() {
     if (modals.length == 0) {
         main = document.getElementById('main');
         main.innerHTML = '';
+        clear_active_a()
     } else {
         if (modals.length == 1) {
             getElementByTagName('body').style=""
         }
         var modal = modals.pop();
         modal.parentNode.parentNode.removeChild(modal.parentNode);
-        reload_dt();
+        reload_dt()
     }
 }
 
+function redirect(site) {
+    window.location.href = site;
+}
 
 /*
  * Close all windows / modals etc
@@ -448,10 +455,34 @@ function close_windows() {
         modal.parentNode.parentNode.removeChild(modal.parentNode);
     }
 
-    reload_dt();
-
+    reload_dt()
 }
 
+/*
+ * Global Ajax Error Handler
+ */
+$( document ).ajaxError(function( event, XMLHttpRequest, settings, thrownError ) {
+    if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
+        alert('Your session has expired, please login again.');
+        reload();
+    } else {
+        document.getElementById('loading').style.display = "none";
+        if (XMLHttpRequest.status == 500) {
+            error(XMLHttpRequest.responseText);
+        } else {
+            if (XMLHttpRequest.responseText) {
+                warning(XMLHttpRequest.responseText);
+            } else {
+                if (thrownError != 'abort') {
+                    warning("AJAX: " + thrownError);
+                }
+            }
+
+        }
+        $('.photonic-checkbox').remove();
+        done_loading();
+    }
+});
 
 /*
  * AJAX query with callback.
@@ -498,24 +529,14 @@ function ajax_query(method, url, success, form) {
         data: submit,
         success: function(result, textStatus, XMLHttpRequest) {
             success(result);
+            if (typeof(form) !== 'undefined' && form != null) {
+                if ('msg' in form.dataset) {
+                    notice(form.dataset.msg, 'success');
+                }
+            }
         },  
         complete: function() {
            done_loading();
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
-                alert('Your session has expired, please login again.');
-                reload();
-            } else {
-                document.getElementById('loading').style.display = "none";
-                if (XMLHttpRequest.status == 500) {
-                    error(XMLHttpRequest.responseText);
-                } else {
-                    warning(XMLHttpRequest.responseText);
-                }
-                $('.photonic-checkbox').remove();
-                done_loading();
-            }
         }   
     }); 
 }
@@ -527,6 +548,7 @@ function ajax_query(method, url, success, form) {
 function load_html(content) {
     view_section = focus();
     view_section.innerHTML = content;
+    reload_dt();
     feather.replace();
     scripts = view_section.getElementsByTagName('script')
     for (i = 0; i < scripts.length; i++) {
@@ -534,7 +556,6 @@ function load_html(content) {
     }   
     ajax(focus());
     modal_drag(focus());
-    reload_dt();
 } 
 
 
@@ -549,55 +570,8 @@ function load_modal(content) {
         eval(scripts[i].innerHTML); 
     }   
     ajax(focus());
-    reload_dt();
 } 
 
-/**
- * Function to add new form when role has successfully been assigned
- */
-function assign(result) {
-    var countVal = $(form).parent().attr("data-count");
-    var count = parseInt(countVal);
-    count++;
-    var toBeCopied = $(form).clone(true, true);
-    var remover = document.createElement('input');
-    $(remover).attr('type', 'hidden');
-    $(remover).attr('name','remove');
-    $(remover).attr('value','True');
-    $(form).append(remover);
-    $(form).parent().attr("data-count", count);
-    $(toBeCopied).attr('id', 'roleform' + String(count));
-    $(toBeCopied).find("a").attr('data-form', 'roleform' + String(count));
-    $(toBeCopied).find("a").attr('onclick', 'link_handler(event, this)');
-    $(toBeCopied).attr('data-select2-id','roleform' + String(count));
-    // as per https://github.com/select2/select2/issues/5269
-    // $(form).find("select").select2('destroy') is not working properly,
-    // so doing it manually, before rerunning select2 on it.
-    $(toBeCopied).find('span').remove();
-    $(toBeCopied).find('select').removeAttr('data-select2-id');
-    $(toBeCopied).find('select').removeAttr('tabindex');
-    $(toBeCopied).find('select').removeAttr('class');
-    $(toBeCopied).find('select').removeAttr('aria-hidden');
-    $(toBeCopied).find('option').removeAttr('data-select2-id');
-    $(toBeCopied).find('div').removeAttr('data-select2-id');
-    $(toBeCopied).find('select').each(function () {
-        toSelect2(this);
-    });
-    $(form).find("a:first").show();
-    $(form).find("a:last").hide();
-    $(form).parent().append(toBeCopied);
-}
-
-/**
- * Function to remove role from User.
- */
-function revoke(result) {
-    // var countVal = $(form).parent().attr("data-count");
-    // var count = parseInt(countVal);
-    // count--;
-    // $(form).parent().attr("data-count",count)
-    $(form).remove();
-}
 
 /*
  * Link Handler triggered by event.
@@ -620,7 +594,13 @@ function link_handler(e, element) {
             confirm += '</div>';
             confirm += '<div class="buttons">';
             confirm += '<a href="#" onclick="close_window()" class="btn">Cancel</a>'
-            confirm += '<a href="' + element.href + '" data-close-all class="btn btn-danger">Continue</a>'
+            confirm += '<a href="' + element.href + '" class="btn btn-danger"'
+            for (option in element.dataset) {
+                if (option != 'confirm') {
+                    confirm += "data-" + option + '="' + element.dataset[option] + '"';
+                }
+            }
+            confirm += '>Continue</a>'
             confirm += '</div>';
             load_modal(confirm);
         } else {
@@ -634,17 +614,13 @@ function link_handler(e, element) {
             form = document.getElementById(element.dataset.form);
             if (element.href != window.location + '#' && !element.href.endsWith("#")) {
                 clear_search(element);
-                if ('closeAll' in element.dataset) {
+                if ('closeall' in element.dataset) {
                     ajax_query('get', element.href, close_windows, form);
                 }
                 else if ('close' in element.dataset) {
                     ajax_query('get', element.href, close_window, form);
                 } else if ('modal' in element.dataset) {
                     ajax_query('get', element.href, load_modal, form);
-                } else if ('assign' in element.dataset) {
-                    ajax_query('get', element.href, assign, form);
-                } else if ('revoke' in element.dataset) {
-                    ajax_query('get', element.href, revoke, form);
                 } else {
                     ajax_query('get', element.href, load_html, form);
                 }
@@ -661,14 +637,16 @@ function link_handler(e, element) {
 /* 
  * Reload Datatable
  */
-function reload_dt() {
-    try {
-        dt.ajax.reload( null, false ); // user paging is not reset on reload
-    } catch(err) {
-        log('No Datatable to reload');
-    }
+function adjust_dt() {
+    $.fn.dataTable
+        .tables( { visible: true, api: true } )
+        .columns.adjust().draw();
 }
-
+function reload_dt() {
+    $.fn.dataTable
+        .tables( { visible: true, api: true } )
+        .ajax.reload( adjust_dt, false );
+}
 
 /*
  * Form Handler triggered by event.
@@ -685,6 +663,14 @@ function form_handler(e, element) {
     if (!('noAjax' in element.dataset)) {
         if ('reload' in element.dataset) {
             ajax_query('post', element.action, reload, element);
+        } else if ('datatable' in element.dataset) {
+            ajax_query('post', element.action, reload_dt, element);
+        } else if ('redirect' in element.dataset) {
+            ajax_query('post', element.action,
+                function () {
+                    redirect(element.dataset.redirect);
+                },
+                element);
         } else {
             ajax_query('post', element.action, load_html, element);
         }
@@ -752,6 +738,23 @@ function genS2ProcessFunc(id_field, text_field) {
     return select2ProcessResults;
 }
 
+function select2_urlhelper(element) {
+    data = element.dataset;
+
+    endpoint = "";
+
+    if ('endpoint' in data) {
+        endpoint = "&endpoint=" + data.endpoint;
+    }
+
+    if ('searchField' in data) {
+        search_field = data.searchField;
+    } else {
+        search_field = text_field;
+    }
+    return app + "/apiproxy?url=" + data.url + '&search_field=' + search_field + endpoint
+}
+
 /*
  * Function to turn a select into select2
  */
@@ -803,15 +806,18 @@ function toSelect2(element) {
     if ('url' in data) {
         config.ajax = {
             dataType: "json",
-            delay: 250,
-            url: app + "/apiproxy?url=" + data.url + '&search_field=' + search_field + endpoint,
-            processResults: select2ProcessResults
+            delay: 1000,
+            processResults: select2ProcessResults,
+            url: function () {
+                return select2_urlhelper(element);
+            }
         }
     }
     element.dataset = {}
 
     $(element).select2(config);
 }
+
 
 
 /*
@@ -824,8 +830,8 @@ function mrenderLink(href, css, title, dataset) {
         if (css != null) {
             link += ' class="' + css + '"';
         }
-        if ('modal' in dataset) {
-            link += ' data-modal';
+        for (option in dataset) {
+            link += "data-" + option + '="' + dataset[option] + '"';
         }
         link += '>';
         link += title;
@@ -863,6 +869,13 @@ function toDataTables(element) {
         return;
     }
 
+    if (window.innerHeight > 550) {
+        config.pageLength = 10;
+    } else {
+        config.pageLength = 5;
+    }
+    config.lengthMenu = [[5, 10, 25, 50], [5, 10, 25, 50]];
+
     var table_columns = element.getElementsByTagName('th');
     if (table_columns.length == 0) {
         alert('Expecting <th> in <thead> for Datatable');
@@ -876,6 +889,12 @@ function toDataTables(element) {
         if ('endpoint' in data) {
             endpoint = "&endpoint=" + data.endpoint;
         }
+        config.on = {
+            'error.dt': function ( e, settings, techNote, message ) {
+                console.log( 'An error has been reported by DataTables: ', message );
+            }
+        }
+        config.searchDelay = 1000;
         config.ajax = {
             url: app + "/apiproxy?url=" + data.url + endpoint,
             dataSrc: function (json) {
@@ -891,12 +910,6 @@ function toDataTables(element) {
         }
         config.processing = true;
         config.serverSide = true;
-        if (window.innerHeight > 550) {
-            config.pageLength = 10;
-        } else {
-            config.pageLength = 5;
-        }
-        config.lengthMenu = [[5, 10, 25, 50], [5, 10, 25, 50]];
         config.columns = [];
         config.columnDefs = [];
         for (i = 0; i < table_columns.length; i++) {
@@ -951,8 +964,11 @@ function toDataTables(element) {
             return;
         }
     }
+	$(element).on('error.dt', function(e, settings, techNote, message) {
+	   console.log( 'An error has been reported by DataTables: ', message);
+	})
+    dt = $(element).DataTable(config)
 
-    dt = $(element).DataTable(config);
     
 }
 
@@ -1060,6 +1076,18 @@ function set_active_a() {
             links[z].className = 'active';
             view_parent_dropdowns(links[z]);
         }
+    }
+}
+
+/*
+ * Clear active links
+ */
+function clear_active_a() {
+    nav = getElementByTagName('nav');
+    links = nav.getElementsByTagName("a"); 
+    for (z=0; z < links.length; z++){
+        links[z].style.display = 'block';
+        links[z].className = '';
     }
 }
 
