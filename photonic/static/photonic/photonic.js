@@ -28,6 +28,14 @@ function log(msg) {
     }
 }
 
+/* Disable Enter Key */
+function stopRKey(evt) {
+  var evt = (evt) ? evt : ((event) ? event : null);
+  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+  if (evt.keyCode == 13) {return false;}
+}
+
+document.onkeypress = stopRKey; 
 
 /*
  * Get the Location of Element.
@@ -989,8 +997,8 @@ function select(root) {
  */
 function table(root) {
     tables = root.getElementsByTagName('table');
-    for (i = 0; i < tables.length; i++) {
-        toDataTables(tables[i]);
+    for (j = 0; j < tables.length; j++) {
+        toDataTables(tables[j]);
     }
 }
 
