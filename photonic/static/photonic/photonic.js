@@ -751,14 +751,20 @@ function select2_urlhelper(element) {
 
     endpoint = "";
 
+    if ('text' in data) {
+        var text_field = data.text;
+    } else {
+        var text_field = 'name';
+    }
+
     if ('endpoint' in data) {
-        endpoint = "&endpoint=" + data.endpoint;
+        var endpoint = "&endpoint=" + data.endpoint;
     }
 
     if ('searchField' in data) {
-        search_field = data.searchField;
+        var search_field = data.searchField;
     } else {
-        search_field = text_field;
+        var search_field = text_field;
     }
     return app + "/apiproxy?url=" + data.url + '&search_field=' + search_field + endpoint
 }
@@ -774,21 +780,21 @@ function toSelect2(element) {
     }
 
     if ('id' in data) {
-        id_field = data.id;
+        var id_field = data.id;
     } else {
-        id_field = 'id';
+        var id_field = 'id';
     }
 
     if ('text' in data) {
-        text_field = data.text;
+        var text_field = data.text;
     } else {
-        text_field = 'name';
+        var text_field = 'name';
     }
 
     if ('searchField' in data) {
-        search_field = data.searchField;
+        var search_field = data.searchField;
     } else {
-        search_field = text_field;
+        var search_field = text_field;
     }
 
     if ('forSearch' in data) {

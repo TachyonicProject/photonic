@@ -297,6 +297,8 @@ h1 {
 
 h2 {
     background-color: #f8f9fa;
+    margin-top: 3px;
+    margin-bottom: 3px;
     padding-left: 5px;
     font-size: 1rem;
     line-height: 1.5rem;
