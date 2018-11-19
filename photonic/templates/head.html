@@ -34,5 +34,5 @@
     <script type="text/javascript" src="{{STATIC}}/{{js}}"></script>
     {% endfor %}
 
-    <title>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</title>
+    <title>{{ G.app.config.get(REQ.host, 'name', fallback=G.app.config.get('application', 'name', fallback='Photonic')) }}</title>
 </head>

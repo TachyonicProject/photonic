@@ -273,51 +273,6 @@ function action(data) {
 }
 
 
-/*
- * Internal Function for auto-logout interval 
- */
-function countDownTime(site, idleTimeout, timeCounter) {
-    idleTime = idleTime + 1;
-    if (idleTime == idleTimeout) { 
-        document.getElementById('logout').style.display = "block";
-    }
-    if (idleTime >= idleTimeout) {
-        idleTimeCounter = timeCounter - (idleTime - idleTimeout);
-        document.getElementById('timer').innerHTML = idleTimeCounter;
-
-    }
-    if (idleTimeCounter == 0)
-    {
-        idleTimeCounter = 60;
-        idleTime = 0;
-        window.location.href = site;
-    }
-}
-
-
-/**
-  * Inactive user auto logout
-  */
-function autoLogout(site, idleTimeout, timeCounter) {
-    idleTimeCounter = timeCounter
-    //Increment the idle time counter every second
-    var idleInterval = setInterval(function() { countDownTime(site, idleTimeout, timeCounter); }, 1000); 
-    //Zero the idle timer on mouse movement.
-    $(this).mousemove(function (e) {
-        l = document.getElementById('logout').style.display
-        if (l == "none" || l == '') {
-            idleTime = 0;
-        }
-    });
-    $(this).keypress(function (e) {
-        l = document.getElementById('logout').style.display
-        if (l == "none" || l == '') {
-            idleTime = 0;
-        }
-    });
-}
-
-
 /**
   * Validate form for browser that does not support HTML5 required
   */
