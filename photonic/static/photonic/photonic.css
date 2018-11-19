@@ -52,7 +52,6 @@ header {
     right: 0;
     left: 0;
     z-index: 1000;
-    background-color: #343a40;
     box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
     font-size: 1rem;
 }
@@ -102,29 +101,13 @@ header a .feather {
 
 
 header a:hover {
-    color: #fff;
     text-decoration: none;
 }
-
-
-header a:hover .feather {
-    color: #fff;
-}
-
 
 header div.header-brand span {
     display: flex;
     align-items:center;
     white-space: nowrap;
-    color: #fff;
-}
-
-
-header img {
-    height: 3rem;
-    padding-top: .2rem;
-    padding-bottom: .2rem;
-    margin-right: 5px;
 }
 
 
@@ -283,28 +266,21 @@ div.buttons {
 
 
 h1 {
-    background-color: #f8f9fa;
     padding-left: 5px;
-    text-transform: uppercase;
     font-size: 1.1rem;
     line-height: 1.5rem;
-    color: #427FA2;
     display: block;
-    border-bottom: 1px solid #ddd;
     width: 100%;
 }
 
 
 h2 {
-    background-color: #f8f9fa;
     margin-top: 3px;
     margin-bottom: 3px;
     padding-left: 5px;
     font-size: 1rem;
     line-height: 1.5rem;
-    color: #427FA2;
     display: block;
-    border-bottom: 1px solid #ddd;
     width: 100%;
 }
 
@@ -312,7 +288,6 @@ h2 {
 h1 .feather {
     display: relative;
     float: right;
-    color: #999;
     margin-right: 5px;
     width: 1.5rem;
     height: 1.5rem;
@@ -321,12 +296,10 @@ h1 .feather {
 
 
 footer {
-    background-color: #343a40;
     left: 0px;
     right: 0px;
     bottom: 0px;
     clear: both;
-    color: #FFFFFF;
     font-size: 1rem;
     height: 2rem;
     line-height: 2rem;
@@ -416,65 +389,6 @@ div.modal-login > div {
 
 form {
     width: 100%;
-}
-
-
-button.view_button {
-    height: 24px;
-    width: 24px;
-    border-width: 1px;
-    background-color: #FFFFFF;
-    background-image: url("images/view.png");
-    background-repeat: no-repeat;
-    border-style: solid;
-}
-
-
-button.edit_button {
-    height: 24px;
-    width: 24px;
-    border-width: 1px;
-    background-color: #FFFFFF;
-    background-image: url("images/edit.png");
-    border-style: solid;
-    background-repeat: no-repeat;
-}
-
-
-div.auto-logout {
-    display: none;
-    position: absolute;
-    top: 100px;
-    left: 10%;
-    right: 10%;
-    margin: auto;
-    width: 500px;
-    height: auto;
-    background-color: #FFFFFF;
-    z-index: 1005;
-    overflow: auto;
-    border: 1px solid rgba(0, 0, 0, .2);
-    border-radius: 6px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
-}
-
-
-div.window {
-    opacity: 0.9;
-    display: none;
-    position: absolute;
-    top: 45px;
-    left: 10%;
-    right: 10%;
-    margin: auto;
-    width: 80%;
-    height: auto;
-    background-color: #FFFFFF;
-    z-index: 1055;
-    overflow: auto;
-    border: 0px solid rgba(0, 0, 0, .2);
-    border-radius: 6px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
 }
 
 

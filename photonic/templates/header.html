@@ -3,7 +3,7 @@
         <a class="toggler-icon" data-no-ajax><span data-feather="menu" onclick="toggle_sidebar();"></span></a>
 
         <img src="{{theme('logo.png') }}" alt="Logo">
-        <span>{{ G.app.config.get("application", 'name', fallback='Tachonic UI') }}</span>
+        <span class='title'></span>
     </div>
     <div class="header-tenant">
         {% include "photonic/tenant.html" %}
