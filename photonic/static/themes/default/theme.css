@@ -1,0 +1,54 @@
+
+span.title:before {
+    content: "Tachyonic";
+    color: #fff;
+}
+
+header {
+    background-color: #343a40;
+}
+
+header img {
+    height: 3rem;
+    padding-top: .2rem;
+    padding-bottom: .2rem;
+    margin-right: 5px;
+}
+
+header a {
+    color: #999;
+}
+
+header a:hover {
+    color: #fff;
+}
+
+header a:hover .feather {
+    color: #fff;
+}
+
+footer {
+    background-color: #343a40;
+    color: #FFFFFF;
+}
+
+footer:before {
+    content: "© 2016 - 2018 Myria Solutions (PTY) Ltd (BSD-3 License, Opensource)"
+}
+
+h1 {
+    background-color: #f8f9fa;
+    text-transform: uppercase;
+    color: #427FA2;
+    border-bottom: 1px solid #ddd;
+}
+
+h1 .feather {
+    color: #999;
+}
+
+h2 {
+    background-color: #f8f9fa;
+    color: #427FA2;
+    border-bottom: 1px solid #ddd;
+}

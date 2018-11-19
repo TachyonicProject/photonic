@@ -46,9 +46,21 @@ log = GetLogger()
 
 
 @register.resource('GET', '/env')
-def token(req, resp):
+def env(req, resp):
+    session_length = len(req.session)
+    if req.host in req.cookies:
+        session_id = req.cookies[req.host].strip()
+    else:
+        session_id = False
+
+    cookies = {}
+    for cookie in req.cookies:
+        cookies[cookie] = len(req.cookies[cookie])
+
     return render_template('photonic/env.html',
-                           view='Environment')
+                           view='Environment',
+                           session_id=session_id,
+                           cookies=cookies)
 
 
 @register.resource('POST', '/login')
@@ -85,38 +97,24 @@ def logout(req, resp):
 @register.resource('POST', '/scope')
 def scope(req, resp):
     if req.credentials.authenticated:
-        if 'X-Region' in req.form:
+        if 'X-Region' in req.form_dict:
             x_region = req.get_first('X-Region')
             req.session['region'] = x_region
             x_domain = g.app.config.get('identity', 'domain', fallback=None)
             x_tenant_id = None
         else:
-            x_domain = g.app.config.get('identity', 'domain', fallback=None)
-            if x_domain is None:
-                if 'X-Domain' in req.form:
-                    x_domain = req.get_first('X-Domain')
-                else:
-                    x_domain = req.session.get('domain')
+            x_tenant_id = req.get_first('X-Tenant-Id')
 
-            if 'X-Tenant-Id' in req.form:
-                x_tenant_id = req.get_first('X-Tenant-Id')
-            else:
-                x_tenant_id = req.session.get('tenant_id')
-
-        req.context.api.unscope()
-
+            x_domain = g.app.config.get('identity', 'domain',
+                                        fallback=req.get_first('X-Domain'))
+        
         # Only require a scoped token when domain or tenant_id is received.
         # api.unscope() will remove our scoped_token, and set_context is called
         # in PRE in psychokinetic middleware.client, which will set token to
         # auth_token
-
-        # If the domain is unscoped, unscope the tenant too... 
-        if ((req.session.get('domain') or req.session.get('tenant_id')) and
-                (x_domain is None or x_domain != req.session.get('domain'))):
-            # At this point we rather use unscoped token...
-            req.session['domain'] = g.app.config.get('identity', 'domain', fallback=None)
-            req.session['tenant_id'] = None
-            x_tenant_id = None
+        req.context.api.unscope()
+        req.session['domain'] = None
+        req.session['tenant_id'] = None
 
         if x_domain or x_tenant_id:
             # WE scope the token and set session to scoped token context...

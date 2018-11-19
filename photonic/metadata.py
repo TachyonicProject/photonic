@@ -9,7 +9,7 @@ package = 'photonic'
 project = "Tachyonic Project " + package.title()
 project_no_spaces = project.replace(' ', '')
 # Please follow https://www.python.org/dev/peps/pep-0440/
-version = '0.0.0'
+version = '1.0.0'
 description = project
 author = 'Myria Solutions (PTY) Ltd'
 email = 'project@tachyonic.org'
@@ -21,7 +21,7 @@ identity = project + ' v' + version
 # Classifiers
 # <http://pypi.python.org/pypi?%3Aaction=list_classifiers>
 classifiers = [
-    'Development Status :: 1 - Planning',
+    'Development Status :: 4 - Beta',
     'Environment :: Other Environment',
     'Intended Audience :: Developers',
     'Intended Audience :: Information Technology',
@@ -29,8 +29,8 @@ classifiers = [
     'License :: OSI Approved :: BSD License',
     'Natural Language :: English',
     'Operating System :: POSIX :: Linux',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Software Development',
     'Topic :: Software Development :: Libraries',
     'Topic :: Software Development :: Libraries :: Python Modules',

@@ -29,10 +29,8 @@
                 {% if not G.app.config.get('identity', 'region', fallback=None) %}
                 <div class="form-group">
                     <label for="region" class="sr-only">Region</label>
-					<select name="region" data-placeholder="Select Region">
-						{% for region in REQ.context.api.regions %}
-							<option value="{{ region }}">{{ region }}</option>
-						{% endfor %}
+					<select name="region" data-placeholder="Select Region" data-url="/v1/regions" data-id='region' data-text='region'>
+                        <option value=""></option>
 					</select>
                 </div>
                 {% endif %}
