@@ -21,5 +21,6 @@ Documentation
 
    license
    install
+   releases
    index1
 
