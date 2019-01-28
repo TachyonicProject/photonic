@@ -39,3 +39,8 @@ try:
     import tradius.ui.app
 except ImportError:
     pass
+
+try:
+    import netrino.ui.app
+except ImportError:
+    pass
