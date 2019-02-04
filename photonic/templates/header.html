@@ -1,14 +1,17 @@
 <header>
     <div class="header-brand">
         <a class="toggler-icon" data-no-ajax><span data-feather="menu" onclick="toggle_sidebar();"></span></a>
-
         <img src="{{theme('logo.png') }}" alt="Logo">
         <span class='title'></span>
     </div>
     <div class="header-tenant">
+        {% if REQ.credentials.authenticated %}
         {% include "photonic/tenant.html" %}
+        {% endif %}
     </div>
     <div class="header-links">
+        {% if REQ.credentials.authenticated %}
         <a class="header-link" href="{{APP}}/logout" data-no-ajax> <span data-feather="log-out"></span>Sign out</a>
+        {% endif %}
     </div>
 </header>
