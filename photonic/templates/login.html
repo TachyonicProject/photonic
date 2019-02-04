@@ -26,9 +26,9 @@
                 {% if not G.app.config.get('identity', 'region', fallback=None) %}
                 <div class="form-group">
                     <label for="region" class="sr-only">Region</label>
-					<select name="region" data-placeholder="Select Region" data-url="/v1/regions" data-id='region' data-text='region'>
+                    <select name="region" data-placeholder="Select Region" data-url="/v1/regions" data-id='region' data-text='region'>
                         <option value=""></option>
-					</select>
+                    </select>
                 </div>
                 {% endif %}
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
