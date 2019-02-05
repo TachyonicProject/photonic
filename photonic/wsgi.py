@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2018 Christiaan Frans Rademan.
+# Copyright (c) 2018-2019 Christiaan Frans Rademan.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,13 @@ application = Wsgi(__name__, content_type='text/html; charset=utf-8')
 
 # This the place to start importing luxon packages/modules.
 import photonic.app
-import infinitystone.ui.app
+
+# These can be entry points in the future....
+
+try:
+    import infinitystone.ui.app
+except ImportError:
+    pass
 
 try:
     import tradius.ui.app

@@ -11,4 +11,5 @@ Releases
 ---------------------------------
 
    * Support none authenticated views. #125
+   * PEP8 and in-progress code clean up.
 

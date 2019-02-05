@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2018 Christiaan Frans Rademan.
+# Copyright (c) 2018-2019 Christiaan Frans Rademan.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,6 @@
 import re
 
 from luxon import register
-
-from photonic.utils.form import parse_form
 
 DT_COL_NAMES_RE = re.compile(r'^columns\[(.*)\]\[data\]$')
 
@@ -77,7 +75,7 @@ def apiproxy(req, resp):
             params['search'] = []
             if dt_search is not None and dt_search.strip() != '':
                 for param in params:
-                    match = DT_COL_NAMES_RE.match(param);
+                    match = DT_COL_NAMES_RE.match(param)
                     if match:
                         index = match.groups()
                         searchable = params.get(
@@ -88,14 +86,12 @@ def apiproxy(req, resp):
                                 '%s:%s' % (dt_field, dt_search,))
 
     # HTML Post form data.
-    parsed = parse_form(req.form_dict)
-
     response = req.context.api.execute(
-        req.method, url, params=params, data=parsed, endpoint=endpoint
+        req.method, url, params=params, data=req.form_dict, endpoint=endpoint
     )
 
     resp.set_headers(response.headers)
     resp.status = response.status_code
     resp.content_type = response.content_type
-    
+
     return response.content
