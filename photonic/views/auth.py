@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2018 Christiaan Frans Rademan.
+# Copyright (c) 2018-2019 Christiaan Frans Rademan.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,20 +34,9 @@ from luxon import g
 
 log = GetLogger()
 
-@register.resource('GET',
-                   '/access/{user_id}',
-                   tag='users:admin')
-@register.resource('GET',
-                   '/access/{user_id}/{domain}',
-                   tag='users:admin')
-@register.resource('GET',
-                   '/access/{user_id}/{domain}/{tenant_id}',
-                   tag='users:admin')
-
 
 @register.resource('GET', '/env')
 def env(req, resp):
-    session_length = len(req.session)
     if req.host in req.cookies:
         session_id = req.cookies[req.host].strip()
     else:
@@ -107,7 +96,7 @@ def scope(req, resp):
 
             x_domain = g.app.config.get('identity', 'domain',
                                         fallback=req.get_first('X-Domain'))
-        
+
         # Only require a scoped token when domain or tenant_id is received.
         # api.unscope() will remove our scoped_token, and set_context is called
         # in PRE in psychokinetic middleware.client, which will set token to

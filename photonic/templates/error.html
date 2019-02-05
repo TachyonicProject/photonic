@@ -1,6 +1,6 @@
 {% extends "photonic/view.html" %}
 {% block content %}
-{% if not REQ.credentials.authenticated %}
+{% if not REQ.credentials.authenticated and REQ.tag %}
 {% include "photonic/login.html" %}
 {% else %}
 <div class="jumbotron">
