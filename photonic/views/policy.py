@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2018 Christiaan Frans Rademan.
+# Copyright (c) 2018-2019 Christiaan Frans Rademan.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,8 @@ from luxon import g
 from luxon import router
 from luxon import register
 from luxon import render_template
-from luxon.constants import TEXT_HTML
 from luxon.utils.files import is_file
-from luxon.utils.pkg import Module 
+from luxon.utils.pkg import Module
 from luxon.exceptions import JSONDecodeError
 from luxon import js
 

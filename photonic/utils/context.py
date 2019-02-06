@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2018 Christiaan Frans Rademan.
+# Copyright (c) 2018-2019 Christiaan Frans Rademan.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 def tenant_name(req):
     if req.credentials.authenticated and req.context_tenant_id:
         response = req.context.api.execute('get',
-                                           '/v1/tenant/%s' % req.context_tenant_id)
+                                           '/v1/tenant/%s'
+                                           % req.context_tenant_id)
         return response.json['name']
     return None

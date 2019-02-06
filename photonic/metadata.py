@@ -9,7 +9,7 @@ package = 'photonic'
 project = "Tachyonic Project " + package.title()
 project_no_spaces = project.replace(' ', '')
 # Please follow https://www.python.org/dev/peps/pep-0440/
-version = '1.0.0'
+version = '1.0.2'
 description = project
 author = 'Myria Solutions (PTY) Ltd'
 email = 'project@tachyonic.org'
