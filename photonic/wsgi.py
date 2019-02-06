@@ -42,11 +42,26 @@ except ImportError:
     pass
 
 try:
-    import tradius.ui.app
+    import subscriber.ui.app
 except ImportError:
     pass
 
 try:
     import netrino.ui.app
+except ImportError:
+    pass
+
+try:
+    import katalog.ui.app
+except ImportError:
+    pass
+
+try:
+    import katalog.ui.app
+except ImportError:
+    pass
+
+try:
+    import yoshii.ui.app
 except ImportError:
     pass
