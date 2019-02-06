@@ -13,3 +13,10 @@ Releases
    * Support none authenticated views. #125
    * PEP8 and in-progress code clean up.
 
+1.0.2 = BETA Release (2019/02/06)
+---------------------------------
+
+   * Updated copyright notice year.
+   * Added other projects to wsgi.py
+
+
