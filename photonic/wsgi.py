@@ -57,11 +57,6 @@ except ImportError:
     pass
 
 try:
-    import katalog.ui.app
-except ImportError:
-    pass
-
-try:
     import yoshii.ui.app
 except ImportError:
     pass
