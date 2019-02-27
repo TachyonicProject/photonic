@@ -19,4 +19,8 @@ Releases
    * Updated copyright notice year.
    * Added other projects to wsgi.py
 
+1.0.3 = BETA Release (2019/02/27)
+---------------------------------
+
+   * Added safer error handling for wsgi.py when importing other projects
 

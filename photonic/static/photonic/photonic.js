@@ -764,6 +764,10 @@ function toSelect2(element) {
         config.placeholder = data.placeholder;
     }
 
+    if ('tags' in data) {
+            config.tags = (data.tags == 'true');
+    }
+
     select2ProcessResults = genS2ProcessFunc(id_field, text_field);
 
     endpoint = "";

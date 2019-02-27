@@ -27,6 +27,7 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
+import importlib.util
 
 from luxon.core.handlers.wsgi import Wsgi
 application = Wsgi(__name__, content_type='text/html; charset=utf-8')
@@ -36,27 +37,24 @@ import photonic.app
 
 # These can be entry points in the future....
 
-try:
+
+def exists(package):
+    if importlib.util.find_spec(package) is None:
+        return False
+    return True
+
+
+if exists('infinitystone'):
     import infinitystone.ui.app
-except ImportError:
-    pass
 
-try:
+if exists('subscriber'):
     import subscriber.ui.app
-except ImportError:
-    pass
 
-try:
+if exists('netrino'):
     import netrino.ui.app
-except ImportError:
-    pass
 
-try:
+if exists('katalog'):
     import katalog.ui.app
-except ImportError:
-    pass
 
-try:
+if exists('yoshii'):
     import yoshii.ui.app
-except ImportError:
-    pass
