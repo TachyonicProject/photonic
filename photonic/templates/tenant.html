@@ -1,5 +1,5 @@
-<form method="POST" action="{{APP}}/scope">
-    <select name="X-Tenant-Id" data-url="/v1/tenants" onchange="this.form.submit()" data-allow-clear data-placeholder="Select Tenant">
+<form method="POST" action="{{APP}}/scope" data-api="scope">
+    <select name="tenant_id" data-url="/v1/tenants" onchange="tachyon.onChange(event, this.form);" data-allow-clear data-placeholder="Select Tenant">
 	<option value=""></option>
 
 	{% if REQ.context_tenant_id %}  

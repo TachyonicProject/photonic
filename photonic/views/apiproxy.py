@@ -85,10 +85,21 @@ def apiproxy(req, resp):
                             params['search'].append(
                                 '%s:%s' % (dt_field, dt_search,))
 
-    # HTML Post form data.
-    response = req.context.api.execute(
-        req.method, url, params=params, data=req.form_dict, endpoint=endpoint
-    )
+    if 'json' in str(req.content_type).lower():
+        response = req.context.api.execute(
+            req.method, url, params=params,
+            data=req.read(), endpoint=endpoint
+        )
+    elif 'xml' in str(req.content_type).lower():
+        response = req.context.api.execute(
+            req.method, url, params=params,
+            data=req.read(), endpoint=endpoint
+        )
+    else:
+        response = req.context.api.execute(
+            req.method, url, params=params,
+            data=req.form_dict, endpoint=endpoint
+        )
 
     resp.set_headers(response.headers)
     resp.status = response.status_code
