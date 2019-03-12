@@ -2,9 +2,15 @@
 {% block body %}
 {% if not REQ.is_ajax %}
 <body>
+    <header id="header">
 {% include "photonic/header.html" %}
+    </header>
     <div id='application' class="application">
+        <div class="sidebar" id="sidebar">
+        {% if not REQ.is_ajax %}
         {% include "photonic/sidebar.html" %}
+        {% endif %}
+        </div>
 {% endif %}
 {% block view %}{% endblock %}
 {% if not REQ.is_ajax %}
@@ -13,7 +19,7 @@
     <div id="popup"></div>
 {% include "photonic/footer.html" %}
 <script>
-    var app = "{{ REQ.app }}";
+    tachyon.init("{{APP}}");
 </script>
 </body>
 {% endif %}

@@ -21,6 +21,9 @@ Releases
 
 1.0.3 = BETA Release (2019/02/27)
 ---------------------------------
-
    * Added safer error handling for wsgi.py when importing other projects
 
+1.0.4 = BETA Release (2019/03/12)
+---------------------------------
+   * Complete change of UI / AJAX Handler and cleanup.
+   * Authentication module adapted for AJAX.

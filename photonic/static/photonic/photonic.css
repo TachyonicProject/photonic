@@ -551,3 +551,18 @@ div.navmenu a.active:hover {
 div.navmenu a.active:hover .feather {
     color: #007bff;
 }
+
+div.mxgraphbase {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    border-style: solid;
+    border-color: #F2F2F2;
+    border-width: 1px;
+    background: url('images/grid.gif');
+}
+
+div.mxWindow {
+    position: fixed !important;
+    z-index: 1000 !important;
+}
