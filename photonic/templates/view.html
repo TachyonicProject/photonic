@@ -5,7 +5,8 @@
     <div class="push_header"></div>
         <div id="main">
 {% endif %}
-            <h1>{{ view }} <a href='#' onclick="close_window();"><span data-feather="x-circle"></span></a></h1>
+{% if REQ.is_ajax %}
+            <h1>{{ view }} <a href='#' onclick="tachyon.closeWindow();"><span data-feather="x-circle"></span></a></h1>
             <div class="view">
                 {% block content %}{% endblock %}
             </div>
@@ -14,10 +15,10 @@
                 {% block buttons %}{% endblock %}
             </div>
             {% endif %}
+{% endif %}
 {% if not REQ.is_ajax %}
         </div>
-        <div class="push_footer"></div>
-    </div>
+    <div class="push_footer"></div>
 </main>
 {% endif %}
 {% endblock %}

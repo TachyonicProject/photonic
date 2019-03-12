@@ -52,67 +52,53 @@ def env(req, resp):
                            cookies=cookies)
 
 
+@register.resource('GET', '/header')
+def header(req, resp):
+    return render_template('photonic/header.html')
+
+
+@register.resource('GET', '/sidebar')
+def sidebar(req, resp):
+    return render_template('photonic/sidebar.html')
+
+
 @register.resource('POST', '/login')
 def login(req, resp):
-    username = req.get_first('username')
-    password = req.get_first('password')
+    username = req.json.get('username')
+    password = req.json.get('password')
     domain = g.app.config.get('identity', 'domain', fallback=None)
     if domain is None:
-        domain = req.get_first('domain')
+        domain = req.json.get('domain')
     region = g.app.config.get('identity', 'region', fallback=None)
     if region is None:
-        region = req.get_first('region')
+        region = req.json.get('region')
     req.context.api.collect_endpoints(region, req.context_interface)
-    token = req.context.api.password(username, password, domain)
-    token = token.json['token']
-    req.user_token = token
-    req.context_region = region
-    _home = req.app if req.app else '/'
-    resp.redirect(_home)
-
-
-@register.resource('GET', '/logout')
-def logout(req, resp):
-    req.credentials.clear()
-    req.session['tenant_name'] = None
-    req.session['tenant_id'] = None
-    req.session['domain'] = None
-    req.user_token = None
-    req.scope_token = None
-    _home = req.app if req.app else '/'
-    resp.redirect(_home)
+    result = req.context.api.password(username, password, domain)
+    result.json['region'] = region
+    return result.json
 
 
 @register.resource('POST', '/scope')
 def scope(req, resp):
     if req.credentials.authenticated:
-        if 'X-Region' in req.form_dict:
-            x_region = req.get_first('X-Region')
-            req.session['region'] = x_region
-            x_domain = g.app.config.get('identity', 'domain', fallback=None)
-            x_tenant_id = None
+        if 'region' in req.json:
+            region = req.json.get('region')
+            domain = g.app.config.get('identity', 'domain', fallback=None)
+            tenant_id = None
         else:
-            x_tenant_id = req.get_first('X-Tenant-Id')
+            region = req.context_region
+            tenant_id = req.json.get('tenant_id')
 
-            x_domain = g.app.config.get('identity', 'domain',
-                                        fallback=req.get_first('X-Domain'))
+            domain = g.app.config.get('identity', 'domain',
+                                      fallback=req.json.get(
+                                          'domain',
+                                          req.context_domain))
 
-        # Only require a scoped token when domain or tenant_id is received.
-        # api.unscope() will remove our scoped_token, and set_context is called
-        # in PRE in psychokinetic middleware.client, which will set token to
-        # auth_token
-        req.context.api.unscope()
-        req.session['domain'] = None
-        req.session['tenant_id'] = None
+        # Set Unscoped Token
+        token = req.get_header('X-Auth-Unscoped-Token')
+        token = req.context.api.token(token).json
 
-        if x_domain or x_tenant_id:
-            # WE scope the token and set session to scoped token context...
-            token = req.context.api.scope(x_domain, x_tenant_id).json
-            req.scope_token = token['token']
-            req.session['domain'] = token.get('domain')
-            req.session['tenant_id'] = token.get('tenant_id')
+        token = req.context.api.scope(domain, tenant_id).json
 
-        req.session.save()
-
-    _home = req.app if req.app else '/'
-    resp.redirect(_home)
+        token['region'] = region
+        return token

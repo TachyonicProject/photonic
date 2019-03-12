@@ -13,7 +13,11 @@
     {% for stylesheet in G.stylesheets %}
     <link type="text/css" rel="stylesheet" href="{{STATIC}}/{{ stylesheet }}">
     {% endfor %}
-
+    <script type="text/javascript">
+        var mxBasePath = '{{STATIC}}/photonic/ext/mxgraph';
+        var mxLanguage = 'en';
+    </script>
+    <script type="text/javascript" src="{{STATIC}}/photonic/ext/mxgraph/js/mxClient.js"></script>
     <script type="text/javascript" src="{{STATIC}}/photonic/ext/jquery/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="{{STATIC}}/photonic/ext/jquery-ui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="{{STATIC}}/photonic/ext/bootstrap/js/bootstrap.min.js"></script>

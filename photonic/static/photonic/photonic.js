@@ -1,1146 +1,1718 @@
-/*
- * GLOBALS
- */
+function mxMultiplicityMax(type, max, validNeighbors, error) {
+    this.type = type;
+    this.min = 0;
+    this.max = (max != null) ? max : 1;
+    this.validNeighbors = validNeighbors;
+    this.error = error;
+    this.check = function(graph, edge, source, target, sourceOut, targetIn) {
+        var error = '';
+        var counter = 0;
+        var valid = this.validNeighbors;
+        var destinationTargetValue = graph.model.getValue(target);
 
-/* App Path for following links, this gets set in template base.html */
-var app = ''
+        if (this.checkTerminal(graph, source, edge)) {
+            edges = graph.model.getOutgoingEdges(source);
+            for (var e = 0; e < edges.length; e++){
+                var edgeTarget = graph.model.getTerminal(edges[e], false);
+                var targetValue = graph.model.getValue(edgeTarget);
+                for (var v = 0; v < valid.length; v++) {
+                    if (this.checkType(graph, destinationTargetValue, valid[v])) {
+                        counter++;
+                    }
+                    if (this.checkType(graph, targetValue, valid[v])) {
+                        counter++;
+                    }
+                }
+            }
+            if (counter > this.max) {
+                error = this.error + '\n';
+            }
+        }
 
-/* Notices - POP Up counter for new id incrementing */
-var notices = 0
-
-/* Set Initial Idle Time for Auto-Logout */
-var idleTime = 0;
-
-/* List of Modals Open */
-var modals = [];
-
-var dt = null;
-
-/*
- * Log Debug output to console.
- */
-$.fn.dataTable.ext.errMode = 'none'
-
-http://datatables.net/tn/7
-function log(msg) {
-    if (window.console) {
-        window.console.log("Photonic " + msg)
+        return (error.length > 0) ? error : null;
     }
-}
+    this.checkTerminal = function(graph, terminal, edge)
+    {
+        var value = graph.model.getValue(terminal);
+        
+        return this.checkType(graph, value, this.type, this.attr, this.value);
+    };
+    this.checkType = function(graph, value, type, attr, attrValue)
+    {
+        if (value != null)
+        {
+            if (!isNaN(value.nodeType)) // Checks if value is a DOM node
+            {
+                return mxUtils.isNode(value, type, attr, attrValue);
+            }
+            else
+            {
+                return value == type;
+            }
+        }
+        
+        return false;
+    };
+};
 
-/* Disable Enter Key */
-function stopRKey(evt) {
-  var evt = (evt) ? evt : ((event) ? event : null);
-  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-  if (evt.keyCode == 13) {return false;}
-}
-
-document.onkeypress = stopRKey; 
-
-/*
- * Get the Location of Element.
- */
-function getOffset( el ) {
-    var _x = 0;
-    var _y = 0;
-    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
-        _x += el.offsetLeft - el.scrollLeft;
-        _y += el.offsetTop - el.scrollTop;
-        el = el.offsetParent;
+function mxMaxSymbol(model, parent, child, tagName, max) {
+    function check(cell) {
+        return(cell.getValue().tagName == tagName);
     }
-    return { top: _y, left: _x };
+    if (child.getValue().tagName == tagName) {
+        cells = model.filterDescendants(check, model.getRoot(parent));
+        if (cells.length >= max) {
+            return(true);
+        }
+    }
+    return(false);
 }
 
 
-/*
- * Get Element by Tag
- */
-function getElementByTagName(tag) {
-    elements = document.getElementsByTagName(tag);
-    return elements[0];
-}
+var tachyon = {
+    app: null,
+    reTokenTime: 30,
+    notices: 0,
+    idleTime: 0,
+    modals: [],
+    cleanups: {"main": [], "sidebar": [], "header": []},
+
+    init: function(app) {
+        if (app == '/') {
+            var app = '';
+        }
+        tachyon.app = app;
+        tachyon.init = function() {
+            tachyon.log('Cannot tachyon.init() javascript again!');
+        }
 
 
-/*
- * Get Element by Id or Tag
- */
-function getElement(value) {
-    try {
+        // MXGraph Global Configuration....
+        mxUtils.alert = function (message) {
+            message = message.replace("\n", "<BR>");
+            tachyon.error("<B>Diagram ditor</B><BR><BR>" + message);
+        }
+
+        mxGraph.prototype.htmlLabels = true;
+
+        mxGraph.prototype.isWrapping = function(cell)
+        {
+            return true;
+        };
+
+        mxConstants.DEFAULT_HOTSPOT = 1;
+
+        // Enables guides
+        mxGraphHandler.prototype.guidesEnabled = true;
+
+        // Alt disables guides
+        mxGuide.prototype.isEnabledForEvent = function(evt)
+        {
+            return !mxEvent.isAltDown(evt);
+        };
+
+        // Enables snapping waypoints to terminals
+        mxEdgeHandler.prototype.snapToTerminals = true;
+
+        origMxWindow = mxWindow;
+        mxWindow = function (title,
+                             content,
+                             x,  
+                             y,  
+                             width,
+                             height,
+                             minimizable,
+                             movable,
+                             replaceNode,
+                             style) {
+            curwindow = tachyon.focus();
+            div = document.createElement('div');
+            div.id = 'mxWindows';
+            curwindow.appendChild(div);
+            return new origMxWindow(title,
+                                content,
+                                x,
+                                y,
+                                width,
+                                height,
+                                minimizable,
+                                movable,
+                                div,
+                                style);
+        }
+
+        origMxGraphModel = mxGraphModel.prototype.add;
+        mxGraphModel.prototype.add = function(parent, child, index) {
+            if (mxMaxSymbol(this, parent, child, 'Event', 1)) {
+                mxUtils.alert('One only one <B>Start Event</B> allowed.\n');
+                return null;
+            }
+            if (mxMaxSymbol(this, parent, child, 'EventEnd', 1)) {
+                mxUtils.alert('One only one <B>End Event</B> allowed.\n');
+                return null;
+            }
+            
+            return origMxGraphModel.call(this, parent, child, index);
+        }
+
+
+        /* Disable Enter Key for hyperlinks <A>*/
+        function stopRKey(evt) {
+          var evt = (evt) ? evt : ((event) ? event : null);
+          var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+          if (node.tagName.toUpperCase() == 'A')
+          {
+              if (evt.keyCode == 13) {return false;}
+          }
+        }
+        document.onkeypress = stopRKey; 
+
+        // BOOTSTRAP DATATABLES
+        $.fn.dataTable.ext.errMode = 'none'
+
+        /*
+         * Responsive sidebar
+         */
+        window.onresize = function() {
+            if (window.innerWidth > 900) {
+                document.getElementById('sidebar').style.display = "block";
+            }
+            else {
+                document.getElementById('sidebar').style.display = "none";
+            }
+        }
+
+        /*
+         * Global Ajax Error Handler
+         */
+        $( document ).ajaxError(function( event, XMLHttpRequest, settings, thrownError ) {
+            if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
+                if ('token' in sessionStorage) {
+                    tachyon.warning('Window session (token) has expired');
+                    sessionStorage.clear();
+                    tachyon.initWindow();
+                }
+            } else {
+                document.getElementById('loading').style.display = "none";
+                if (XMLHttpRequest.status == 500) {
+                    tachyon.error(XMLHttpRequest.responseText);
+                } else {
+                    if (XMLHttpRequest.responseText) {
+                        tachyon.warning(XMLHttpRequest.responseText);
+                    } else {
+                        if (thrownError != 'abort') {
+                            tachyon.warning("AJAX: " + thrownError);
+                        }
+                    }
+                }
+                $('.photonic-checkbox').remove();
+                tachyon.doneLoading();
+            }
+        });
+
+        $.ajaxSetup({
+            beforeSend: function(xhr) {
+                token = sessionStorage.getItem("scoped_token");
+                // Scoped Token
+                if (token != null) {
+                    xhr.setRequestHeader("X-Auth-Token", token);
+                }
+                // Unscoped Token - used for re-scoping
+                token = sessionStorage.getItem("token");
+                if (token != null) {
+                    xhr.setRequestHeader("X-Auth-Unscoped-Token", token);
+                }
+                // X-Region Session
+                region = sessionStorage.getItem("region");
+                if (region != null) {
+                    xhr.setRequestHeader("X-Region", region);
+                }
+                // X-Domain Session
+                domain = sessionStorage.getItem("domain");
+                if (domain != null) {
+                    xhr.setRequestHeader("X-Domain", domain);
+                }
+                // X-Tenant-ID Session
+                tenant_id = sessionStorage.getItem("tenant_id");
+                if (tenant_id != null) {
+                    xhr.setRequestHeader("X-Tenant-Id", tenant_id);
+                }
+            }
+        });
+        if (!(tachyon.sessionInit())) {
+            tachyon.initWindow();
+        }
+        setInterval(tachyon.reToken, 1000 * 5);
+        setInterval(tachyon.sessionInit, 1000 * 5);
+    },
+
+    /*
+     * Log Debug output to console.
+     */
+    log: function(msg) {
+        if (window.console) {
+            window.console.log("Tachyonic: " + msg)
+        }
+    },
+
+    isNode: function(o){
+        return (
+            typeof Node === "object" ? o instanceof Node :
+            o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName==="string"
+        );
+    },
+
+    isfunction: function(o){
+        return (
+            typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+            o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
+        );
+    },
+
+    /*
+     * Get the Location of Element.
+     */
+    getOffset: function(el) {
+        var _x = 0;
+        var _y = 0;
+        while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+            _x += el.offsetLeft - el.scrollLeft;
+            _y += el.offsetTop - el.scrollTop;
+            el = el.offsetParent;
+        }
+        return { top: _y, left: _x };
+    },
+
+    /*
+     * Get Element by Tag
+     */
+    getElementByTagName: function(tag) {
+        elements = document.getElementsByTagName(tag);
+        return elements[0];
+    },
+
+    /*
+     * Get Element by Id or Tag
+     */
+    getElement: function(value) {
         try {
-            element = document.getElementById(value);
-            if (typeof element === 'undefined' || element == null) {
-                throw "getElement not found";
+            try {
+                element = document.getElementById(value);
+                if (typeof element === 'undefined' || element == null) {
+                    throw "getElement not found";
+                }
+            } catch(err) {
+                element = document.getElementsByTagName(value);
+                if (typeof element === 'undefined' || element == null) {
+                    throw "getElement not found";
+                }
+                if (element.length == 0) {
+                    throw "getElement not found";
+                }
+                element = element[0]
             }
         } catch(err) {
-            element = document.getElementsByTagName(value);
-            if (typeof element === 'undefined' || element == null) {
-                throw "getElement not found";
-            }
-            if (element.length == 0) {
-                throw "getElement not found";
-            }
-            element = element[0]
+            throw "getElement not found";
         }
-    } catch(err) {
-        throw "getElement not found";
-    }
+        return element;
+    },
 
-    return element;
-}
+    /*
+     * Internal Insert Node after Reference Node
+     */
+    insertAfter: function(newNode, referenceNode) {
+        referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    },
 
+    /*
+     * Reload Page
+     */
+    reload: function() {
+        window.location.reload();
+    },
 
-/*
- * Internal Insert Node after Reference Node
- */
-function insertAfter(newNode, referenceNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-}
+    /*
+     * Internal Callback Function Caller. (Use in the event of loops)
+     */
+    callfunc: function(callback, element) {
+        return function(e){ callback(e, element);}
+    },
 
-
-/*
- * Reload Page
- */
-function reload() {
-    window.location.reload();
-}
-
-
-/*
- * Internal Callback Function Caller. (Use in the event of loops)
- */
-function callfunc(callback, element) {
-    return function(e){ callback(e, element);}
-}
-
-
-/* 
- * Register dom element toggle events.
- */
-function register_event(root, tag, on, callback, event_name) {
-    if ((typeof root) == 'string') {
-        var root_node = getElement(root);
-    } else {
-        var root_node = root
-    }
-    var elems = root_node.getElementsByTagName(tag);
-
-    for (i=0; i < elems.length; i++){
-        var element = elems[i]
-        if (typeof event_name === 'undefined') {
-            element.addEventListener(on, callfunc(callback, element));
-        }
-        else {
-            if ('event' in elems[i].dataset) {
-                if (element.dataset.event == event_name) {
-                    element.addEventListener(on, callfunc(callback, element));
-                }
-            }
-        }
-    }
-}
-
-
-/*
- * Responsive sidebar
- */
-window.onresize = function() {
-    if (window.innerWidth > 900) {
-        document.getElementById('sidebar').style.display = "block";
-    }
-    else {
-        document.getElementById('sidebar').style.display = "none";
-    }
-}
-
-
-/*
- * Toggle Navigation
- */
-function toggle_sidebar() {
-    var display = document.getElementById('sidebar').style.display;
-    if (display == "none" || display == "") {
-        document.getElementById('sidebar').style.display = "block";
-    }   
-    else {
-        document.getElementById('sidebar').style.display = "none";
-    }   
-}
-
-
-/*
- * Lock or Unlock background
- */
-function toggle_locked() {
-    var display = document.getElementById('locked').style.display;
-    if (display == "none" || display == "")
-    {
-        document.getElementById('locked').style.display = "block";
-    }   
-    else
-    {   
-        document.getElementById('locked').style.display = "none";
-    }   
-}
-
-
-/*
- * POPUPS Below... 
- */
-function notice(n, css) {
-    notices++;
-    var divid = String("popup" + notices);
-    n = "<div id=\"" + divid + "\" class=\"popup " + css + "\"><div style='width: 270px; float:left;'>" + n + "</div><div style='float:left;'><button class=\"close\" type=\"button\" onclick=\"close_notice('"+divid+"');\">x</button></div></div>"
-    $("#popup").prepend(n);
-    if (css == 'error') {
-        $('#'+divid).toggle( "shake" );
-        setTimeout(function() { close_notice(divid); }, 30000);
-    }
-    else {
-        $('#'+divid).toggle( "fold" );
-        setTimeout(function() { close_notice(divid); }, 10000);
-    }
-
-}
-
-
-/*
- * Information popup notification... 
- */
-function info(n) {
-    notice(n, 'info')
-}
-
-
-/*
- * Success popup notification... 
- */
-function success(n) {
-    notice(n, 'success')
-}
-
-/*
- * Error popup notification... 
- */
-function error(n) {
-    notice(n, 'error')
-}
-
-
-/*
- * Warning popup notification... 
- */
-function warning(n) {
-    notice(n, 'warning')
-}
-
-
-/*
- * close popup notification... 
- */
-function close_notice(n) {
-    //$('#'+n).fadeOut('slow',function() { delete_notice(n) })
-    $('#'+n).toggle( "fold" );
-    setTimeout(function() { delete_notice(n); }, 1000)
-}
-
-
-/*
- * delete popup notification... 
- */
-function delete_notice(n) {
-    popup = document.getElementById(n);
-    if (popup != null)
-    {
-        if(typeof popup.remove === 'function') {
-            popup.remove()
+    /* 
+     * Register dom element toggle events.
+     */
+    registerEvent: function(root, tag, on, callback, event_name) {
+        if ((typeof root) == 'string') {
+            var root_node = tachyon.getElement(root);
         } else {
-            popup.style.display = "none";
+            var root_node = root
         }
-    }
-}
+        var elems = root_node.getElementsByTagName(tag);
 
-
-/*
- * Actions for messages received from webui /messaging view. 
- */
-function action(data) {
-    for (i=0; i < data.length; i++){
-        // if type is 'goto' then redirect to 'link'
-        if (data[i].type == 'goto') {
-            window.location.replace(data[i].link);
-        }
-    }
-}
-
-
-/**
-  * Validate form for browser that does not support HTML5 required
-  */
-function validate_form(form) {
-    var ref = $(form).find("[required]");
-    var valid = true;
-
-    $(ref).each(function(){
-        if ( $(this).val() == '' ) {
-            this.style.borderColor = 'red';
-            valid = false;
-        }
-        else
-        {
-            this.style.borderColor = null;
-        }
-    });
-    if (valid == false) {
-        warning("Required fields empty");
-    }
-    return valid;
-}
-
-
-/*
- * Create Modal
- */
-function modal(content) {
-    var modal = document.createElement('div');
-    modal.className = "modal";
-    var modal_window = document.createElement('div');
-    modal_window.innerHTML = content;
-    modal.appendChild(modal_window);
-    modal_drag(modal_window);
-    if (modals.length == 0) {
-        getElementByTagName('body').appendChild(modal);
-    } else {
-        var last = modals[modals.length - 1].parentNode;
-        insertAfter(modal, last)
-    }
-    modal_window.style.top = String(3 + modals.length) + 'rem';
-    modals.push(modal_window);
-    getElementByTagName('body').style="overflow: hidden"
-
-    return modal_window;
-}
-
-
-/*
- * Make modal dragable
- */
-function modal_drag(modal_window) {
-    if (modal_window.firstElementChild != null) {
-        if (modal_window.firstElementChild.nodeName == 'H1') {
-            var heading = modal_window.firstElementChild;
-            drag(modal_window, heading);
-        }
-    }
-}
-
-
-/*
- * Make node draggable...
- */
-function drag(elmnt, hook) {
-    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
- 
-    hook.onmousedown = dragMouseDown;
-    hook.style.cursor = 'move';
-
-	function dragMouseDown(e) {
-		// get the mouse cursor position at startup:
-		pos3 = e.clientX;
-		pos4 = e.clientY;
-		document.onmouseup = closeDragElement;
-		// call a function whenever the cursor moves:
-		document.onmousemove = elementDrag;
-	}
-
-	function elementDrag(e) {
-		// calculate the new cursor position:
-		pos1 = pos3 - e.clientX;
-		pos2 = pos4 - e.clientY;
-		pos3 = e.clientX;
-		pos4 = e.clientY;
-		// set the element's new position:
-		elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-		elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-	}
-
-	function closeDragElement() {
-	/* stop moving when mouse button is released:*/
-		document.onmouseup = null;
-		document.onmousemove = null;
-	}
-}
-
-
-/*
- * Get current focus
- */
-function focus() {
-    if (modals.length == 0) {
-        return document.getElementById('main');
-    } else {
-        return modals[modals.length - 1];
-    }
-}
-
-
-/*
- * Close window / modal etc
- */
-function close_window() {
-    if (modals.length == 0) {
-        main = document.getElementById('main');
-        main.innerHTML = '';
-        clear_active_a()
-    } else {
-        if (modals.length == 1) {
-            getElementByTagName('body').style=""
-        }
-        var modal = modals.pop();
-        modal.parentNode.parentNode.removeChild(modal.parentNode);
-        reload_dt()
-    }
-}
-
-function redirect(site) {
-    window.location.href = site;
-}
-
-/*
- * Close all windows / modals etc
- */
-function close_windows() {
-    if (modals.length == 1) {
-        getElementByTagName('body').style=""
-    }
-
-    while (modals.length > 0) {
-        var modal = modals.pop();
-        modal.parentNode.parentNode.removeChild(modal.parentNode);
-    }
-
-    reload_dt()
-}
-
-/*
- * Global Ajax Error Handler
- */
-$( document ).ajaxError(function( event, XMLHttpRequest, settings, thrownError ) {
-    if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
-        alert('Your session has expired, please login again.');
-        reload();
-    } else {
-        document.getElementById('loading').style.display = "none";
-        if (XMLHttpRequest.status == 500) {
-            error(XMLHttpRequest.responseText);
-        } else {
-            if (XMLHttpRequest.responseText) {
-                warning(XMLHttpRequest.responseText);
-            } else {
-                if (thrownError != 'abort') {
-                    warning("AJAX: " + thrownError);
-                }
+        for (i=0; i < elems.length; i++){
+            var element = elems[i]
+            if (typeof event_name === 'undefined') {
+                element.addEventListener(on, tachyon.callfunc(callback, element));
             }
-
-        }
-        $('.photonic-checkbox').remove();
-        done_loading();
-    }
-});
-
-/*
- * AJAX query with callback.
- */
-function ajax_query(method, url, success, form) {
-    loading();
-    $('html, body').animate({ scrollTop: 0 }, 'fast');
-    if (typeof(form) !== 'undefined' && form != null) {
-        inputs = form.getElementsByTagName('input');
-        for (a = 0; a < inputs.length; a++) {
-            if ('boolean' in inputs[a].dataset) {
-                if (inputs[a].type == 'checkbox') {
-                    checkbox = $(inputs[a]);
-                    if(!(checkbox.is(':checked'))) {
-                        checkbox.after().append(checkbox.clone().attr({type:'hidden', value:'False', class:'photonic-checkbox'}));
+            else {
+                if ('event' in elems[i].dataset) {
+                    if (element.dataset.event == event_name) {
+                        element.addEventListener(on, tachyon.callfunc(callback, element));
                     }
                 }
             }
         }
-        if (method.toLowerCase() == 'get') {
-            method = 'post';
+    },
+
+    /*
+     * Popup messages Below... 
+     */
+    notice: function(n, css) {
+        n = n + '<BR><I>' + new Date().toLocaleString() + '</I>';
+        tachyon.notices++;
+        var divid = String("popup" + tachyon.notices);
+        n = "<div id=\"" + divid + "\" class=\"popup " + css + "\"><div style='width: 270px; float:left;'>" + n + "</div><div style='float:left;'><button class=\"close\" type=\"button\" onclick=\"tachyon.closeNotice('"+divid+"');\">x</button></div></div>"
+        $("#popup").prepend(n);
+        if (css == 'error') {
+            $('#'+divid).toggle( "shake" );
+            setTimeout(function() { tachyon.closeNotice(divid); }, 30000);
         }
-        if (typeof(window.FormData) == 'undefined') {
-            submit = $(form).serialize();
-            pd = true;
-            ct = 'application/x-www-form-urlencoded; charset=UTF-8'
+        else {
+            $('#'+divid).toggle( "fold" );
+            setTimeout(function() { tachyon.closeNotice(divid); }, 10000);
+        }
+    },
+
+    /*
+     * Information popup notification... 
+     */
+    info: function(n) {
+        tachyon.notice(n, 'info')
+    },
+
+
+    /*
+     * Success popup notification... 
+     */
+    success: function(n) {
+        tachyon.notice(n, 'success')
+    },
+
+    /*
+     * Error popup notification... 
+     */
+    error: function(n) {
+        tachyon.notice(n, 'error')
+    },
+
+    /*
+     * Warning popup notification... 
+     */
+    warning: function(n) {
+        tachyon.notice(n, 'warning')
+    },
+
+    /*
+     * close popup notification... 
+     */
+    closeNotice: function(n) {
+        $('#'+n).toggle( "fold" );
+        setTimeout(function() { tachyon.deleteNotice(n); }, 1000)
+    },
+
+    /*
+     * delete popup notification... 
+     */
+    deleteNotice: function(n) {
+        popup = document.getElementById(n);
+        if (popup != null)
+        {
+            if(typeof popup.remove === 'function') {
+                popup.remove()
+            } else {
+                popup.style.display = "none";
+            }
+        }
+    },
+
+    /*
+     * Toggle Navigation
+     */
+    toggleSidebar: function() {
+        var display = document.getElementById('sidebar').style.display;
+        if (display == "none" || display == "") {
+            document.getElementById('sidebar').style.display = "block";
+        }   
+        else {
+            document.getElementById('sidebar').style.display = "none";
+        }   
+    },
+
+    /**
+      * Validate form for browser that does not support HTML5 required
+      */
+    validateForm: function(form) {
+        var ref = $(form).find("[required]");
+        var valid = true;
+
+        $(ref).each(function(){
+            if ( $(this).val() == '' ) {
+                this.style.borderColor = 'red';
+                valid = false;
+            }
+            else
+            {
+                this.style.borderColor = null;
+            }
+        });
+        if (valid == false) {
+            warning("Required fields empty");
+        }
+        return valid;
+    },
+
+    /*
+     * Create Modal
+     */
+    modal: function(content) {
+        var modal = document.createElement('div');
+        modal.className = "modal";
+        var modal_window = document.createElement('div');
+        modal_window.innerHTML = content;
+        modal.appendChild(modal_window);
+        tachyon.modalDRag(modal_window);
+
+        if (tachyon.modals.length == 0) {
+            tachyon.getElementByTagName('body').appendChild(modal);
         } else {
-            submit = new FormData(form);
+            var last = tachyon.modals[tachyon.modals.length - 1].parentNode;
+            tachyon.insertAfter(modal, last)
+        }
+
+        modal_window.style.top = String(3 + tachyon.modals.length) + 'rem';
+        modal_window.id = "model_" + tachyon.modals.length;
+        tachyon.modals.push(modal_window);
+        tachyon.cleanups[modal_window.id] = [];
+        tachyon.getElementByTagName('body').style="overflow: hidden"
+
+        return modal_window;
+    },
+
+    /*
+     * Make modal dragable
+     */
+    modalDRag: function(modal_window) {
+        if (modal_window.firstElementChild != null) {
+            if (modal_window.firstElementChild.nodeName == 'H1') {
+                var heading = modal_window.firstElementChild;
+                tachyon.drag(modal_window, heading);
+            }
+        }
+    },
+
+    /*
+     * Make node draggable...
+     */
+    drag: function(elmnt, hook) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+     
+        hook.onmousedown = dragMouseDown;
+        hook.style.cursor = 'move';
+
+        function dragMouseDown(e) {
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+        /* stop moving when mouse button is released:*/
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    },
+
+    /*
+     * Get current focus
+     */
+    focus: function() {
+        if (tachyon.modals.length == 0) {
+            return document.getElementById('main');
+        } else {
+            return tachyon.modals[tachyon.modals.length - 1];
+        }
+    },
+
+    /*
+     * Close window / modal
+     */
+    closeWindow: function() {
+        tachyon.cleanup();
+        if (tachyon.modals.length == 0) {
+            tachyon.cleanup(document.getElementById('main'));
+            tachyon.navClearActiveLinks()
+        } else {
+            if (tachyon.modals.length == 1) {
+                tachyon.getElementByTagName('body').style=""
+            }
+
+            var modal = tachyon.modals.pop();
+            modal.parentNode.parentNode.removeChild(modal.parentNode);
+
+            tachyon.datatableReload();
+        }
+    },
+
+    /*
+     * Close all modals
+     */
+    closeWindows: function() {
+        if (tachyon.modals.length == 1) {
+            tachyon.getElementByTagName('body').style="";
+        }
+
+        while (tachyon.modals.length > 0) {
+            tachyon.cleanup();
+
+            var modal = tachyon.modals.pop();
+            modal.parentNode.parentNode.removeChild(modal.parentNode);
+        }
+
+        tachyon.datatableReload();
+    },
+
+    /*
+     * Close all 
+     */
+    closeAll: function() {
+        if (tachyon.modals.length == 1) {
+            tachyon.getElementByTagName('body').style="";
+        }
+
+        while (tachyon.modals.length > 0) {
+            tachyon.cleanup();
+            var modal = tachyon.modals.pop();
+            modal.parentNode.parentNode.removeChild(modal.parentNode);
+        }
+        tachyon.cleanup(document.getElementById('main'));
+        tachyon.cleanup(document.getElementById('header'));
+        tachyon.cleanup(document.getElementById('sidebar'));
+    },
+
+    redirect: function(site) {
+        window.location.href = site;
+    },
+
+    /*
+     * AJAX query with callback.
+     */
+    ajaxQuery: function(method, url, success, error, form, xmldoc, raw, content_type) {
+        tachyon.loading();
+        $('html, body').animate({ scrollTop: 0 }, 'fast');
+        if (typeof(raw) !== 'undefined' && raw != null) {
+            submit = raw;
+            pd = false;
+            if (typeof(content_type) !== 'undefined' && content_type != null) {
+                ct = content_type;
+            } else {
+                ct = 'application/json; charset=utf-8';
+            }
+        } else if (tachyon.isNode(xmldoc)) {
+            var serializer = new XMLSerializer();
+            submit = serializer.serializeToString(xmldoc);
+            pd = false;
+            ct = 'application/xml; charset=utf-8';
+        } else if (typeof(form) !== 'undefined' && form != null) {
+            inputs = form.getElementsByTagName('input');
+            for (a = 0; a < inputs.length; a++) {
+                if ('boolean' in inputs[a].dataset) {
+                    if (inputs[a].type == 'checkbox') {
+                        checkbox = $(inputs[a]);
+                        if(!(checkbox.is(':checked'))) {
+                            checkbox.after().append(checkbox.clone().attr({type:'hidden', value:'False', class:'photonic-checkbox'}));
+                        }
+                    }
+                }
+            }
+            if (method.toLowerCase() == 'get') {
+                method = 'post';
+            }
+            if (typeof(window.FormData) == 'undefined') {
+                submit = $(form).serialize();
+                pd = true;
+                ct = 'application/x-www-form-urlencoded; charset=UTF-8'
+            } else {
+                submit = new FormData(form);
+                pd = false;
+                ct = false;
+            }   
+        } else {
+            submit = null;
             pd = false;
             ct = false;
-        }   
-    } else {
-        submit = null;
-        pd = false;
-        ct = false;
-    }   
-    $.ajax({url: url,
-        type: method,
-        async: true,
-        cache: false,
-        context: document.body,
-        contentType: ct, 
-        processData: pd, 
-        data: submit,
-        success: function(result, textStatus, XMLHttpRequest) {
-            success(result);
-            if (typeof(form) !== 'undefined' && form != null) {
-                if ('msg' in form.dataset) {
-                    notice(form.dataset.msg, 'success');
+        }
+        $.ajax({url: url,
+            type: method,
+            async: true,
+            cache: false,
+            context: document.body,
+            contentType: ct, 
+            processData: pd, 
+            data: submit,
+            success: function(result, textStatus, XMLHttpRequest) {
+                if (typeof(success) !== 'undefined' && success != null) {
+                    success(result);
+                } else if (typeof(form) !== 'undefined' && form != null) {
+                    if ('msg' in form.dataset) {
+                        tachyon.notice(form.dataset.msg, 'success');
+                    }
                 }
-            }
-        },  
-        complete: function() {
-           done_loading();
-        }   
-    }); 
-}
-
-
-/*
- * Set Inner HTML
- */
-function load_html(content) {
-    view_section = focus();
-    view_section.innerHTML = content;
-    reload_dt();
-    feather.replace();
-    scripts = view_section.getElementsByTagName('script')
-    for (i = 0; i < scripts.length; i++) {
-        eval(scripts[i].innerHTML); 
-    }   
-    ajax(focus());
-    modal_drag(focus());
-} 
-
-
-/*
- * Bootstrap new Modal
- */
-function load_modal(content) {
-    new_modal = modal(content)
-    feather.replace();
-    scripts = new_modal.getElementsByTagName('script')
-    for (i = 0; i < scripts.length; i++) {
-        eval(scripts[i].innerHTML); 
-    }   
-    ajax(focus());
-} 
-
-
-/*
- * Link Handler triggered by event.
- */
-function link_handler(e, element) {
-    // IE Compatible.... just in case..
-    e = e || window.event;
-
-    if (typeof(element) == 'undefined') {
-        element = e.target || e.srcElement;
-        if (element.nodeType == 3) element = element.parentNode; // defeat Safari bug
-    }
-
-    if (!('noAjax' in element.dataset)) {
-        if ('confirm' in element.dataset) {
-            e.preventDefault();
-            confirm = '<h1>Please confirm?</h1>';
-            confirm += '<div class="confirm">';
-            confirm += element.dataset.confirm;
-            confirm += '</div>';
-            confirm += '<div class="buttons">';
-            confirm += '<a href="#" onclick="close_window()" class="btn">Cancel</a>'
-            confirm += '<a href="' + element.href + '" class="btn btn-danger"'
-            for (option in element.dataset) {
-                if (option != 'confirm') {
-                    confirm += "data-" + option + '="' + element.dataset[option] + '"';
+            },
+            error: function(event, XMLHttpRequest, settings, thrownError) {
+                if (typeof(error) !== 'undefined' && error != null) {
+                    error(event, XMLHttpRequest, settings, thrownError);
                 }
-            }
-            confirm += '>Continue</a>'
-            confirm += '</div>';
-            load_modal(confirm);
+
+            },
+            complete: function() {
+               tachyon.doneLoading();
+            }   
+        }); 
+    },
+
+    registerCleanup: function(func, root) {
+        if (typeof(root) !== 'undefined' && root != null) {
+            var current = root;
         } else {
-            nav = getElementByTagName('nav')
-            if (nav.contains(element)) {
-                dt = null;
-            }
-            if (element.href.endsWith("#")) {
-                $('html, body').animate({ scrollTop: 0 }, 'fast');
-            }
-            form = document.getElementById(element.dataset.form);
-            if (element.href != window.location + '#' && !element.href.endsWith("#")) {
-                clear_search(element);
-                if ('closeall' in element.dataset) {
-                    ajax_query('get', element.href, close_windows, form);
-                }
-                else if ('close' in element.dataset) {
-                    ajax_query('get', element.href, close_window, form);
-                } else if ('modal' in element.dataset) {
-                    ajax_query('get', element.href, load_modal, form);
-                } else {
-                    ajax_query('get', element.href, load_html, form);
-                }
-                if (window.innerWidth <= 900) {
-                    document.getElementById('sidebar').style.display = "none";
-                }
-                e.preventDefault();
-            }
+            var current = tachyon.focus();
         }
-    }
-}
+        tachyon.cleanups[current.id].push(func);
+    },
 
-
-/* 
- * Reload Datatable
- */
-function adjust_dt() {
-    $.fn.dataTable
-        .tables( { visible: true, api: true } )
-        .columns.adjust().draw();
-}
-function reload_dt() {
-    $.fn.dataTable
-        .tables( { visible: true, api: true } )
-        .ajax.reload( adjust_dt, false );
-}
-
-/*
- * Form Handler triggered by event.
- */
-function form_handler(e, element) {
-    // IE Compatible.... just incase..
-    e = e || window.event;
-
-    if (typeof(element) == 'undefined') {
-        element = e.target || e.srcElement;
-        if (element.nodeType == 3) element = element.parentNode; // defeat Safari bug
-    }
-
-    if (!('noAjax' in element.dataset)) {
-        if ('reload' in element.dataset) {
-            ajax_query('post', element.action, reload, element);
-        } else if ('datatable' in element.dataset) {
-            ajax_query('post', element.action, reload_dt, element);
-        } else if ('redirect' in element.dataset) {
-            ajax_query('post', element.action,
-                function () {
-                    redirect(element.dataset.redirect);
-                },
-                element);
+    cleanup: function(root) {
+        if (typeof(root) !== 'undefined' && root != null) {
+            var current = root;
         } else {
-            ajax_query('post', element.action, load_html, element);
+            var current = tachyon.focus();
         }
 
-        if (window.innerWidth <= 900) {
-            document.getElementById('sidebar').style.display = "none";
+        clean = tachyon.cleanups[current.id];
+        for (zz = 0; zz < clean.length; zz++) {
+            clean[zz]();
         }
-        e.preventDefault();
-    }
-}
+        tachyon.cleanups[current.id] = []
+        current.innerHTML = '';
+    },
 
-
-/*
- * Display Loading
- */
-function loading() {
-    var display = document.getElementById('loading').style.display;
-    if (display == "none" || display == "")
-    {
-        document.getElementById('loading').style.display = 'block';
-    }
-}
-
-
-/*
- * Remove Loading
- */
-function done_loading() {
-    var display = document.getElementById('loading').style.display;
-    if (display == "block")
-    {
-        $( "#loading" ).toggle( "fade", {}, 400 );
-    }
-}
-
-/*
- * A function to generate a function to use
- * in select2's ajax.processResults.
- * (@vuader): Without this, the id_field and text_field
- * are not expanded correctly during run time.
- */
-function genS2ProcessFunc(id_field, text_field) {
-    function select2ProcessResults(data) {
-        // Tranforms the top-level key of the select2 response object to 'results'
-        response = [];
-        if (!'payload' in data) {
-            alert('API responded with error');
-        }
-        payload = data.payload
-        for (i = 0; i < payload.length; i++) {
-            if (payload[i].constructor === String) {
-                id = payload[i];
-                text = payload[i];
-            }
-            else {
-                id = payload[i][id_field];
-                text = payload[i][text_field];
-            }
-            response.push({'id': id, 'text': text});
-        }
-        return {
-            results: response
-        }
-    };
-    return select2ProcessResults;
-}
-
-function select2_urlhelper(element) {
-    data = element.dataset;
-
-    endpoint = "";
-
-    if ('text' in data) {
-        var text_field = data.text;
-    } else {
-        var text_field = 'name';
-    }
-
-    if ('endpoint' in data) {
-        var endpoint = "&endpoint=" + data.endpoint;
-    }
-
-    if ('searchField' in data) {
-        var search_field = data.searchField;
-    } else {
-        var search_field = text_field;
-    }
-    return app + "/apiproxy?url=" + data.url + '&search_field=' + search_field + endpoint
-}
-
-/*
- * Function to turn a select into select2
- */
-function toSelect2(element) {
-    config = {}
-    data = element.dataset;
-    if ('noAjax' in data) {
-        return;
-    }
-
-    if ('id' in data) {
-        var id_field = data.id;
-    } else {
-        var id_field = 'id';
-    }
-
-    if ('text' in data) {
-        var text_field = data.text;
-    } else {
-        var text_field = 'name';
-    }
-
-    if ('searchField' in data) {
-        var search_field = data.searchField;
-    } else {
-        var search_field = text_field;
-    }
-
-    if ('forSearch' in data) {
-        config.minimumResultsForSearch = parseInt(data.forSearch);
-    }
-
-    if ('allowClear' in data) {
-        config.allowClear = true;
-    }
-
-    if ('placeholder' in data) {
-        config.placeholder = data.placeholder;
-    }
-
-    if ('tags' in data) {
-            config.tags = (data.tags == 'true');
-    }
-
-    select2ProcessResults = genS2ProcessFunc(id_field, text_field);
-
-    endpoint = "";
-
-    if ('endpoint' in data) {
-        endpoint = "&endpoint=" + data.endpoint;
-    }
-
-    if ('url' in data) {
-        config.ajax = {
-            dataType: "json",
-            delay: 1000,
-            processResults: select2ProcessResults,
-            url: function () {
-                return select2_urlhelper(element);
-            }
-        }
-    }
-    element.dataset = {}
-
-    $(element).select2(config);
-}
-
-
-
-/*
- * Internal function MRender for DataTables.
- */
-function mrenderLink(href, css, title, dataset) {
-    return function (data, type, row) {
-        link = '<a href="' + app + href + '/' + row.id + '"';
-        link += ' onclick="link_handler(event, this)"';
-        if (css != null) {
-            link += ' class="' + css + '"';
-        }
-        for (option in dataset) {
-            link += "data-" + option + '="' + dataset[option] + '"';
-        }
-        link += '>';
-        link += title;
-        link += '</a>';
-        return link;
-    }
-}
-
-
-/*
- * Internal function MRender Tick
- */
-function mrenderTick(id, css) {
-    return function (data, type, row) {
-        input = document.createElement('input');
-        input.type = 'checkbox';
-        input.id = element.id;
-        input.value = row.id;
-        if (css != null) {
-            input.className = css;
-        }
-        return input.outerHTML;
-    }
-}
-
-
-/*
- * Function to turn a table into datatables
- */
-function toDataTables(element) {
-    var link = null;
-    var config = {}
-    var data = element.dataset;
-    if ('noAjax' in data) {
-        return;
-    }
-
-    if (window.innerHeight > 550) {
-        config.pageLength = 10;
-    } else {
-        config.pageLength = 5;
-    }
-    config.lengthMenu = [[5, 10, 25, 50], [5, 10, 25, 50]];
-
-    var table_columns = element.getElementsByTagName('th');
-    if (table_columns.length == 0) {
-        alert('Expecting <th> in <thead> for Datatable');
-        return;
-    }
-    config.drawCallback = function( settings ) {
+    /*
+     * Set Inner HTML
+     */
+    loadHtml: function(content) {
+        tachyon.cleanup();
+        view_section = tachyon.focus();
+        view_section.innerHTML = content;
+        scripts = view_section.getElementsByTagName('script')
+        for (i = 0; i < scripts.length; i++) {
+            eval(scripts[i].innerHTML); 
+        }   
+        $(view_section).animate({ scrollTop: 0 }, 'fast');
+        tachyon.datatableReload();
         feather.replace();
-    }
-    if ('url' in data) {
+        tachyon.ajax(tachyon.focus());
+        tachyon.modalDRag(tachyon.focus());
+    },
+
+    /*
+     * Set Inner HTML
+     */
+    loadSection: function(content, element) {
+        element.innerHTML = content;
+        scripts = element.getElementsByTagName('script')
+        for (i = 0; i < scripts.length; i++) {
+            eval(scripts[i].innerHTML); 
+        }   
+        tachyon.ajax(element);
+        feather.replace();
+    },
+
+    /*
+     * Bootstrap new Modal
+     */
+    loadModal: function(content) {
+        new_modal = tachyon.modal(content)
+        scripts = new_modal.getElementsByTagName('script')
+        for (i = 0; i < scripts.length; i++) {
+            eval(scripts[i].innerHTML); 
+        }
+        feather.replace();
+        tachyon.ajax(tachyon.focus());
+    },
+
+    nowTimestamp: function() {
+        return(Math.floor(Date.now() / 1000));
+    },
+
+    setCookie: function(cname, cvalue, exdays) {
+        var site = tachyon.app
+        if (site == null || site == '') {
+            site = '/';
+        }
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=" + site + ';domain=' + window.location.hostname;
+    },
+
+    getCookie: function(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(';');
+      for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return null;
+    },
+
+    session: function(content, login) {
+        var current = tachyon.getCookie('tachyonLogin');
+        if (current != null) {
+            try {
+                var cookie = JSON.parse(current);
+            } catch(err) {
+                tachyon.error('Session cookie was corrupted.');
+                var cookie = {};
+            }
+
+        } else {
+            var cookie = {};
+        }
+
+        if ('token' in content && content.token != null) {
+            if (login == true) {
+                sessionStorage.setItem("loginat", tachyon.nowTimestamp());
+                sessionStorage.setItem("token", content.token);
+                cookie['token'] = content.token;
+                cookie['loginat'] = tachyon.nowTimestamp();
+            }
+            cookie['scoped_token'] = content.token;
+            sessionStorage.setItem("scoped_token", content.token);
+        }
+        if ('region' in content && content.region != null) {
+            sessionStorage.setItem("region", content.region);
+            cookie['region'] = content.region;
+        } else {
+            cookie['region'] = null;
+        }
+
+
+        if ('domain' in content && content.domain != null) {
+            sessionStorage.setItem("domain", content.domain);
+            cookie['domain'] = content.domain;
+        } else if (login == false) {
+            sessionStorage.removeItem("domain");
+            cookie['domain'] = null;
+        }
+
+        if ('tenant_id' in content && content.tenant_id != null) {
+            sessionStorage.setItem("tenant_id", content.tenant_id);
+            cookie['tenant_id'] = content.tenant_id;
+        } else if (login == false) {
+            sessionStorage.removeItem("tenant_id");
+            cookie['tenant_id'] = null;
+        }
+            
+        cookie = JSON.stringify(cookie);
+        tachyon.setCookie('tachyonLogin', cookie, 1);
+    },
+
+    sessionInit: function() {
+        var tachyonLogin = tachyon.getCookie('tachyonLogin');
+        if (tachyonLogin != null) {
+            try {
+                var cookie = JSON.parse(tachyonLogin);
+            } catch(err) {
+                tachyon.error('Session cookie was corrupted.');
+                var cookie = {};
+            }
+        } else {
+            var cookie = {};
+        }
+
+        if (sessionStorage.getItem('token') == null) {
+            if ('token' in cookie) {
+                tachyon.session(cookie, true);
+                tachyon.success('New session for window.');
+                tachyon.initWindow();
+                return(true);
+            }
+        } else {
+            if (!(('token' in cookie))) {
+                sessionStorage.clear();
+                tachyon.warning('Session logout or expired.');
+                tachyon.initWindow();
+                return(true);
+            }
+        }
+        return(false);
+    },
+
+    reToken: function() {
+        var login_request = sessionStorage.getItem('login_request');
+        var loginat = sessionStorage.getItem("loginat");
+        if (login_request != null) {
+            if ((tachyon.nowTimestamp() - parseInt(loginat, 10)) >= (tachyon.reTokenTime * 60)) {
+                var login_request = sessionStorage.getItem('login_request');
+                var tenant_id = sessionStorage.getItem("tenant_id");
+                var domain = sessionStorage.getItem("domain");
+                var region = sessionStorage.getItem("region");
+                tachyon.ajaxQuery('post',
+                                  tachyon.app + '/login',
+                                  function(content) {
+                                      tachyon.session(content, true);
+                                      var scope = { tenant_id: tenant_id,
+                                                    domain: domain}
+                                      json = JSON.stringify(scope);
+                                      tachyon.ajaxQuery('post',
+                                                        tachyon.app + '/scope',
+                                                        function(content) {
+                                                            tachyon.session(content, false);
+                                                            tachyon.success('Session extended ' + tachyon.reTokenTime + ' minutes.');
+                                                        },
+                                                        function() {
+                                                            tachyon.logout();
+                                                        },
+                                                        null,
+                                                        null,
+                                                        json);
+                                  },
+                                  function() {
+                                    tachyon.logout();
+                                  },
+                                  null,
+                                  null,
+                                  login_request);
+            }
+        }
+    },
+
+    login: function(content) {
+        tachyon.session(content, true);
+        tachyon.initWindow();
+    },
+
+    scope: function(content) {
+        tachyon.session(content, false);
+        tachyon.initWindow();
+    },
+
+    logout: function(content) {
+        tachyon.setCookie('tachyonLogin', '{}', 1);
+        sessionStorage.clear();
+        tachyon.initWindow();
+        tachyon.success('Session logout.');
+    },
+
+    initWindow: function() {
+        tachyon.closeAll();
+        tachyon.ajaxQuery('get', tachyon.app + '/sidebar',
+            function(content) {
+                tachyon.loadSection(content,
+                                     document.getElementById('sidebar'));
+                tachyon.registerEvent('nav', 'a', 'click', tachyon.setNavActiveLink);
+                tachyon.registerEvent('nav', 'a', 'click', tachyon.navToggleDropdown, 'dropdown');
+                tachyon.registerEvent('sidebar', 'input', 'input', tachyon.navSearch, 'search-nav');
+            });
+        tachyon.ajaxQuery('get', tachyon.app + '/header',
+            function(content) {
+                tachyon.loadSection(content,
+                                     tachyon.getElementByTagName('header'));
+            });
+        tachyon.ajaxQuery('get', tachyon.app,
+            function(content) { 
+                tachyon.loadSection(content, tachyon.focus());
+            });
+    },
+
+    /*
+     * Link Handler triggered by event.
+     */
+    linkHandler: function(e, element) {
+        // IE Compatible.... just in case..
+        e = e || window.event;
+
+        if (typeof(element) == 'undefined') {
+            element = e.target || e.srcElement;
+            if (element.nodeType == 3) element = element.parentNode; // defeat Safari bug
+        }
+
+        if (!('noAjax' in element.dataset)) {
+            if ('confirm' in element.dataset) {
+                e.preventDefault();
+                confirm = '<h1>Please confirm?</h1>';
+                confirm += '<div class="confirm">';
+                confirm += element.dataset.confirm;
+                confirm += '</div>';
+                confirm += '<div class="buttons">';
+                confirm += '<a href="#" onclick="tachyon.closeWindow()" class="btn">Cancel</a>'
+                confirm += '<a href="' + element.href + '" class="btn btn-danger"'
+                for (option in element.dataset) {
+                    if (option != 'confirm') {
+                        confirm += "data-" + option + '="' + element.dataset[option] + '"';
+                    }
+                }
+                confirm += '>Continue</a>'
+                confirm += '</div>';
+                tachyon.loadModal(confirm);
+            } else {
+                nav = tachyon.getElementByTagName('nav')
+                if (element.href.endsWith("#")) {
+                    $('html, body').animate({ scrollTop: 0 }, 'fast');
+                }
+                form = document.getElementById(element.dataset.form);
+                if (element.href != window.location + '#' && !element.href.endsWith("#")) {
+                    tachyon.clearNavSearch(element);
+                    if ('logout' in element.dataset) {
+                        tachyon.logout();
+                    } else if ('closeall' in element.dataset) {
+                        tachyon.ajaxQuery('get', element.href, tachyon.closeWindows, null, form);
+                    }
+                    else if ('close' in element.dataset) {
+                        tachyon.ajaxQuery('get', element.href, tachyon.closeWindow, null, form);
+                    } else if ('modal' in element.dataset) {
+                        tachyon.ajaxQuery('get', element.href, tachyon.loadModal, null, form);
+                    } else {
+                        tachyon.ajaxQuery('get', element.href, tachyon.loadHtml, null, form);
+                    }
+                    if (window.innerWidth <= 900) {
+                        document.getElementById('sidebar').style.display = "none";
+                    }
+                    e.preventDefault();
+                }
+            }
+        }
+    },
+
+    /*
+     * Form Handler triggered by event.
+     */
+    formHandler: function(e, element) {
+        // IE Compatible.... just incase..
+        e = e || window.event;
+        if (typeof(element) == 'undefined') {
+            element = e.target || e.srcElement;
+            if (element.nodeType == 3) element = element.parentNode; // defeat Safari bug
+        }
+
+        if (!('noAjax' in element.dataset)) {
+            if ('reload' in element.dataset) {
+                tachyon.ajaxQuery('post', element.action, tachyon.reload, null, element);
+            } else if ('datatable' in element.dataset) {
+                tachyon.ajaxQuery('post', element.action, tachyon.datatableReload, null, element);
+            } else if ('redirect' in element.dataset) {
+                tachyon.ajaxQuery('post', element.action,
+                    function () {
+                        tachyon.redirect(element.dataset.redirect);
+                    },
+                    null,
+                    element);
+            } else if ('api' in element.dataset) {
+                json = tachyon.jsonForm(element);
+                if ((!(element.dataset['api'] == '' || element.dataset['api'] == null)) && (!(element.dataset['api'] in tachyon))) {
+                    tachyon.log('form data-api tachyon.' + element.dataset['api'] + ' handler not found!');
+                }
+                tachyon.ajaxQuery('post', element.action, tachyon[element.dataset['api']], null, null, null, json);
+            } else if ('login' in element.dataset) {
+                var json = tachyon.jsonForm(element);
+                var loginForm = JSON.parse(json)
+                if ('username' in loginForm && loginForm.username != null) {
+                    localStorage.setItem("tachyonic_username", loginForm.username);
+                }
+                if ('domain' in loginForm && loginForm.domain != null) {
+                    localStorage.setItem("tachyonic_domain", loginForm.domain);
+                } else {
+                    localStorage.removeItem('tachyonic_domain');
+                }
+
+                if ('region' in loginForm && loginForm.region != null) {
+                    localStorage.setItem("tachyonic_region", loginForm.region);
+                } else {
+                    localStorage.removeItem('tachyonic_region');
+                }
+
+                if ('extend' in loginForm) {
+                    sessionStorage.setItem('login_request', json);
+                }
+                tachyon.ajaxQuery('post', tachyon.app + '/login', tachyon.login, null, null, null, json);
+            } else {
+                tachyon.ajaxQuery('post', element.action, tachyon.loadHtml, null, element);
+            }
+
+            if (window.innerWidth <= 900) {
+                document.getElementById('sidebar').style.display = "none";
+            }
+            e.preventDefault();
+        }
+    },
+
+    /*
+     * Display Loading
+     */
+    loading: function() {
+        var display = document.getElementById('loading').style.display;
+        if (display == "none" || display == "")
+        {
+            document.getElementById('loading').style.display = 'block';
+        }
+    },
+
+    /*
+     * Remove Loading
+     */
+    doneLoading: function() {
+        var display = document.getElementById('loading').style.display;
+        if (display == "block")
+        {
+            document.getElementById('loading').style.display = "none";
+        }
+    },
+
+
+    /*
+     * Function to turn a select into select2
+     */
+    select: function(root, element) {
+        /*
+         * A function to generate a function to use
+         * in select2's ajax.processResults.
+         * (@vuader): Without this, the id_field and text_field
+         * are not expanded correctly during run time.
+         */
+        function genS2ProcessFunc(id_field, text_field) {
+            function select2ProcessResults(data) {
+                // Tranforms the top-level key of the select2 response object to 'results'
+                response = [];
+                if (!'payload' in data) {
+                    tachyon.log('Select API responded with error!');
+                }
+                payload = data.payload
+                for (i = 0; i < payload.length; i++) {
+                    if (payload[i].constructor === String) {
+                        id = payload[i];
+                        text = payload[i];
+                    }
+                    else {
+                        id = payload[i][id_field];
+                        text = payload[i][text_field];
+                    }
+                    response.push({'id': id, 'text': text});
+                }
+                return {
+                    results: response
+                }
+            };
+            return select2ProcessResults;
+        }
+
+        function select2_urlhelper(element) {
+            data = element.dataset;
+
+            endpoint = "";
+
+            if ('text' in data) {
+                var text_field = data.text;
+            } else {
+                var text_field = 'name';
+            }
+
+            if ('endpoint' in data) {
+                var endpoint = "&endpoint=" + data.endpoint;
+            }
+
+            if ('searchField' in data) {
+                var search_field = data.searchField;
+            } else {
+                var search_field = text_field;
+            }
+            return tachyon.app + "/apiproxy?url=" + data.url + '&search_field=' + search_field + endpoint
+        }
+
+
+        config = {}
+        data = element.dataset;
+        if ('noAjax' in data) {
+            return;
+        }
+
+        if ('id' in data) {
+            var id_field = data.id;
+        } else {
+            var id_field = 'id';
+        }
+
+        if ('text' in data) {
+            var text_field = data.text;
+        } else {
+            var text_field = 'name';
+        }
+
+        if ('searchField' in data) {
+            var search_field = data.searchField;
+        } else {
+            var search_field = text_field;
+        }
+
+        if ('forSearch' in data) {
+            config.minimumResultsForSearch = parseInt(data.forSearch);
+        }
+
+        if ('allowClear' in data) {
+            config.allowClear = true;
+        }
+
+        if ('placeholder' in data) {
+            config.placeholder = data.placeholder;
+        }
+
+        if ('tags' in data) {
+            config.tags = (data.tags == 'true');
+        }
+
+        select2ProcessResults = genS2ProcessFunc(id_field, text_field);
+
         endpoint = "";
+
         if ('endpoint' in data) {
             endpoint = "&endpoint=" + data.endpoint;
         }
-        config.on = {
-            'error.dt': function ( e, settings, techNote, message ) {
-                console.log( 'An error has been reported by DataTables: ', message );
-            }
-        }
-        config.searchDelay = 1000;
-        config.ajax = {
-            url: app + "/apiproxy?url=" + data.url + endpoint,
-            dataSrc: function (json) {
-                json.recordsTotal = json.metadata.records;
-                json.recordsFiltered = json.metadata.records;
-                return json.payload;
-            },
-            data: function (q) {
-                // Modify query params here...
-                // However we cant sent multiple of the same param.
-                // So we do this work in the API Proxy...
-            },
-        }
-        config.processing = true;
-        config.serverSide = true;
-        config.columns = [];
-        config.columnDefs = [];
-        for (i = 0; i < table_columns.length; i++) {
-            if ((table_columns[i].id != null) && (table_columns[i].id != '')) {
-                config.columns.push({ "data": table_columns[i].id, "title": table_columns[i].innerHTML});
-            } else {
-                title = table_columns[i].innerHTML;
-                if ('href' in table_columns[i].dataset) {
-                    href = table_columns[i].dataset.href
-                    if ('css' in table_columns[i].dataset) {
-                        css = table_columns[i].dataset.css
-                    } else {
-                        css = null;
-                    }
-                    if (table_columns[i].width != '' && table_columns[i].width != null) {
-                        config.columnDefs.push(
-                            { "width": table_columns[i].width,
-                              "orderable": false,
-                              "className": "text-center",
-                              "searchable": false,
-                              "targets": i
-                            }
-                        );
-                    } else {
-                        config.columnDefs.push( { "orderable": false, "className": "text-center", "targets": i } );
-                    }
 
-                    config.columns.push({ "mRender": mrenderLink(href, css, title, table_columns[i].dataset) })
-                } else if ('tick' in table_columns[i].dataset) {
-                    if ('css' in table_columns[i].dataset) {
-                        css = table_columns[i].dataset.css
-                    } else {
-                        css = null;
-                    }
-                    if (element.id == '' || element.id == null) {
-                        alert("Expecting 'id' on <table> when using tick/checkbox. The 'id' is used as the <input> 'name'");
-                        return; 
-                    }
-
-                    config.columnDefs.push( { "searchable": false, "width": "2rem", "orderable": false, "className": "text-center", "targets": i } );
-
-                    config.columns.push({ "mRender": mrenderTick(element.id, css)});
-                } else {
-                    alert("Expecting 'data-href' for link or 'data-tick' for tick box on custom column <th>");
-                    return;
+        if ('url' in data) {
+            config.ajax = {
+                dataType: "json",
+                delay: 1000,
+                processResults: select2ProcessResults,
+                url: function () {
+                    return select2_urlhelper(element);
                 }
             }
-            
         }
-        if (config.columns.length == 0) {
-            alert("Expecting atleast one column <th>");
+        element.dataset = {}
+
+        $(element).select2(config);
+        tachyon.registerCleanup(function() {
+            $(element).select2("close");
+        }, root);
+
+    },
+
+    /*
+     * Function to turn a table into datatables
+     */
+    datatable: function(root, element) {
+        /*
+         * Internal function MRender for DataTables.
+         */
+        function mrenderLink(href, css, title, dataset) {
+            return function (data, type, row) {
+                link = '<a href="' + tachyon.app + href + '/' + row.id + '"';
+                link += ' onclick="tachyon.linkHandler(event, this)"';
+                if (css != null) {
+                    link += ' class="' + css + '"';
+                }
+                for (option in dataset) {
+                    link += "data-" + option + '="' + dataset[option] + '"';
+                }
+                link += '>';
+                link += title;
+                link += '</a>';
+                return link;
+            }
+        }
+
+        /*
+         * Internal function MRender Tick
+         */
+        function mrenderTick(id, css) {
+            return function (data, type, row) {
+                input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = element.id;
+                input.value = row.id;
+                if (css != null) {
+                    input.className = css;
+                }
+                return input.outerHTML;
+            }
+        }
+
+        var link = null;
+        var config = {}
+        var data = element.dataset;
+        if ('noAjax' in data) {
             return;
         }
-    }
-	$(element).on('error.dt', function(e, settings, techNote, message) {
-	   console.log( 'An error has been reported by DataTables: ', message);
-	})
-    dt = $(element).DataTable(config)
 
-    
-}
+        if (window.innerHeight > 550) {
+            config.pageLength = 10;
+        } else {
+            config.pageLength = 5;
+        }
+        config.lengthMenu = [[5, 10, 25, 50], [5, 10, 25, 50]];
 
+        var table_columns = element.getElementsByTagName('th');
+        if (table_columns.length == 0) {
+            tachyon.log('DataTable expecting <th> in <thead>!');
+            return;
+        }
+        config.drawCallback = function( settings ) {
+            feather.replace();
+        }
+        if ('url' in data) {
+            endpoint = "";
+            if ('endpoint' in data) {
+                endpoint = "&endpoint=" + data.endpoint;
+            }
+            config.on = {
+                'error.dt': function ( e, settings, techNote, message ) {
+                    tachyon.log('An error has been reported by DataTables (' + message + ')');
+                }
+            }
+            config.searchDelay = 1000;
+            config.ajax = {
+                url: tachyon.app + "/apiproxy?url=" + data.url + endpoint,
+                dataSrc: function (json) {
+                    json.recordsTotal = json.metadata.records;
+                    json.recordsFiltered = json.metadata.records;
+                    return json.payload;
+                },
+                data: function (q) {
+                    // Modify query params here...
+                    // However we cant sent multiple of the same param.
+                    // So we do this work in the API Proxy...
+                },
+            }
+            config.processing = true;
+            config.serverSide = true;
+            config.columns = [];
+            config.columnDefs = [];
+            for (i = 0; i < table_columns.length; i++) {
+                if ((table_columns[i].id != null) && (table_columns[i].id != '')) {
+                    config.columns.push({ "data": table_columns[i].id, "title": table_columns[i].innerHTML});
+                } else {
+                    title = table_columns[i].innerHTML;
+                    if ('href' in table_columns[i].dataset) {
+                        href = table_columns[i].dataset.href
+                        if ('css' in table_columns[i].dataset) {
+                            css = table_columns[i].dataset.css
+                        } else {
+                            css = null;
+                        }
+                        if (table_columns[i].width != '' && table_columns[i].width != null) {
+                            config.columnDefs.push(
+                                { "width": table_columns[i].width,
+                                  "orderable": false,
+                                  "className": "text-center",
+                                  "searchable": false,
+                                  "targets": i
+                                }
+                            );
+                        } else {
+                            config.columnDefs.push( { "orderable": false, "className": "text-center", "targets": i } );
+                        }
 
-/*
- * Replace all select with select2 :-)
- */
-function select(root) {
-    selects = root.getElementsByTagName('select');
-    for (i = 0; i < selects.length; i++) {
-        toSelect2(selects[i]);
-    }
-}
+                        config.columns.push({ "mRender": mrenderLink(href, css, title, table_columns[i].dataset) })
+                    } else if ('tick' in table_columns[i].dataset) {
+                        if ('css' in table_columns[i].dataset) {
+                            css = table_columns[i].dataset.css
+                        } else {
+                            css = null;
+                        }
+                        if (element.id == '' || element.id == null) {
+                            tachyon.log("DataTable expecting 'id' on <table> when using tick/checkbox. The 'id' is used as the <input> 'name'!");
+                            return; 
+                        }
 
+                        config.columnDefs.push( { "searchable": false, "width": "2rem", "orderable": false, "className": "text-center", "targets": i } );
 
-/*
- * Replace all table with DataTables :-)
- */
-function table(root) {
-    tables = root.getElementsByTagName('table');
-    for (j = 0; j < tables.length; j++) {
-        toDataTables(tables[j]);
-    }
-}
-
-
-
-/*
- * AJAX Init
- */
-function ajax(focus) {
-    register_event(focus, 'a', 'click', link_handler);
-    register_event(focus, 'form', 'submit', form_handler);
-    select(focus);
-    table(focus);
-}
-
-
-/*
- * Toggle NAV Dropdown
- */
-function toggle_menu_dropdown(e, element) {
-    children = element.parentElement.childNodes; 
-    for (i=0; i < children.length; i++){
-        if (children[i] != element) {
-            if (children[i].style.display == "block") {
-                children[i].style.display = "none";
-            } else {
-                children[i].style.display = "block";
+                        config.columns.push({ "mRender": mrenderTick(element.id, css)});
+                    } else {
+                        tachyon.log("DataTable expecting 'data-href' for link or 'data-tick' for tick box on custom column <th>!");
+                        return;
+                    }
+                }
+                
+            }
+            if (config.columns.length == 0) {
+                tachyon.log("Datatable expecting atleast one column <th>!");
+                return;
             }
         }
-    }
-}
+        $(element).on('error.dt', function(e, settings, techNote, message) {
+           tachyon.log('An error has been reported by DataTables (' + message + ')');
+        });
+        dt = $(element).DataTable(config);
+        tachyon.registerCleanup(dt.destroy, root);
+    },
+
+    /*
+     * AJAX Init
+     */
+    ajax: function(element) {
+        tachyon.registerEvent(element, 'a', 'click', tachyon.linkHandler);
+        tachyon.registerEvent(element, 'form', 'submit', tachyon.formHandler);
+
+        selects = element.getElementsByTagName('select');
+        for (i = 0; i < selects.length; i++) {
+            tachyon.select(element, selects[i]);
+        }
+
+        tables = element.getElementsByTagName('table');
+        for (j = 0; j < tables.length; j++) {
+            tachyon.datatable(element, tables[j]);
+        }
+
+        divs = element.getElementsByTagName('div');
+        for (j = 0; j < divs.length; j++) {
+            dataset = divs[j].dataset;
+            if ('url' in dataset) {
+                url = dataset.url;
+            } else {
+                url = null;
+            }
+
+            // Rendering types..
+            if ('graph' in dataset) {
+                tachyon.graph(dataset['graph'], url, divs[j]);
+            }
+        }
+    },
+
+    /* 
+     * Reload Datatable
+     */
+    datatableAdjust: function() {
+        $.fn.dataTable
+            .tables( { visible: true, api: true } )
+            .columns.adjust().draw();
+    },
+    datatableReload: function() {
+        $.fn.dataTable
+            .tables( { visible: true, api: true } )
+            .ajax.reload(tachyon.datatableAdjust, false );
+    },
+
+    /*
+     * Draw graph
+     */
+    graph: function(config, url, element) {
+        var editor = null;
+
+        try
+        {
+            if (!mxClient.isBrowserSupported())
+            {
+                mxUtils.error('Browser is not supported!', 200, false);
+            }
+            else
+            {
+                mxObjectCodec.allowEval = true;
+                var configDoc = mxUtils.load(config);
+                var config = configDoc.getDocumentElement();
+                editor = new mxEditor();
+                // Set Toolbar Container does not work.... 
+                // using code to override in tachyon.init
+                // editor.setToolbarContainer(tachyon.focus());
+                editor.setGraphContainer(element);
+                editor.configure(config);
+                mxObjectCodec.allowEval = false;
+                
+                // Adds active border for panning inside the container
+                editor.graph.createPanningManager = function()
+                {
+                    var pm = new mxPanningManager(this);
+                    pm.border = 30;
+                    
+                    return pm;
+                };
 
 
-/*
- * Set all links unactive
- */
-function remove_active_a(clicked_a) {
-    nav = getElementByTagName('nav');
-    if (nav.contains(clicked_a)) {
+                editor.graph.allowAutoPanning = true;
+                editor.graph.timerAutoScroll = true;
+
+                // Rules for bpmn Nodes
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  false, 'task', null, null, 0, 1, ['error', 'task', 'fork', 'event'],
+                  '<B>Task:</B> only one source allowed.',
+                  '<B>Task:</B> only <I>Start Event Start/Task/Fork/Error</I> sources allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicityMax(
+                  'task', 1, ['error'],
+                  '<B>Task:</B> only one of <I>Error</I> target allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicityMax(
+                  'task', 1, ['task', 'fork', 'eventend', 'merge'],
+                  '<B>Task:</B> only one of <I>Task/Fork/Event End/Merge</I> target allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  true, 'task', null, null, null, null, ['error', 'task', 'fork', 'eventend', 'merge'],
+                  null,
+                  '<B>Task:</B> only <I>Task/Fork/End/Merge/Error/Event End</I> targets allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  true, 'error', null, null, 0, 1, ['task', 'eventend', 'fork'],
+                  '<B>Error:</B> only one target allowed',
+                  '<B>Error:</B> only one of <I>Task/Fork/Event End</I> target allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  true, 'event', null, null, 0, 1, ['task', 'fork'],
+                  '<B>Event start:</B> only one target allowed.',
+                  '<B>Event start:</B> only <I>Task/Fork</I> target allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  false, 'merge', null, null, null, null, ['task'],
+                  null,
+                  '<B>Merge:</B>: only <I>Task</I> source allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  false, 'event', null, null, null, null, [],
+                  null,
+                  '<B>Event start:</B> no sources allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  false, 'fork', null, null, null, null, ['event', 'task', 'merge'],
+                  null,
+                  '<B>Fork:</B> only <I>Event Start/Task/Merge</I> source allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  true, 'fork', null, null, null, null, ['task'],
+                  null,
+                  '<B>Fork:</B> only <I>Task</I> target allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  true, 'merge', null, null, 0, null, ['task', 'fork', 'eventend'],
+                  null,
+                  '<B>Merge:</B> only <I>Task/Fork/Event End</I> target allowed.'));
+
+                editor.graph.multiplicities.push(new mxMultiplicity(
+                  true, 'eventend', null, null, 0, 0, [],
+                  '<B>Event End:</B> no targets allowed',
+                  '<B>Event End:</B> no targets allowed'));
+
+                //editor.open(url);
+                tachyon.ajaxQuery('GET', url,
+                           function (result, textStatus, XMLHttpRequest) {
+                                var parser = new DOMParser();
+                                var xmlDoc = parser.parseFromString(result,
+                                    "text/xml"); 
+                                editor.readGraphModel(xmlDoc.documentElement);
+                                editor.graph.model.addListener(mxEvent.CHANGE, function(sender, evt)
+                                {
+                                  var nodes = [];
+                                  var codec = new mxCodec();
+                                  var changes = evt.getProperty('edit').changes;
+                                  var xmlString = "<changes></changes>";
+                                  var parser = new DOMParser();
+                                  var xmlDoc = parser.parseFromString(xmlString, "text/xml"); 
+                                  var update = xmlDoc.getElementsByTagName('changes');
+                                  for (var i = 0; i < changes.length; i++)
+                                  {
+                                      update[0].appendChild(codec.encode(changes[i]));
+                                  }
+                                  tachyon.ajaxQuery('PUT', url, null, null, null, xmlDoc);
+                                });
+                           });
+            }
+        }
+        catch (e)
+        {
+            // Shows an error message if the editor cannot start
+            tachyon.log('MXGraph cannot start (' + e.message + ')');
+            throw e; // for debugging
+        }
+
+        tachyon.registerCleanup(editor.destroy);
+        return editor;
+    },
+
+    /*
+     * Toggle NAV Dropdown
+     */
+    navToggleDropdown: function(e, element) {
+        children = element.parentElement.childNodes; 
+        for (i=0; i < children.length; i++){
+            if (children[i] != element) {
+                if (children[i].style.display == "block") {
+                    children[i].style.display = "none";
+                } else {
+                    children[i].style.display = "block";
+                }
+            }
+        }
+    },
+
+    /*
+     * Set all links unactive
+     */
+    navRemoveActiveLinks: function(clicked_a) {
+        nav = tachyon.getElementByTagName('nav');
+        if (nav.contains(clicked_a)) {
+            links = nav.getElementsByTagName("a"); 
+            for (z=0; z < links.length; z++){
+                if (links[z].className == 'active') {
+                    links[z].className = '';
+                }
+            }
+        }
+    },
+
+    /*
+     * Display parent ul for link
+     */
+    navViewParentDropDowns: function(element) {
+        parent = element.parentElement;
+        if (parent.nodeName != 'NAV') {
+            if (parent.nodeName == 'UL') {
+                parent.style.display = 'block';
+            }
+            if (parent.nodeName == 'LI') {
+                parent.style.display = 'block';
+            }
+            tachyon.navViewParentDropDowns(parent)
+        }
+    },
+
+    /*
+     * Clear active links
+     */
+    navClearActiveLinks: function() {
+        nav = tachyon.getElementByTagName('nav');
         links = nav.getElementsByTagName("a"); 
         for (z=0; z < links.length; z++){
-            if (links[z].className == 'active') {
-                links[z].className = '';
-            }
-        }
-    }
-}
-
-
-/*
- * Display parent ul for link
- */
-function view_parent_dropdowns(element) {
-    parent = element.parentElement;
-    if (parent.nodeName != 'NAV') {
-        if (parent.nodeName == 'UL') {
-            parent.style.display = 'block';
-        }
-        if (parent.nodeName == 'LI') {
-            parent.style.display = 'block';
-        }
-        view_parent_dropdowns(parent)
-    }
-}
-
-
-/*
- * Set all active links
- */
-function set_active_a() {
-    nav = getElementByTagName('nav');
-    links = nav.getElementsByTagName("a"); 
-    for (z=0; z < links.length; z++){
-        if (window.location.href.endsWith("#")) {
-            current_location = window.location.href.substr(0, window.location.href.indexOf('#'))
-        }
-        else
-        {
-            current_location = window.location.href
-        }
-        if (current_location == links[z].href) {
             links[z].style.display = 'block';
-            links[z].className = 'active';
-            view_parent_dropdowns(links[z]);
+            links[z].className = '';
         }
-    }
-}
+    },
 
-/*
- * Clear active links
- */
-function clear_active_a() {
-    nav = getElementByTagName('nav');
-    links = nav.getElementsByTagName("a"); 
-    for (z=0; z < links.length; z++){
-        links[z].style.display = 'block';
-        links[z].className = '';
-    }
-}
+    setNavActiveLink: function(e, element) {
+        tachyon.navRemoveActiveLinks(element); 
+        element.className = 'active';
+    },
 
-
-function clear_search(e) {
-    navmenu = getElementByTagName('nav');
-    if (navmenu.contains(e)) {
+    /*
+     * Navigation Search triggered by event.
+     */
+    navSearch: function(e, element) {
+        navmenu = tachyon.getElementByTagName('nav');
         div = navmenu.firstChild;
         ul = div.firstChild;
-        children = ul.getElementsByTagName('*');
-        search_input = document.getElementById('search-nav');
-        if (search_input.value.length > 0) {
+        if (element.value.length < 2) {
+            children = ul.getElementsByTagName('*');
             for (a = 0; a < children.length; a++) {
-                if (!children[a].contains(e)) {
-                    if (children[a].nodeName == 'UL') {
-                        children[a].style.display = "none";
-                    }
+                if (children[a].nodeName == 'UL') {
+                    children[a].style.display = "none";
                 }
                 if (children[a].nodeName == 'LI') {
                     children[a].style.display = "block";
                 }
             }
-        }
-        search_input.value = ''
-    }
-}
-
-
-/*
- * Navigation Search triggered by event.
- */
-function search_nav(e, element) {
-    navmenu = getElementByTagName('nav');
-    div = navmenu.firstChild;
-    ul = div.firstChild;
-    if (element.value.length < 2) {
-        children = ul.getElementsByTagName('*');
-        for (a = 0; a < children.length; a++) {
-            if (children[a].nodeName == 'UL') {
-                children[a].style.display = "none";
+        } else if (element.value.length >= 2) {
+            children = ul.getElementsByTagName('*');
+            for (a = 0; a < children.length; a++) {
+                if (children[a].nodeName == 'UL') {
+                    children[a].style.display = "none";
+                }
+                if (children[a].nodeName == 'LI') {
+                    children[a].style.display = "none";
+                }
             }
-            if (children[a].nodeName == 'LI') {
-                children[a].style.display = "block";
-            }
-        }
-    } else if (element.value.length >= 2) {
-        children = ul.getElementsByTagName('*');
-        for (a = 0; a < children.length; a++) {
-            if (children[a].nodeName == 'UL') {
-                children[a].style.display = "none";
-            }
-            if (children[a].nodeName == 'LI') {
-                children[a].style.display = "none";
-            }
-        }
-        links = navmenu.getElementsByTagName('A');
-        for (a = 0; a < links.length; a++) {
-            link_name = links[a].textContent.toLowerCase()
-            search = element.value.toLowerCase()
-            if (!links[a].href.endsWith("#")) {
-                if (link_name.includes(search.trim())) {
-                    view_parent_dropdowns(links[a]);
+            links = navmenu.getElementsByTagName('A');
+            for (a = 0; a < links.length; a++) {
+                link_name = links[a].textContent.toLowerCase()
+                search = element.value.toLowerCase()
+                if (!links[a].href.endsWith("#")) {
+                    if (link_name.includes(search.trim())) {
+                        tachyon.navViewParentDropDowns(links[a]);
+                    }
                 }
             }
         }
+    },
+
+    clearNavSearch: function(e) {
+        navmenu = tachyon.getElementByTagName('nav');
+        if (navmenu.contains(e)) {
+            div = navmenu.firstChild;
+            ul = div.firstChild;
+            children = ul.getElementsByTagName('*');
+            search_input = document.getElementById('search-nav');
+            if (search_input.value.length > 0) {
+                for (a = 0; a < children.length; a++) {
+                    if (!children[a].contains(e)) {
+                        if (children[a].nodeName == 'UL') {
+                            children[a].style.display = "none";
+                        }
+                    }
+                    if (children[a].nodeName == 'LI') {
+                        children[a].style.display = "block";
+                    }
+                }
+            }
+            search_input.value = ''
+        }
+    },
+
+    jsonForm: function(form) {
+        object = {}
+        var inputs = form.getElementsByTagName("input"); 
+        var selects = form.getElementsByTagName("select"); 
+
+        function append(elements) {
+            for (var i = 0; i < elements.length; i++){
+                if (elements[i].type == 'checkbox') {
+                    if (elements[i].checked == true) {
+                        object[elements[i].name] = value;
+                    }
+                } else {
+                    if (elements[i].value == "") {
+                        value = null;
+                    } else {
+                        value = elements[i].value;
+                    }
+                    object[elements[i].name] = value;
+                }
+            }
+        }
+
+        append(inputs);
+        append(selects);
+        return(JSON.stringify(object));
+    },
+
+    onChange: function(evt, element) {
+        tachyon.formHandler(evt, element);
     }
 }
 
-
-function link(e, element) {
-    remove_active_a(element); 
-    element.className = 'active';
-}
-
-
-$( document ).ready(function() {
-    set_active_a();
-    register_event('nav', 'a', 'click', link);
-    register_event('nav', 'a', 'click', toggle_menu_dropdown, 'dropdown');
-    register_event('sidebar', 'input', 'input', search_nav, 'search-nav');
-    ajax(getElementByTagName('body'));
-    feather.replace();
-});
+// Deprecated use functions now under tachyon
+// Please update your code! for future.
+var close_window = tachyon.closeWindow
+var close_windows = tachyon.closeWindows
