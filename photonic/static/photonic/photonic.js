@@ -931,7 +931,6 @@ var tachyon = {
                 tachyon.initWindow(tachyon.app + '/');
                 return(false);
             } else if (init == true) {
-                tachyon.initWindow();
                 return(false);
             }
         } else {
