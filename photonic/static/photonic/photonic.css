@@ -379,6 +379,7 @@ div.modal > div > div {
 
 
 div.modal-login {
+    z-index: 100000;
     display: flex;
 }
 
@@ -402,7 +403,7 @@ div.loading {
     top: 0;
     left: 0;
     position: fixed;
-    display: none;
+    display: block;
 }
 
 

@@ -86,11 +86,27 @@ var tachyon = {
             tachyon.log('Cannot tachyon.init() javascript again!');
         }
 
+        String.prototype.trimLeft = function(charlist) {
+            if (charlist === undefined)
+                charlist = "\s";
+            return this.replace(new RegExp("^[" + charlist + "]+"), "");
+        };
+
+        String.prototype.trimRight = function(charlist) {
+            if (charlist === undefined)
+                charlist = "\s";
+            return this.replace(new RegExp("[" + charlist + "]+$"), "");
+        };
+
+        String.prototype.trim = function(charlist) {
+            return this.trimLeft(charlist).trimRight(charlist);
+        };
 
         // MXGraph Global Configuration....
         mxUtils.alert = function (message) {
+            message = message.trimRight('\n');
             message = message.replace("\n", "<BR>");
-            tachyon.error("<B>Diagram ditor</B><BR><BR>" + message);
+            tachyon.error("<B>Diagram ditor</B><BR><BR>" + message + '<BR>');
         }
 
         mxGraph.prototype.htmlLabels = true;
@@ -144,11 +160,11 @@ var tachyon = {
         origMxGraphModel = mxGraphModel.prototype.add;
         mxGraphModel.prototype.add = function(parent, child, index) {
             if (mxMaxSymbol(this, parent, child, 'Event', 1)) {
-                mxUtils.alert('One only one <B>Start Event</B> allowed.\n');
+                mxUtils.alert('Only one <B>Start Event</B> permitted.');
                 return null;
             }
             if (mxMaxSymbol(this, parent, child, 'EventEnd', 1)) {
-                mxUtils.alert('One only one <B>End Event</B> allowed.\n');
+                mxUtils.alert('Only one <B>End Event</B> permitted.');
                 return null;
             }
             
@@ -188,7 +204,7 @@ var tachyon = {
         $( document ).ajaxError(function( event, XMLHttpRequest, settings, thrownError ) {
             if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
                 if ('token' in sessionStorage) {
-                    tachyon.warning('Window session (token) has expired');
+                    tachyon.warning('<B>Window session (token) has expired</B>');
                     sessionStorage.clear();
                     tachyon.initWindow();
                 }
@@ -239,11 +255,21 @@ var tachyon = {
                 }
             }
         });
-        if (!(tachyon.sessionInit())) {
-            tachyon.initWindow();
+
+        tachyon.registerEvent('html', null, 'click', tachyon.updateToken);
+        tachyon.registerEvent('html', null, 'contextmenu', tachyon.updateToken);
+        if (tachyon.initSession(true)) {
+            tachyon.ajax(tachyon.getElementByTagName('header'));
+            tachyon.ajax(document.getElementById('sidebar'));
+            tachyon.ajax(tachyon.focus());
+            tachyon.registerEvent('nav', 'a', 'click', tachyon.setNavActiveLink);
+            tachyon.registerEvent('nav', 'a', 'click', tachyon.navToggleDropdown, 'dropdown');
+            tachyon.registerEvent('sidebar', 'input', 'input', tachyon.navSearch, 'search-nav');
+            tachyon.initNavActiveLink();
+            tachyon.doneLoading();
         }
         setInterval(tachyon.reToken, 1000 * 5);
-        setInterval(tachyon.sessionInit, 1000 * 5);
+        setInterval(tachyon.initSession, 1000 * 5);
     },
 
     /*
@@ -347,20 +373,24 @@ var tachyon = {
         } else {
             var root_node = root
         }
-        var elems = root_node.getElementsByTagName(tag);
+		if (tag != null) {
+			var elems = root_node.getElementsByTagName(tag);
 
-        for (i=0; i < elems.length; i++){
-            var element = elems[i]
-            if (typeof event_name === 'undefined') {
-                element.addEventListener(on, tachyon.callfunc(callback, element));
-            }
-            else {
-                if ('event' in elems[i].dataset) {
-                    if (element.dataset.event == event_name) {
-                        element.addEventListener(on, tachyon.callfunc(callback, element));
-                    }
-                }
-            }
+			for (i=0; i < elems.length; i++){
+				var element = elems[i]
+				if (typeof event_name === 'undefined') {
+					element.addEventListener(on, tachyon.callfunc(callback, element));
+				}
+				else {
+					if ('event' in elems[i].dataset) {
+						if (element.dataset.event == event_name) {
+							element.addEventListener(on, tachyon.callfunc(callback, element));
+						}
+					}
+				}
+			}
+        } else {
+            root_node.addEventListener(on, tachyon.callfunc(callback, root));
         }
     },
 
@@ -731,7 +761,6 @@ var tachyon = {
         }   
         $(view_section).animate({ scrollTop: 0 }, 'fast');
         tachyon.datatableReload();
-        feather.replace();
         tachyon.ajax(tachyon.focus());
         tachyon.modalDRag(tachyon.focus());
     },
@@ -746,7 +775,6 @@ var tachyon = {
             eval(scripts[i].innerHTML); 
         }   
         tachyon.ajax(element);
-        feather.replace();
     },
 
     /*
@@ -758,7 +786,6 @@ var tachyon = {
         for (i = 0; i < scripts.length; i++) {
             eval(scripts[i].innerHTML); 
         }
-        feather.replace();
         tachyon.ajax(tachyon.focus());
     },
 
@@ -774,6 +801,7 @@ var tachyon = {
         var d = new Date();
         d.setTime(d.getTime() + (exdays*24*60*60*1000));
         var expires = "expires="+ d.toUTCString();
+        cvalue = btoa(cvalue);
         document.cookie = cname + "=" + cvalue + ";" + expires + ";path=" + site + ';domain=' + window.location.hostname;
     },
 
@@ -787,7 +815,7 @@ var tachyon = {
           c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
-          return c.substring(name.length, c.length);
+          return atob(c.substring(name.length, c.length));
         }
       }
       return null;
@@ -817,13 +845,13 @@ var tachyon = {
             cookie['scoped_token'] = content.token;
             sessionStorage.setItem("scoped_token", content.token);
         }
+
         if ('region' in content && content.region != null) {
             sessionStorage.setItem("region", content.region);
             cookie['region'] = content.region;
         } else {
             cookie['region'] = null;
         }
-
 
         if ('domain' in content && content.domain != null) {
             sessionStorage.setItem("domain", content.domain);
@@ -842,38 +870,78 @@ var tachyon = {
         }
             
         cookie = JSON.stringify(cookie);
-        tachyon.setCookie('tachyonLogin', cookie, 1);
+        tachyon.setCookie('tachyonLogin', cookie, 365);
     },
 
-    sessionInit: function() {
+    updateToken: function(init) {
         var tachyonLogin = tachyon.getCookie('tachyonLogin');
+
         if (tachyonLogin != null) {
             try {
                 var cookie = JSON.parse(tachyonLogin);
             } catch(err) {
-                tachyon.error('Session cookie was corrupted.');
+                tachyon.error('<B>Session cookie was corrupted.</B>');
                 var cookie = {};
+                tachyon.setCookie('tachyonLogin', '{}', 365);
+            }
+        } else {
+            var cookie = {};
+        }
+        if ('token' in cookie) {
+            var sessionForTokenItems = ['token', 'domain', 'loginat', 'region', 'scoped_token', 'tenant_id'];
+
+            for (var i = 0; i < sessionForTokenItems.length; i++) {
+                value = sessionStorage.getItem(sessionForTokenItems[i])
+                if (value != null) {
+                    cookie[sessionForTokenItems[i]] = value;
+                } else {
+                    delete cookie[sessionForTokenItems[i]];
+                }
+            }
+        }
+        cookie = JSON.stringify(cookie);
+        tachyon.setCookie('tachyonLogin', cookie, 365);
+    },
+
+    initSession: function(init) {
+        var init = typeof init !== 'undefined' ? init : false;
+        var tachyonLogin = tachyon.getCookie('tachyonLogin');
+
+        if (tachyonLogin != null) {
+            try {
+                var cookie = JSON.parse(tachyonLogin);
+            } catch(err) {
+                tachyon.error('<B>Session cookie was corrupted.</B>');
+                var cookie = {};
+                tachyon.setCookie('tachyonLogin', '{}', 365);
             }
         } else {
             var cookie = {};
         }
 
-        if (sessionStorage.getItem('token') == null) {
-            if ('token' in cookie) {
-                tachyon.session(cookie, true);
-                tachyon.success('New session for window.');
-                tachyon.initWindow();
-                return(true);
-            }
-        } else {
+        if (sessionStorage.getItem('token') != null) {
             if (!(('token' in cookie))) {
                 sessionStorage.clear();
-                tachyon.warning('Session logout or expired.');
+                if (init == false) {
+                    tachyon.warning('<B>Session logout or expired.</B>');
+                }
+                tachyon.initWindow(tachyon.app + '/');
+                return(false);
+            } else if (init == true) {
                 tachyon.initWindow();
-                return(true);
+                return(false);
+            }
+        } else {
+            if ('token' in cookie) {
+                tachyon.session(cookie, true);
+                tachyon.success('<B>New session for window.</B>');
+                if (init == false) {
+                    tachyon.initWindow();
+                    return(false);
+                }
             }
         }
-        return(false);
+        return(true);
     },
 
     reToken: function() {
@@ -881,7 +949,7 @@ var tachyon = {
         var loginat = sessionStorage.getItem("loginat");
         if (login_request != null) {
             if ((tachyon.nowTimestamp() - parseInt(loginat, 10)) >= (tachyon.reTokenTime * 60)) {
-                var login_request = sessionStorage.getItem('login_request');
+                var login_request = atob(sessionStorage.getItem('login_request'));
                 var tenant_id = sessionStorage.getItem("tenant_id");
                 var domain = sessionStorage.getItem("domain");
                 var region = sessionStorage.getItem("region");
@@ -926,13 +994,15 @@ var tachyon = {
     },
 
     logout: function(content) {
-        tachyon.setCookie('tachyonLogin', '{}', 1);
+        tachyon.setCookie('tachyonLogin', '{}', 365);
         sessionStorage.clear();
-        tachyon.initWindow();
+        tachyon.initWindow(req.app + '/');
         tachyon.success('Session logout.');
     },
 
-    initWindow: function() {
+    initWindow: function(url) {
+        var url = typeof url !== 'undefined' ? url : window.location.href;
+        tachyon.loading();
         tachyon.closeAll();
         tachyon.ajaxQuery('get', tachyon.app + '/sidebar',
             function(content) {
@@ -941,13 +1011,14 @@ var tachyon = {
                 tachyon.registerEvent('nav', 'a', 'click', tachyon.setNavActiveLink);
                 tachyon.registerEvent('nav', 'a', 'click', tachyon.navToggleDropdown, 'dropdown');
                 tachyon.registerEvent('sidebar', 'input', 'input', tachyon.navSearch, 'search-nav');
+                tachyon.initNavActiveLink();
             });
         tachyon.ajaxQuery('get', tachyon.app + '/header',
             function(content) {
                 tachyon.loadSection(content,
                                      tachyon.getElementByTagName('header'));
             });
-        tachyon.ajaxQuery('get', tachyon.app,
+        tachyon.ajaxQuery('get', url,
             function(content) { 
                 tachyon.loadSection(content, tachyon.focus());
             });
@@ -963,6 +1034,14 @@ var tachyon = {
         if (typeof(element) == 'undefined') {
             element = e.target || e.srcElement;
             if (element.nodeType == 3) element = element.parentNode; // defeat Safari bug
+        }
+
+        if (element.href != window.location + '#' && !element.href.endsWith("#")) {
+            url = element.href;
+        } else if ('form' in element.dataset) {
+            url = form.action;
+        } else {
+            url = null;
         }
 
         if (!('noAjax' in element.dataset)) {
@@ -988,27 +1067,77 @@ var tachyon = {
                 if (element.href.endsWith("#")) {
                     $('html, body').animate({ scrollTop: 0 }, 'fast');
                 }
-                form = document.getElementById(element.dataset.form);
-                if (element.href != window.location + '#' && !element.href.endsWith("#")) {
-                    tachyon.clearNavSearch(element);
-                    if ('logout' in element.dataset) {
-                        tachyon.logout();
-                    } else if ('closeall' in element.dataset) {
-                        tachyon.ajaxQuery('get', element.href, tachyon.closeWindows, null, form);
+                if ('form' in element.dataset) {
+                    form = document.getElementById(element.dataset.form);
+                } else {
+                    form = null;
+                }
+
+                var success = function(content) {
+                    if ('closeAll' in element.dataset) {
+                        tachyon.closeWindows();
                     }
-                    else if ('close' in element.dataset) {
-                        tachyon.ajaxQuery('get', element.href, tachyon.closeWindow, null, form);
-                    } else if ('modal' in element.dataset) {
-                        tachyon.ajaxQuery('get', element.href, tachyon.loadModal, null, form);
+                    if ('closeall' in element.dataset) {
+                        tachyon.closeWindows();
+                    }
+                    if ('close' in element.dataset) {
+                        tachyon.closeWindow();
+                    }
+                    if ('modal' in element.dataset) {
+                        if ((!typeof content === 'undefined' || content != null) && content.trim() != '') {
+                            tachyon.loadModal(content);
+                        } else {
+                            tachyon.log('No content for modal');
+                        }
                     } else {
-                        tachyon.ajaxQuery('get', element.href, tachyon.loadHtml, null, form);
+                        if ((!typeof content === 'undefined' || content != null) && content.trim() != '') {
+                            tachyon.loadHtml(content);
+                        }
                     }
+                }
+
+                if ('logout' in element.dataset) {
+                    tachyon.logout();
+                    e.preventDefault();
+                } else if (url != null) {
+                    tachyon.clearNavSearch(element);
+                    if (form != null && 'noAjax' in form.dataset) {
+                        tachyon.ajaxQuery('get', element.href, success, null, null);
+                        tachyon.formHandler(e, form);
+                    } else {
+                        tachyon.ajaxQuery('get', element.href, success, null, form);
+                    }
+
                     if (window.innerWidth <= 900) {
                         document.getElementById('sidebar').style.display = "none";
                     }
                     e.preventDefault();
+                } else {
+                    success();
+                    e.preventDefault();
                 }
             }
+        } else {
+            if ('form' in element.dataset) {
+                form = document.getElementById(element.dataset.form);
+                form.target="_blank";
+                form.action=url
+
+                tachyon.formHandler(e, form);
+                if ('closeAll' in element.dataset) {
+                    tachyon.closeWindows();
+                }
+                if ('closeall' in element.dataset) {
+                    tachyon.closeWindows();
+                }
+                if ('close' in element.dataset) {
+                    tachyon.closeWindow();
+                }
+                e.preventDefault();
+            } else {
+                element.target="_blank";
+            }
+            
         }
     },
 
@@ -1060,16 +1189,51 @@ var tachyon = {
                 }
 
                 if ('extend' in loginForm) {
-                    sessionStorage.setItem('login_request', json);
+                    sessionStorage.setItem('login_request', btoa(json));
                 }
                 tachyon.ajaxQuery('post', tachyon.app + '/login', tachyon.login, null, null, null, json);
             } else {
-                tachyon.ajaxQuery('post', element.action, tachyon.loadHtml, null, element);
+                var success = function(content) {
+                    if ('closeAll' in element.dataset) {
+                        tachyon.closeWindows();
+                    }
+                    if ('closeall' in element.dataset) {
+                        tachyon.closeWindows();
+                    }
+                    if ('close' in element.dataset) {
+                        tachyon.closeWindow();
+                    }
+                    if ('modal' in element.dataset) {
+                        if ((!typeof content === 'undefined' || content != null) && content.trim() != '') {
+                            tachyon.loadModal(content);
+                        } else {
+                            tachyon.log('No content for modal');
+                        }
+                    } else {
+                        if ((!typeof content === 'undefined' || content != null) && content.trim() != '') {
+                            tachyon.loadHtml(content);
+                        }
+                    }
+                }
+                tachyon.ajaxQuery('post', element.action, success, null, element);
             }
 
             if (window.innerWidth <= 900) {
                 document.getElementById('sidebar').style.display = "none";
             }
+            e.preventDefault();
+        } else {
+            if ('closeAll' in element.dataset) {
+                tachyon.closeWindows();
+            }
+            if ('closeall' in element.dataset) {
+                tachyon.closeWindows();
+            }
+            if ('close' in element.dataset) {
+                tachyon.closeWindow();
+            }
+            element.target="_blank";
+            element.submit();
             e.preventDefault();
         }
     },
@@ -1089,11 +1253,7 @@ var tachyon = {
      * Remove Loading
      */
     doneLoading: function() {
-        var display = document.getElementById('loading').style.display;
-        if (display == "block")
-        {
-            document.getElementById('loading').style.display = "none";
-        }
+        document.getElementById('loading').style.display = "none";
     },
 
 
@@ -1373,6 +1533,27 @@ var tachyon = {
         tachyon.registerCleanup(dt.destroy, root);
     },
 
+	visible: function(){
+		var stateKey, 
+			eventKey, 
+			keys = {
+					hidden: "visibilitychange",
+					webkitHidden: "webkitvisibilitychange",
+					mozHidden: "mozvisibilitychange",
+					msHidden: "msvisibilitychange"
+		};
+		for (stateKey in keys) {
+			if (stateKey in document) {
+				eventKey = keys[stateKey];
+				break;
+			}
+		}
+		return function(c) {
+			if (c) document.addEventListener(eventKey, c);
+			return !document[stateKey];
+		}
+	},
+
     /*
      * AJAX Init
      */
@@ -1380,18 +1561,18 @@ var tachyon = {
         tachyon.registerEvent(element, 'a', 'click', tachyon.linkHandler);
         tachyon.registerEvent(element, 'form', 'submit', tachyon.formHandler);
 
-        selects = element.getElementsByTagName('select');
-        for (i = 0; i < selects.length; i++) {
+        var selects = element.getElementsByTagName('select');
+        for (var i = 0; i < selects.length; i++) {
             tachyon.select(element, selects[i]);
         }
 
-        tables = element.getElementsByTagName('table');
-        for (j = 0; j < tables.length; j++) {
+        var tables = element.getElementsByTagName('table');
+        for (var j = 0; j < tables.length; j++) {
             tachyon.datatable(element, tables[j]);
         }
 
-        divs = element.getElementsByTagName('div');
-        for (j = 0; j < divs.length; j++) {
+        var divs = element.getElementsByTagName('div');
+        for (var j = 0; j < divs.length; j++) {
             dataset = divs[j].dataset;
             if ('url' in dataset) {
                 url = dataset.url;
@@ -1404,6 +1585,7 @@ var tachyon = {
                 tachyon.graph(dataset['graph'], url, divs[j]);
             }
         }
+        feather.replace();
     },
 
     /* 
@@ -1461,61 +1643,61 @@ var tachyon = {
                 // Rules for bpmn Nodes
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   false, 'task', null, null, 0, 1, ['error', 'task', 'fork', 'event'],
-                  '<B>Task:</B> only one source allowed.',
-                  '<B>Task:</B> only <I>Start Event Start/Task/Fork/Error</I> sources allowed.'));
+                  '<B>Task:</B> only one source permitted.',
+                  '<B>Task:</B> only <I>Start Event Start/Task/Fork/Error</I> sources permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicityMax(
                   'task', 1, ['error'],
-                  '<B>Task:</B> only one of <I>Error</I> target allowed.'));
+                  '<B>Task:</B> only one of <I>Error</I> target permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicityMax(
                   'task', 1, ['task', 'fork', 'eventend', 'merge'],
-                  '<B>Task:</B> only one of <I>Task/Fork/Event End/Merge</I> target allowed.'));
+                  '<B>Task:</B> only one of <I>Task/Fork/Event End/Merge</I> target permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   true, 'task', null, null, null, null, ['error', 'task', 'fork', 'eventend', 'merge'],
                   null,
-                  '<B>Task:</B> only <I>Task/Fork/End/Merge/Error/Event End</I> targets allowed.'));
+                  '<B>Task:</B> only <I>Task/Fork/End/Merge/Error/Event End</I> targets permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   true, 'error', null, null, 0, 1, ['task', 'eventend', 'fork'],
-                  '<B>Error:</B> only one target allowed',
-                  '<B>Error:</B> only one of <I>Task/Fork/Event End</I> target allowed.'));
+                  '<B>Error:</B> only one target permitted',
+                  '<B>Error:</B> only one of <I>Task/Fork/Event End</I> target permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   true, 'event', null, null, 0, 1, ['task', 'fork'],
-                  '<B>Event start:</B> only one target allowed.',
-                  '<B>Event start:</B> only <I>Task/Fork</I> target allowed.'));
+                  '<B>Event start:</B> only one target permitted.',
+                  '<B>Event start:</B> only <I>Task/Fork</I> target permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   false, 'merge', null, null, null, null, ['task'],
                   null,
-                  '<B>Merge:</B>: only <I>Task</I> source allowed.'));
+                  '<B>Merge:</B>: only <I>Task</I> source permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   false, 'event', null, null, null, null, [],
                   null,
-                  '<B>Event start:</B> no sources allowed.'));
+                  '<B>Event start:</B> no sources permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   false, 'fork', null, null, null, null, ['event', 'task', 'merge'],
                   null,
-                  '<B>Fork:</B> only <I>Event Start/Task/Merge</I> source allowed.'));
+                  '<B>Fork:</B> only <I>Event Start/Task/Merge</I> source permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   true, 'fork', null, null, null, null, ['task'],
                   null,
-                  '<B>Fork:</B> only <I>Task</I> target allowed.'));
+                  '<B>Fork:</B> only <I>Task</I> target permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   true, 'merge', null, null, 0, null, ['task', 'fork', 'eventend'],
                   null,
-                  '<B>Merge:</B> only <I>Task/Fork/Event End</I> target allowed.'));
+                  '<B>Merge:</B> only <I>Task/Fork/Event End</I> target permitted.'));
 
                 editor.graph.multiplicities.push(new mxMultiplicity(
                   true, 'eventend', null, null, 0, 0, [],
-                  '<B>Event End:</B> no targets allowed',
-                  '<B>Event End:</B> no targets allowed'));
+                  '<B>Event End:</B> no targets permitted',
+                  '<B>Event End:</B> no targets permitted'));
 
                 //editor.open(url);
                 tachyon.ajaxQuery('GET', url,
@@ -1615,6 +1797,25 @@ var tachyon = {
     setNavActiveLink: function(e, element) {
         tachyon.navRemoveActiveLinks(element); 
         element.className = 'active';
+    },
+
+    initNavActiveLink: function() {
+        nav = tachyon.getElementByTagName('nav');
+        links = nav.getElementsByTagName("a"); 
+        for (z=0; z < links.length; z++){
+            if (window.location.href.endsWith("#")) {
+                current_location = window.location.href.substr(0, window.location.href.indexOf('#'))
+            }    
+            else 
+            {    
+                current_location = window.location.href
+            }    
+            if (current_location == links[z].href) {
+                links[z].style.display = 'block';
+                links[z].className = 'active';
+                tachyon.navViewParentDropDowns(links[z]);
+            }    
+        }    
     },
 
     /*
