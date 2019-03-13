@@ -931,7 +931,7 @@ var tachyon = {
                 tachyon.initWindow(tachyon.app + '/');
                 return(false);
             } else if (init == true) {
-                return(false);
+                return(true);
             }
         } else {
             if ('token' in cookie) {
@@ -998,7 +998,7 @@ var tachyon = {
     logout: function(content) {
         tachyon.setCookie('tachyonLogin', '{}', 365);
         sessionStorage.clear();
-        tachyon.initWindow(req.app + '/');
+        tachyon.initWindow(tachyon.app + '/');
         tachyon.success('Session logout.');
     },
 
