@@ -37,19 +37,8 @@ log = GetLogger()
 
 @register.resource('GET', '/env')
 def env(req, resp):
-    if req.host in req.cookies:
-        session_id = req.cookies[req.host].strip()
-    else:
-        session_id = False
-
-    cookies = {}
-    for cookie in req.cookies:
-        cookies[cookie] = len(req.cookies[cookie])
-
     return render_template('photonic/env.html',
-                           view='Environment',
-                           session_id=session_id,
-                           cookies=cookies)
+                           view='Environment')
 
 
 @register.resource('GET', '/header')

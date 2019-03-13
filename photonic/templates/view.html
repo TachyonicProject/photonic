@@ -5,7 +5,6 @@
     <div class="push_header"></div>
         <div id="main">
 {% endif %}
-{% if REQ.is_ajax %}
             <h1>{{ view }} <a href='#' onclick="tachyon.closeWindow();"><span data-feather="x-circle"></span></a></h1>
             <div class="view">
                 {% block content %}{% endblock %}
@@ -15,7 +14,6 @@
                 {% block buttons %}{% endblock %}
             </div>
             {% endif %}
-{% endif %}
 {% if not REQ.is_ajax %}
         </div>
     <div class="push_footer"></div>
