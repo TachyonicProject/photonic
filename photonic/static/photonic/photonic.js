@@ -205,6 +205,9 @@ var tachyon = {
             if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
                 if ('token' in sessionStorage) {
                     tachyon.warning('<B>Window session (token) has expired</B>');
+                    if (sessionStorage.getItem(login_request) == null) {
+                        tachyon.setCookie('tachyonLogin', '{}', 365);
+                    }
                     sessionStorage.clear();
                     tachyon.initWindow();
                 }
@@ -1036,6 +1039,7 @@ var tachyon = {
             if (element.nodeType == 3) element = element.parentNode; // defeat Safari bug
         }
 
+        form = document.getElementById(element.dataset.form);
         if (element.href != window.location + '#' && !element.href.endsWith("#")) {
             url = element.href;
         } else if ('form' in element.dataset) {
@@ -1067,9 +1071,7 @@ var tachyon = {
                 if (element.href.endsWith("#")) {
                     $('html, body').animate({ scrollTop: 0 }, 'fast');
                 }
-                if ('form' in element.dataset) {
-                    form = document.getElementById(element.dataset.form);
-                } else {
+                if (!'form' in element.dataset) {
                     form = null;
                 }
 
@@ -1121,7 +1123,10 @@ var tachyon = {
             if ('form' in element.dataset) {
                 form = document.getElementById(element.dataset.form);
                 form.target="_blank";
-                form.action=url
+
+                if (form.action == window.location + '#' || form.action.endsWith("#")) {
+                    form.action = url;
+                }
 
                 tachyon.formHandler(e, form);
                 if ('closeAll' in element.dataset) {
