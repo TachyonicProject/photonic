@@ -204,12 +204,13 @@ var tachyon = {
         $( document ).ajaxError(function( event, XMLHttpRequest, settings, thrownError ) {
             if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
                 if ('token' in sessionStorage) {
+                    var login_request = sessionStorage.getItem('login_request');
                     tachyon.warning('<B>Window session (token) has expired</B>');
                     if (sessionStorage.getItem(login_request) == null) {
                         tachyon.setCookie('tachyonLogin', '{}', 365);
                     }
                     sessionStorage.clear();
-                    tachyon.initWindow();
+                    tachyon.initWindow(tachyon.app + '/');
                 }
             } else {
                 document.getElementById('loading').style.display = "none";
@@ -931,8 +932,7 @@ var tachyon = {
                 tachyon.initWindow(tachyon.app + '/');
                 return(false);
             } else if (init == true) {
-                tachyon.initWindow();
-                return(false);
+                return(true);
             }
         } else {
             if ('token' in cookie) {
@@ -999,7 +999,7 @@ var tachyon = {
     logout: function(content) {
         tachyon.setCookie('tachyonLogin', '{}', 365);
         sessionStorage.clear();
-        tachyon.initWindow(req.app + '/');
+        tachyon.initWindow(tachyon.app + '/');
         tachyon.success('Session logout.');
     },
 
