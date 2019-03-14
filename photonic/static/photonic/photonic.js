@@ -204,6 +204,7 @@ var tachyon = {
         $( document ).ajaxError(function( event, XMLHttpRequest, settings, thrownError ) {
             if (XMLHttpRequest.getResponseHeader('X-Expired-Token')) {
                 if ('token' in sessionStorage) {
+                    var login_request = sessionStorage.getItem('login_request');
                     tachyon.warning('<B>Window session (token) has expired</B>');
                     if (sessionStorage.getItem(login_request) == null) {
                         tachyon.setCookie('tachyonLogin', '{}', 365);
