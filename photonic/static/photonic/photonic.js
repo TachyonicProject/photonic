@@ -210,7 +210,7 @@ var tachyon = {
                         tachyon.setCookie('tachyonLogin', '{}', 365);
                     }
                     sessionStorage.clear();
-                    tachyon.initWindow();
+                    tachyon.initWindow(tachyon.app + '/');
                 }
             } else {
                 document.getElementById('loading').style.display = "none";
