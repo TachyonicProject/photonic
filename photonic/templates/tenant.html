@@ -1,4 +1,5 @@
-<form method="POST" action="{{APP}}/scope" data-api="scope">
+<form method="POST" data-scope>
+    <input type="hidden" name="domain" value="{{ REQ.context_domain }}">
     <select name="tenant_id" data-url="/v1/tenants" onchange="tachyon.onChange(event, this.form);" data-allow-clear data-placeholder="Select Tenant">
 	<option value=""></option>
 
