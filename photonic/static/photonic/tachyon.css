@@ -1,0 +1,569 @@
+
+/*
+ * Override External CSS
+ */
+
+/* Ensure bootstrap4 knows we working from left side */
+.container {
+    margin-left: 4px !important;
+}
+
+/* fix select 2 autoscale bug, select2 has inline css of 1122px. bug bug bug */
+.select2 {
+    width: 100% !important;
+}
+
+
+.select2-dropdown {
+  z-index: 100000;
+}
+
+
+/*
+ * Internal Layout CSS
+ */
+
+html {
+    height: 100%;
+    height: 100vh;
+    font-size: 12px;
+}
+
+
+body {
+    height: 100%;
+    height: 100vh;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    background-color: #fff;
+}
+
+
+header {
+    display: flex;
+    position: fixed;
+    align-items:center;
+    padding: 0px;
+    margin: 0px;
+    height: 3rem;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    font-size: 1rem;
+}
+
+
+header div.header-brand {
+    padding-left: 5px;
+    display: flex;
+    width: 200px;
+}
+
+
+header div.header-tenant {
+    padding-left: 5px;
+    padding-right: 5px;
+    display: flex;
+    width: calc(100% - 500px);
+}
+
+
+div.header-links {
+    width: 200px;
+    position: fixed;
+    right: 0px;
+    margin-right: 5px;
+    justify-content: space-between;
+}
+
+
+header a {
+    display: flex;
+    align-items:center;
+    float: right;
+    padding-left: 5px;
+    padding-right: 5px;
+    white-space: nowrap;
+    line-height: inherit;
+    color: #999;
+}
+
+
+header a .feather {
+    color: #999;
+    margin-right: 0.3rem;
+    height: 3rem;
+}
+
+
+header a:hover {
+    text-decoration: none;
+}
+
+header div.header-brand span {
+    display: flex;
+    align-items:center;
+    white-space: nowrap;
+}
+
+
+div.application {
+}
+
+
+div.push_header {
+    height: 3rem;
+    width: 100%;
+    clear: both;
+    z-index: 1;
+}
+
+
+div.push_footer {
+    height: 2rem;
+    width: 100%;
+    clear: both;
+    z-index: 1;
+}
+
+div.sidebar {
+    position: fixed;
+    background-color: #f8f9fa;
+    top: 3rem;
+    left: 0rem;
+    bottom: 2rem;
+    width: 200px;
+    overflow-x: hidden;
+    overflow-y: none;
+    z-index: 999;
+    border-right: 1px solid #ddd;
+    padding: 0px;
+}
+
+div.sidebar a.btn {
+    width: 100%;
+}
+
+div.sidebar span.select2,
+div.sidebar input {
+    margin-bottom: 5px;
+}
+
+div.sidebar span.select2-selection,
+div.sidebar span.select2-dropdown,
+div.sidebar input {
+    width: 100%;
+    border-left: 0px;
+    border-right: 0px;
+    border-radius: 0px;
+}
+
+input, select, textarea {
+    display: inline-block;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    border: 1px solid #ddd;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 4px;
+}
+
+input.form-control:disabled::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #e9ecef;
+    opacity: 1; /* Firefox */
+}
+
+input.form-control:disabled::-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #e9ecef;
+}
+
+input.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #ccc;
+}
+
+input.form-control::-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #ccc;
+}
+
+
+label {
+    color: #3498db;
+    font-weight: 500;
+}
+
+
+span.select2-selection {
+    border: 1px solid #ddd !important;
+}
+
+span.select2-dropdown {
+    border-color: #ddd !important;
+}
+
+main {
+    display: block;
+    background-color: #ffffff;
+    padding-bottom: 5px;
+    margin-left: 200px;
+    width: calc(100% - 210px);
+    max-width: 900px;
+    border-right: 1px solid #ddd;
+    min-height: calc(100vh - 2rem);
+}
+
+
+div.view {
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 100%;
+}
+
+
+.toggler-icon {
+    display: none;
+}
+
+div.buttons {
+    display: block;
+    margin-top: 5px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    background-color: #f8f9fa !important;
+    border-top: 1px solid #ddd !important;
+    border-bottom: 1px solid #ddd !important;
+    vertical-align: middle !important;
+    text-align: right !important;
+}
+
+
+
+@media screen and (max-width: 900px) {
+    header div.header-tenant {
+        display: none;
+    }
+    div.sidebar div.header-tenant {
+        display: block !important;
+    }
+    div.sidebar {
+        display: none;
+    }
+    main {
+        margin-left: 0px;
+        width: 100%;
+    }
+    .toggler-icon {
+        display: inline-block !important;
+    }
+}
+
+
+h1 {
+    padding-left: 5px;
+    font-size: 1.1rem;
+    line-height: 1.5rem;
+    display: block;
+    width: 100%;
+}
+
+
+h2 {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-left: 5px;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    display: block;
+    width: 100%;
+}
+
+
+h1 .feather {
+    display: relative;
+    float: right;
+    margin-right: 5px;
+    width: 1.5rem;
+    height: 1.5rem;
+    vertical-align: text-bottom;
+}
+
+
+footer {
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    clear: both;
+    font-size: 1rem;
+    height: 2rem;
+    line-height: 2rem;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    padding: 0;
+    position: fixed;
+    text-align: center;
+    z-index: 1000;
+    width: 100%;
+}
+
+
+.hidden {
+    display: none
+}
+
+div.confirm {
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+div.modal {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    overflow: hidden;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+    z-index: 100000;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+
+div.modal > div {
+    display: block;
+    position: absolute;
+    top: 3rem;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+    min-width: 200px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 400px;
+    overflow: hidden;
+    min-height: 100px;
+}
+
+
+div.modal > div > div {
+    display: block;
+    max-height: 300px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 0px 5px 5px 5px;
+}
+
+
+@media screen and (max-height: 500px) {
+    div.modal > div {
+        overflow-y: scroll !important;
+        overflow-x: scroll !important;
+        max-height: calc(100% - 5rem) !important;
+    }
+    div.modal > div > div {
+        max-height: 100% !important;
+        overflow-y: hidden !important;
+        overflow-x: hidden !important;
+    }
+}
+
+
+div.modal-login {
+    z-index: 100000;
+    display: flex;
+}
+
+div.modal-login > div {
+    max-width: 300px !important;
+}
+
+
+form {
+    width: 100%;
+}
+
+
+div.loading {
+    z-index: 200000;
+    height: 100%;
+    width: 100%;
+    background-image: url('images/loader.gif');
+    background-repeat: no-repeat;
+    background-position: center;
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: block;
+}
+
+
+#popup {
+    z-index: 100002;
+    width: 300px;
+    position: fixed;
+    top: 50px;
+    left: auto;
+    right: 10px;
+}
+
+
+div.popup {
+    border-color: #D8D8D8;
+    border-style: solid;
+    border-width: 1px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+
+div.error {
+    background-color: #f4e2e3;
+    color: #9a6e6f;
+    display: none;
+}
+
+
+div.warning {
+    background-color: #fff4c3;
+    color: #b09100;
+    display: none;
+}
+
+
+div.info {
+    background-color: #deeff7;
+    color: #6d8a98;
+    display: none;
+}
+
+
+div.success {
+    background-color: #e2f2dd;
+    color: #598766;
+    display: none;
+}
+
+
+div.box {
+    width: auto;
+    border-style: solid;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    border-color: #e3e3e3;
+    background-color: #f5f5f5;
+    border-width: 1px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+    border-radius: 3px;
+    margin-bottom: 5px;
+    font-size: 12px;
+    min-height: 12px;
+}
+
+table.dataTable .feather {
+    height: 1.3rem;
+}
+div.navmenu {
+    margin-bottom: 1rem;
+}
+
+
+div.navmenu ul {
+    display: block;
+    margin: 0px;
+    padding-left: 15px;
+}
+
+
+div.navmenu li {
+    display: block;
+}
+
+
+div.navmenu ul li ul {
+    display: none;
+}
+
+
+div.navmenu a {
+    display: block;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+	font-weight: 500;
+    font-size: 1rem;
+	color: #333;
+}
+
+
+div.navmenu a:hover {
+	font-weight: 500;
+    color: #333;
+	text-decoration: None;
+}
+
+div.navmenu a .feather {
+    color: #999;
+    margin-right: 5px;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+}
+
+div.navmenu a:hover .feather {
+    color: #000;
+    margin-right: 5px;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+}
+
+div.navmenu a.active {
+    color: #007bff;
+}
+
+div.navmenu a.active .feather {
+    color: #007bff;
+}
+
+div.navmenu a.active:hover {
+    color: #007bff;
+}
+
+div.navmenu a.active:hover .feather {
+    color: #007bff;
+}
+
+div.mxgraphbase {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    border-style: solid;
+    border-color: #F2F2F2;
+    border-width: 1px;
+    background: url('images/grid.gif');
+}
+
+div.mxWindow {
+    position: fixed !important;
+    z-index: 1000 !important;
+}

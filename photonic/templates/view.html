@@ -14,6 +14,9 @@
                 {% block buttons %}{% endblock %}
             </div>
             {% endif %}
+            {% if self.more() %}
+                {% block more %}{% endblock %}
+            {% endif %}
 {% if not REQ.is_ajax %}
         </div>
     <div class="push_footer"></div>
