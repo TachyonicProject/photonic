@@ -70,6 +70,7 @@ function mxMaxSymbol(model, parent, child, tagName, max) {
 
 var tachyonInit = {
     init: function(app) {
+        tachyonDom.loading();
         if (app == '/') {
             tachyon.app = '';
         } else {
@@ -220,8 +221,14 @@ var tachyonInit = {
                     if (XMLHttpRequest.responseText) {
                         tachyonNotice.warning(XMLHttpRequest.responseText);
                     } else {
-                        if (thrownError != 'abort') {
-                            tachyonNotice.warning("AJAX: " + thrownError);
+                        if (thrownError == 'parsererror') {
+                            tachyonNotice.UIError("AJAX: Parsing Response failed.");
+                        } else if (thrownError == 'timeout') {
+                            tachyonNotice.UIError("AJAX: Request Timeout.");
+                        } else if (thrownError == 'abort') {
+                            tachyonNotice.UIError("AJAX: Request was aborted by server.");
+                        } else {
+                            tachyonNotice.UIError("AJAX: No response from server.");
                         }
                     }
                 }
@@ -324,22 +331,21 @@ var tachyonWindows = {
      */
     closeWindows: function(qty) {
         tachyonDom.loading();
-        var qty = typeof qty !== 'undefined' ? qty : tachyonWindows.modals.length;
-        var qty = qty || tachyonWindows.modals.length;
-        if (tachyonWindows.modals.length == 0) {
-            tachyonDom.getElementByTagName('body').style="";
-        }
+        var qty = typeof qty !== 'undefined' ? qty : tachyonWindows.modals.length + 1;
+        var qty = qty || tachyonWindows.modals.length + 1;
 
-        if (tachyonWindows.modals.length == 0) {
-            tachyonWindows.cleanup(document.getElementById('main'));
-            tachyonNav.navClearActiveLinks()
-        } else {
-            for (var i = 0; i < qty; i++) {
+        for (var i = 0; i < qty; i++) {
+            if (tachyonWindows.modals.length == 0) {
+                tachyonWindows.cleanup(document.getElementById('main'));
+                tachyonNav.navClearActiveLinks()
+                tachyonDom.getElementByTagName('body').style="";
+            } else {
                 tachyonWindows.cleanup();
                 var modal = tachyonWindows.modals.pop();
                 modal.parentNode.parentNode.removeChild(modal.parentNode);
             }
         }
+
         tachyonDom.datatableReload();
         tachyonDom.doneLoading();
 
@@ -738,7 +744,6 @@ var tachyonDom = {
 
     initWindow: function(url) {
         var url = typeof url !== 'undefined' ? url : window.location.href;
-        tachyonDom.loading();
         tachyonWindows.closeAll();
         tachyonDom.ajaxQuery('get', tachyon.app + '/sidebar',
             function(content) {
@@ -761,27 +766,19 @@ var tachyonDom = {
     },
 
     windowHandler: function(e, element) {
-        if ('closeAll' in element.dataset) {
-            if (element.dataset.closeAll == '') {
+        if ('closeWindows' in element.dataset) {
+            if (element.dataset.closeWindows == '') {
                 qty = null;
             } else {
-                qty = element.dataset.closeAll;
+                qty = element.dataset.closeWindows;
             }
             tachyonWindows.closeWindows(qty);
         }
-        if ('closeall' in element.dataset) {
-            if (element.dataset.closeall == '') {
-                qty = null;
-            } else {
-                qty = element.dataset.closeall;
-            }
-            tachyonWindows.closeWindows(qty);
-        }
-        if ('close' in element.dataset) {
+        if ('closeWindow' in element.dataset) {
             if (element.dataset.close == '') {
                 qty = null;
             } else {
-                qty = element.dataset.closeall;
+                qty = element.dataset.closeWindow;
             }
             tachyonWindows.closeWindow(qty);
         }
@@ -819,8 +816,12 @@ var tachyonDom = {
                 confirm += '<a href="#" onclick="tachyonWindows.closeWindow()" class="btn">Cancel</a>'
                 confirm += '<a href="' + element.href + '" class="btn btn-danger"'
                 for (option in element.dataset) {
+                    setoption = option.replace(/[A-Z]/g,
+                                               function(x) {
+                                                return '-' + x.toLowerCase();
+                                               }); 
                     if (option != 'confirm') {
-                        confirm += "data-" + option + '="' + element.dataset[option] + '"';
+                        confirm += "data-" + setoption + '="' + element.dataset[option] + '"';
                     }
                 }
                 confirm += '>Continue</a>'
@@ -910,7 +911,9 @@ var tachyonDom = {
             if (element.nodeType == 3) element = element.parentNode; // defeat Safari bug
         }
 
-        if (!('noAjax' in element.dataset)) {
+        if ('noSubmit' in element.dataset) {
+            e.preventDefault();
+        } else if (!('noAjax' in element.dataset)) {
             if ('reload' in element.dataset) {
                 tachyonDom.ajaxQuery('post', element.action, tachyon.reload, null, element);
             } else if ('datatable' in element.dataset) {
@@ -954,7 +957,7 @@ var tachyonDom = {
                                      }
                                    }
                 requestLogin = JSON.stringify(requestLogin);
-                tachyonDom.ajaxQuery('post', tachyon.app + '/apiproxy?url=/v1/token',
+                tachyonDom.ajaxQuery('post', tachyon.app + '/apiproxy?url=/v1/token&endpoint=identity',
                                      tachyonSession.login, null, null, null, requestLogin);
             } else if ('scope' in element.dataset) {
                 var scope = tachyonDom.objForm(element);
@@ -1399,24 +1402,38 @@ var tachyonDom = {
                   '<B>Event End:</B> no targets permitted'));
 
                 tachyonDom.ajaxQuery('GET', url,
-                           function (result, textStatus, XMLHttpRequest) {
-                                editor.readGraphModel(result.documentElement);
-                                editor.graph.model.addListener(mxEvent.CHANGE, function(sender, evt)
-                                {
-                                  var nodes = [];
-                                  var codec = new mxCodec();
-                                  var changes = evt.getProperty('edit').changes;
-                                  var xmlString = "<changes></changes>";
-                                  var parser = new DOMParser();
-                                  var xmlDoc = parser.parseFromString(xmlString, "text/xml"); 
-                                  var update = xmlDoc.getElementsByTagName('changes');
-                                  for (var i = 0; i < changes.length; i++)
-                                  {
-                                      update[0].appendChild(codec.encode(changes[i]));
-                                  }
-                                  tachyonDom.ajaxQuery('PUT', url, null, null, null, xmlDoc);
-                                });
-                           });
+                    function (result, textStatus, XMLHttpRequest) {
+                        editor.readGraphModel(result.documentElement);
+                        editor.graph.model.addListener(mxEvent.CHANGE, function(sender, evt)
+                        {
+                            var nodes = [];
+                            var codec = new mxCodec();
+                            var changes = evt.getProperty('edit').changes;
+                            var xmlString = "<changes></changes>";
+                            var parser = new DOMParser();
+                            var xmlDoc = parser.parseFromString(xmlString, "text/xml"); 
+                            var update = xmlDoc.getElementsByTagName('changes');
+                            for (var i = 0; i < changes.length; i++)
+                            {
+                                update[0].appendChild(codec.encode(changes[i]));
+                            }
+                            tachyonDom.ajaxQuery('PUT', url, null,
+                            function () {
+                                tachyonDom.ajaxQuery('GET', url,
+                                    function (result, textStatus, XMLHttpRequest) {
+                                        editor.readGraphModel(result.documentElement);
+                                    },
+                                    function () {
+                                        tachyonDom.closeWindow();
+                                    }
+                                )},
+                              null, xmlDoc);
+                        });
+                    },
+                    function () {
+                        tachyonDom.closeWindow();
+                    }
+                );
             }
         }
         catch (e)
@@ -1861,7 +1878,6 @@ var tachyonSession = {
 
         setTimeout(tachyonSession.initSession, 1000);
         tachyonSession.extendToken();
-        tachyon.doneLoading();
         return(true);
     },
 
@@ -1875,7 +1891,7 @@ var tachyonSession = {
         requestScope.domain = domain;
         requestScope.tenant_id = tenant_id;
         requestScope = JSON.stringify(requestScope);
-        tachyonDom.ajaxQuery('patch', tachyon.app + '/apiproxy?url=/v1/token',
+        tachyonDom.ajaxQuery('patch', tachyon.app + '/apiproxy?url=/v1/token&endpoint=identity',
                              callback, null, null, null, requestScope, null, 'unscoped');
 
         if (region != null) {
@@ -1899,7 +1915,7 @@ var tachyonSession = {
             if (tokenExpire - 1800 <= tachyonUtils.nowTimestamp()) {
                 tachyonDom.loading();
                 tachyonDom.ajaxQuery('put',
-                                     tachyon.app + '/apiproxy?url=/v1/token',
+                                     tachyon.app + '/apiproxy?url=/v1/token&endpoint=identity',
                                      function(content) {
                                           tachyonDom.loading();
                                           sessionStorage.setItem('unscoped', content.token);
@@ -1951,7 +1967,7 @@ var tachyonSession = {
                                           );
                                       },
                                       function() {
-                                          sessionStorage.logout();
+                                          tachyonSession.logout();
                                           tachyonDom.initWindow(tachyon.app + '/');
                                       },
                                       null,
