@@ -30,6 +30,7 @@
 import importlib.util
 
 from luxon.core.handlers.wsgi import Wsgi
+from luxon.utils.pkg import EntryPoints
 application = Wsgi(__name__, content_type='text/html; charset=utf-8')
 
 # This the place to start importing luxon packages/modules.
@@ -37,24 +38,10 @@ import photonic.app
 
 # These can be entry points in the future....
 
-
 def exists(package):
     if importlib.util.find_spec(package) is None:
         return False
     return True
 
 
-if exists('infinitystone'):
-    import infinitystone.ui.app
-
-if exists('subscriber'):
-    import subscriber.ui.app
-
-if exists('netrino'):
-    import netrino.ui.app
-
-if exists('katalog'):
-    import katalog.ui.app
-
-if exists('yoshii'):
-    import yoshii.ui.app
+EntryPoints('tachyonic.ui')
