@@ -1833,10 +1833,8 @@ var tachyonSession = {
                 }
             } else {
                 if (init == true) {
-                    tachyonSession.tjsl();
-                    tachyonDom.initWindow();
                     window.setTimeout(tachyonSession.initSession, 1000);
-                    return(false);
+                    return(true);
                 }
             }
         } else if (tachyonSession.tjslLogin()) {
