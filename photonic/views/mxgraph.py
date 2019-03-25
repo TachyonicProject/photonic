@@ -52,5 +52,5 @@ class MXGraph():
              resource_id=None, version=None):
         resp.content_type = APPLICATION_XML
         return render_template('%s/%s/%s' % (module, graph, config,),
-                               wf_id=resource_id,
+                               id=resource_id,
                                version=version)

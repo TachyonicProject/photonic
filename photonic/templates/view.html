@@ -5,7 +5,7 @@
     <div class="push_header"></div>
         <div id="main">
 {% endif %}
-            <h1>{{ view }} <a href='#' onclick="tachyon.closeWindow();"><span data-feather="x-circle"></span></a></h1>
+            <h1>{{ view }} <a href='#' data-close-window><span data-feather="x-circle"></span></a></h1>
             <div class="view">
                 {% block content %}{% endblock %}
             </div>
