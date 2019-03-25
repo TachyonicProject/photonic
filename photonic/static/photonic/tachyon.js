@@ -745,23 +745,23 @@ var tachyonDom = {
     initWindow: function(url) {
         var url = typeof url !== 'undefined' ? url : window.location.href;
         tachyonWindows.closeAll();
-        tachyonDom.ajaxQuery('get', tachyon.app + '/sidebar',
-            function(content) {
-                tachyonWindows.loadSection(content,
-                                     document.getElementById('sidebar'));
-                tachyonDom.registerEvent('nav', 'a', 'click', tachyonNav.setNavActiveLink);
-                tachyonDom.registerEvent('nav', 'a', 'click', tachyonNav.navToggleDropdown, 'dropdown');
-                tachyonDom.registerEvent('sidebar', 'input', 'input', tachyonNav.navSearch, 'search-nav');
-                tachyonNav.initNavActiveLink(url);
-            });
         tachyonDom.ajaxQuery('get', tachyon.app + '/header',
             function(content) {
                 tachyonWindows.loadSection(content,
                                      tachyonDom.getElementByTagName('header'));
-            });
-        tachyonDom.ajaxQuery('get', url,
-            function(content) { 
-                tachyonWindows.loadSection(content, tachyonWindows.focus());
+                tachyonDom.ajaxQuery('get', tachyon.app + '/sidebar',
+                    function(content) {
+                        tachyonWindows.loadSection(content,
+                                             document.getElementById('sidebar'));
+                        tachyonDom.registerEvent('nav', 'a', 'click', tachyonNav.setNavActiveLink);
+                        tachyonDom.registerEvent('nav', 'a', 'click', tachyonNav.navToggleDropdown, 'dropdown');
+                        tachyonDom.registerEvent('sidebar', 'input', 'input', tachyonNav.navSearch, 'search-nav');
+                        tachyonNav.initNavActiveLink(url);
+                        tachyonDom.ajaxQuery('get', url,
+                            function(content) { 
+                                tachyonWindows.loadSection(content, tachyonWindows.focus());
+                            });
+                    });
             });
     },
 
@@ -1424,14 +1424,14 @@ var tachyonDom = {
                                         editor.readGraphModel(result.documentElement);
                                     },
                                     function () {
-                                        tachyonDom.closeWindow();
+                                        tachyonWindows.closeWindow();
                                     }
                                 )},
                               null, xmlDoc);
                         });
                     },
                     function () {
-                        tachyonDom.closeWindow();
+                        tachyonWindows.closeWindow();
                     }
                 );
             }
@@ -1569,11 +1569,11 @@ var tachyonNotice = {
         $("#popup").prepend(n);
         if (css == 'error') {
             $('#'+divid).toggle( "shake" );
-            setTimeout(function() { tachyonNotice.closeNotice(divid); }, 30000);
+            window.setTimeout(function() { tachyonNotice.closeNotice(divid); }, 30000);
         }
         else {
             $('#'+divid).toggle( "fold" );
-            setTimeout(function() { tachyonNotice.closeNotice(divid); }, 10000);
+            window.setTimeout(function() { tachyonNotice.closeNotice(divid); }, 10000);
         }
     },
 
@@ -1627,7 +1627,7 @@ var tachyonNotice = {
      */
     closeNotice: function(n) {
         $('#'+n).toggle( "fold" );
-        setTimeout(function() { tachyonNotice.deleteNotice(n); }, 1000)
+        window.setTimeout(function() { tachyonNotice.deleteNotice(n); }, 1000)
     },
 
     /*
@@ -1818,7 +1818,7 @@ var tachyonSession = {
                 if (init == false) {
                     // if not page load.
                     tachyonDom.initWindow(tachyon.app + '/');
-                    setTimeout(tachyonSession.initSession, 1000);
+                    window.setTimeout(tachyonSession.initSession, 1000);
                     return(false);
                 }
             } else if (!(tachyonSession.tjslLogin())) {
@@ -1828,14 +1828,14 @@ var tachyonSession = {
                 if (init == false) {
                     // if not page load.
                     tachyonDom.initWindow(tachyon.app + '/');
-                    setTimeout(tachyonSession.initSession, 1000);
+                    window.setTimeout(tachyonSession.initSession, 1000);
                     return(false);
                 }
             } else {
                 if (init == true) {
                     tachyonSession.tjsl();
                     tachyonDom.initWindow();
-                    setTimeout(tachyonSession.initSession, 1000);
+                    window.setTimeout(tachyonSession.initSession, 1000);
                     return(false);
                 }
             }
@@ -1860,7 +1860,7 @@ var tachyonSession = {
                     tachyonSession.extendToken(
                         function() {
                             tachyonDom.initWindow();
-                            setTimeout(tachyonSession.initSession, 1000);
+                            window.setTimeout(tachyonSession.initSession, 1000);
                         }
                     );
                     return(false);
@@ -1869,14 +1869,14 @@ var tachyonSession = {
                     if (init == false) {
                         // if not page load. (meaning not fresh tab/window)
                         tachyonDom.initWindow(tachyon.app + '/');
-                        setTimeout(tachyonSession.initSession, 1000);
+                        window.setTimeout(tachyonSession.initSession, 1000);
                         return(false);
                     }
                 }
             }
         }
 
-        setTimeout(tachyonSession.initSession, 1000);
+        window.setTimeout(tachyonSession.initSession, 1000);
         tachyonSession.extendToken();
         return(true);
     },
