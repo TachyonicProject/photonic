@@ -1139,7 +1139,7 @@ var tachyonDom = {
         }
 
         if ('tags' in data) {
-            config.tags = (data.tags == 'true');
+            config.tags = true;
         }
 
         select2ProcessResults = genS2ProcessFunc(id_field, text_field);
@@ -1279,7 +1279,14 @@ var tachyonDom = {
             config.columnDefs = [];
             for (i = 0; i < table_columns.length; i++) {
                 if ((table_columns[i].id != null) && (table_columns[i].id != '')) {
-                    config.columns.push({ "data": table_columns[i].id, "title": table_columns[i].innerHTML});
+                    columnConfig = { "data": table_columns[i].id, "title": table_columns[i].innerHTML}
+                    if ('noSearch' in table_columns[i].dataset) {
+                        columnConfig.searchable = false;
+                    }
+                    if ('noOrder' in table_columns[i].dataset) {
+                        columnConfig.orderable = false;
+                    }
+                    config.columns.push(columnConfig);
                 } else {
                     title = table_columns[i].innerHTML;
                     if ('href' in table_columns[i].dataset) {
@@ -1941,7 +1948,7 @@ var tachyonSession = {
 
         if (token != null) {
             try {
-            var tokenCredentials = tachyonSession.parseToken(token);
+                var tokenCredentials = tachyonSession.parseToken(token);
             } catch(err) {
                 tachyonNotice.UIError('During extending session corrupt unscoped token in sessionStorage.');
             }
