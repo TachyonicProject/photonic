@@ -378,7 +378,6 @@ var tachyonWindows = {
             }
         }
 
-        tachyonDom.datatableReload();
         tachyonDom.doneLoading();
 
     },
@@ -410,7 +409,6 @@ var tachyonWindows = {
         viewSection.innerHTML = content;
         tachyonDom.evalJS(viewSection);
         $(viewSection).animate({ scrollTop: 0 }, 'fast');
-        tachyonDom.datatableReload();
         tachyonDom.ajax(tachyonWindows.focus());
         tachyonWindows.modalDrag(tachyonWindows.focus());
     },
@@ -814,6 +812,9 @@ var tachyonDom = {
             }
             tachyonWindows.closeWindow(qty);
         }
+        if ('table' in element.dataset) {
+            tachyonDom.datatableReload()
+        }
     },
 
     /*
@@ -948,8 +949,6 @@ var tachyonDom = {
         } else if (!('noAjax' in element.dataset)) {
             if ('reload' in element.dataset) {
                 tachyonDom.ajaxQuery('post', element.action, tachyon.reload, null, element);
-            } else if ('datatable' in element.dataset) {
-                tachyonDom.ajaxQuery('post', element.action, tachyonDom.datatableReload, null, element);
             } else if ('redirect' in element.dataset) {
                 tachyonDom.ajaxQuery('post', element.action,
                     function () {
