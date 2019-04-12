@@ -581,8 +581,10 @@ var tachyonDom = {
     /*
      * Get Element by Tag
      */
-    getElementByTagName: function(tag) {
-        elements = document.getElementsByTagName(tag);
+    getElementByTagName: function(tag, parentElement) {
+        var parentElement = typeof parentElement !== 'undefined' ? parentElement : document;
+
+        elements = parentElement.getElementsByTagName(tag);
         return elements[0];
     },
 
@@ -1186,6 +1188,10 @@ var tachyonDom = {
      * Function to turn a table into datatables
      */
     datatable: function(root, element) {
+        // Short circuit if graph
+        if ('graph' in element.dataset) {
+            return null;
+        }
         /*
          * Internal function MRender for DataTables.
          */
@@ -1343,9 +1349,9 @@ var tachyonDom = {
     },
 
     /*
-     * Draw graph
+     * Draw mxgraph diagram
      */
-    graph: function(config, url, element) {
+    diagram: function(config, url, element) {
         var editor = null;
 
         try
@@ -1379,7 +1385,6 @@ var tachyonDom = {
                     
                     return pm;
                 };
-
 
                 editor.graph.allowAutoPanning = true;
                 editor.graph.timerAutoScroll = true;
@@ -1489,6 +1494,266 @@ var tachyonDom = {
         return editor;
     },
 
+    /*
+     * Draw chartjs graph
+     */
+    graph: function(element, table) {
+        table.style.display="none";
+        var div = document.createElement('div');
+        var style = 'position: relative;';
+        if ('width' in table.dataset) {
+            style = style + 'max-width:' + table.dataset.width + ';';
+        }
+        if ('height' in table.dataset) {
+            style = style + 'max-height:' + table.dataset.height + ';';
+        }
+        if ('label' in table.dataset) {
+            label = table.dataset.label;
+        } else {
+            label = null;
+        }
+
+        div.className = 'chart-container';
+        div.style = style
+
+        var canvas = document.createElement('canvas');
+        div.appendChild(canvas);
+
+        type = table.dataset.graph.toLowerCase();
+        if (!(type == 'bar' || type == "line" || type == "pie" || type == "doughnut")) {
+            tachyonNotice.UIError("Unknown graph type '" + type + "'");
+            return null;
+        }
+
+
+        var config = {
+            type: type,
+            data: {
+                labels: [],
+                datasets: [],
+            },                                                                                                                                                         
+            options: {
+                responsive: true,
+            }
+        }
+
+        if (type == 'line' || type == "bar") {
+            config.options.scales = {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                xAxes: [{}],
+            }
+        }
+
+        if (type == 'line' || type == "bar") {
+            if (table.dataset.graph == 'bar') {
+                if ('xstack' in table.dataset) {
+                    config.options.scales.xAxes[0].stacked = true;
+                }
+                if ('ystack' in table.dataset) {
+                    config.options.scales.yAxes[0].stacked = true;
+                }
+                if ('stack' in table.dataset) {
+                    config.options.scales.xAxes[0].stacked = true;
+                    config.options.scales.yAxes[0].stacked = true;
+                }
+            }
+
+            config.options.scales.yAxes[0].ticks.callback = function(value, index, values) {
+                if (table.dataset.yprefix != null) {
+                    var value = table.dataset.yprefix + value
+                }
+                if (table.dataset.ysuffix != null) {
+                    var value = value + table.dataset.ysuffix
+                }
+                return value
+            }
+
+            if ('xtime' in table.dataset) {
+                if (type == 'line') {
+                    config.options.scales.xAxes[0].type = 'time';
+                    config.options.scales.xAxes[0].distribution = 'linear';
+                    config.options.scales.xAxes[0].time = {
+                        unit: table.dataset.xtime,
+                    }
+                } else {
+                    config.options.scales.xAxes[0].ticks = {
+                        callback: function(value, index, values) {
+                            if (table.dataset.xtime == 'minute') {
+                                return moment(value).format('h:mm a');
+                            } else if (table.dataset.xtime == 'hour') {
+                                return moment(value).format('hA');
+                            } else if (table.dataset.xtime == 'day') {
+                                return moment(value).format('MMM D');
+                            } else if (table.dataset.xtime == 'week') {
+                                return moment(value).format('ll');
+                            } else if (table.dataset.xtime == 'month') {
+                                return moment(value).format('MMM YYYY');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        var ids = [];
+        var fields = [];
+        var backgroundColors = [];
+        var borderColors = [];
+        var borderWidths = [];
+
+        // DATASETS
+        var thead = tachyonDom.getElementByTagName('thead', table);
+        if (thead != null) {
+            var th = thead.getElementsByTagName('th');
+            for (var i = 0; i < th.length; i++) {
+                var dataset = {
+                    fill: false,
+                    data: [],
+                    backgroundColor: [],
+                    borderColor: []
+                }
+                dataset.label = th[i].innerHTML;
+                if ('backgroundColor' in th[i].dataset) {
+                    backgroundColors.push(th[i].dataset.backgroundColor);
+                } else {
+                    backgroundColors.push("#efefef");
+                }
+                if ('borderColor' in th[i].dataset) {
+                    borderColors.push(th[i].dataset.borderColor);
+                } else {
+                    borderColors.push("#efefef");
+                }
+                if ('borderWidth' in th[i].dataset) {
+                    borderWidths.push(th[i].dataset.borderWidth);
+                } else {
+                    borderWidths.push("0");
+                }
+
+                ids.push(th[i].id);
+                fields.push(th[i].innerHTML);
+
+                config.data.datasets.push(dataset);
+
+            }
+        }
+
+        // TABLE DATA
+        if (!('url' in table.dataset)) {
+            var tbody = tachyonDom.getElementByTagName('tbody', table);
+            if (tbody != null) {
+                var tr = tbody.getElementsByTagName('tr');
+                for (var i = 0; i < tr.length; i++) {
+                    var td = tr[i].getElementsByTagName('td');
+
+                    for (var z = 0; z < td.length; z++) {
+                        if (config.data.datasets[z] != null) {
+                            var dataset = config.data.datasets[z]
+                        } else {
+                            var dataset = {
+                                fill: false,
+                                data: [],
+                                backgroundColor: [],
+                                borderColor: []
+                            }
+                            config.data.datasets.push(dataset);
+                        }
+                        dataset.data.push(td[z].innerHTML);
+
+                        if ('label' in tr[i].dataset) {
+                            if (config.data.labels[i] != null) {
+                                config.data.labels[i] = tr[i].dataset.label;
+                            } else {
+                                config.data.labels.push(tr[i].dataset.label);
+                            }
+                        }
+
+                        if ('backgroundColor' in td[z].dataset) {
+                            if (dataset.backgroundColor[i] != null) {
+                                dataset.backgroundColor[i] = td[z].dataset.backgroundColor;
+                            } else {
+                                dataset.backgroundColor.push(td[z].dataset.backgroundColor);
+                            }
+                        } else {
+                            if (backgroundColors[z] != null) {
+                                dataset.backgroundColor.push(backgroundColors[z]);
+                            } else {
+                                dataset.backgroundColor.push("#efefef");
+                            }
+                        }
+
+                        if ('borderColor' in td[z].dataset) {
+                            if (dataset.backgroundColor[i] != null) {
+                                dataset.borderColor[i] = td[z].dataset.borderColor;
+                            } else {
+                                dataset.borderColor.push(td[z].dataset.borderColor);
+                            }
+                        } else {
+                            if (borderColors[z] != null) {
+                                dataset.borderColor.push(borderColors[z]);
+                            } else {
+                                dataset.borderColor.push("#efefef");
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            table.parentNode.replaceChild(div, table);
+            var chart = new Chart(canvas, config)
+
+        } else {
+            var url = tachyon.app + "/apiproxy?url=" + table.dataset.url
+            if ('endpoint' in table.dataset) {
+                var url = url + '&endpoint=' + table.dataset.endpoint
+            }
+            tachyonDom.ajaxQuery('GET', url,
+                function (result, textStatus, XMLHttpRequest) {
+                    if ('payload' in result) {
+                        for (var r = 0; r < result.payload.length; r++) {
+                            if (label == null) {
+                                config.data.labels.push(r);
+                            } else if (label in result.payload[r]) {
+                                config.data.labels.push(result.payload[r][label])
+                            } else {
+                                tachyonNotice.UIError('Payload for Graph missing label');
+                                config.data.labels.push(r);
+                            }
+                            for (var f = 0; f < ids.length; f++) {
+                                if (ids[f] in result.payload[r]) {
+                                    var dataset = config.data.datasets[f]
+                                    dataset.data.push(result.payload[r][ids[f]])
+                                    if (type == "line") {
+                                        dataset.backgroundColor = backgroundColors[f];
+                                        dataset.borderColor = borderColors[f];
+                                        dataset.borderWidth = borderWidths[f];
+                                    } else {
+                                        if (type == "pie" || type == "doughnut") {
+                                            color = randomColor({luminosity: 'light'});
+                                            dataset.backgroundColor.push(color);
+                                            dataset.borderColor.push(color);
+                                        } else {
+                                            dataset.backgroundColor.push(backgroundColors[f]);
+                                            dataset.borderColor.push(borderColors[f]);
+                                            dataset.borderWidth = borderWidths[f];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                    table.parentNode.replaceChild(div, table);
+
+                    var chart = new Chart(canvas, config)
+                });
+        } 
+    },
+
 	visible: function(){
 		var stateKey, 
 			eventKey, 
@@ -1524,7 +1789,11 @@ var tachyonDom = {
 
         var tables = element.getElementsByTagName('table');
         for (var j = 0; j < tables.length; j++) {
-            tachyonDom.datatable(element, tables[j]);
+            if ('graph' in tables[j].dataset) {
+                tachyonDom.graph(element, tables[j]);
+            } else {
+                tachyonDom.datatable(element, tables[j]);
+            }
         }
 
         var divs = element.getElementsByTagName('div');
@@ -1535,10 +1804,13 @@ var tachyonDom = {
             } else {
                 url = null;
             }
+            if ('tabs' in dataset) {
+                $(divs[j]).tabs();
+            }
 
             // Rendering types..
-            if ('graph' in dataset) {
-                tachyonDom.graph(dataset['graph'], url, divs[j]);
+            if ('diagram' in dataset) {
+                tachyonDom.diagram(dataset['diagram'], url, divs[j]);
             }
         }
         feather.replace();
