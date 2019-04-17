@@ -88,17 +88,20 @@ def apiproxy(req, resp):
     if 'json' in str(req.content_type).lower():
         response = req.context.api.execute(
             req.method, url, params=params,
-            data=req.read(), endpoint=endpoint
+            data=req.read(), endpoint=endpoint,
+            headers=req.headers
         )
     elif 'xml' in str(req.content_type).lower():
         response = req.context.api.execute(
             req.method, url, params=params,
-            data=req.read(), endpoint=endpoint
+            data=req.read(), endpoint=endpoint,
+            headers=req.headers
         )
     else:
         response = req.context.api.execute(
             req.method, url, params=params,
-            data=req.form_dict, endpoint=endpoint
+            data=req.form_dict, endpoint=endpoint,
+            headers=req.headers
         )
 
     resp.set_headers(response.headers)

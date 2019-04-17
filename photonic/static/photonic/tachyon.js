@@ -30,6 +30,26 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+var tachyonColors = [
+    '#FF7F50',
+    '#90EE90',
+    '#87CEFA',
+    '#DDA0DD',
+    '#FAFAD2',
+    '#00FA9A',
+    '#FFE4B5',
+    '#9370DB',
+    '#7B68EE',
+    '#B0E0E6',
+    '#AFEEEE',
+    '#40E0D0',
+    '#FFDAB9',
+    '#FFA500',
+    '#6495ED'
+]
+
+
 function mxMultiplicityMax(type, max, validNeighbors, error) {
     this.type = type;
     this.min = 0;
@@ -100,6 +120,7 @@ function mxMaxSymbol(model, parent, child, tagName, max) {
     return(false);
 }
 
+
 var tachyonInit = {
     init: function(app) {
         tachyonDom.loading();
@@ -109,15 +130,18 @@ var tachyonInit = {
             tachyon.app = app;
         }
 
-        tachyon.getElement = tachyonDom.getElement,
-        tachyon.getElementByTagName = tachyonDom.getElementByTagName,
-        tachyon.loading = tachyonDom.loading,
-        tachyon.doneLoading = tachyonDom.doneLoading,
-        tachyon.registerEvent = tachyonDom.registerEvent,
-        tachyon.registerCleanup = tachyonWindows.registerCleanup,
-        tachyon.onChange = tachyonDom.onChange,
-        tachyon.closeWindow = tachyonWindows.closeWindow,
-        tachyon.closeWindows = tachyonWindows.closeWindows,
+        tachyon.colors = tachyonUtils.colors;
+        tachyon.localize = tachyonUtils.localize;
+        tachyon.tz = tachyonUtils.timezone();
+        tachyon.getElement = tachyonDom.getElement;
+        tachyon.getElementByTagName = tachyonDom.getElementByTagName;
+        tachyon.loading = tachyonDom.loading;
+        tachyon.doneLoading = tachyonDom.doneLoading;
+        tachyon.registerEvent = tachyonDom.registerEvent;
+        tachyon.registerCleanup = tachyonWindows.registerCleanup;
+        tachyon.onChange = tachyonDom.onChange;
+        tachyon.closeWindow = tachyonWindows.closeWindow;
+        tachyon.closeWindows = tachyonWindows.closeWindows;
 
         String.prototype.trimLeft = function(charlist) {
             if (charlist === undefined)
@@ -495,6 +519,24 @@ var tachyonUtils = {
 
     nowTimestamp: function() {
         return(Math.floor(Date.now() / 1000));
+    },
+
+    localize: function(datetime) {
+        datetime = moment(datetime)
+        if (datetime.isValid()) {
+            return datetime.format('YYYY-MM-DD HH:mm:ss');
+        }
+        return('');
+
+    },
+
+    timezone: function() {
+        return(moment.tz.guess());
+    },
+
+    colors: function(no) {
+        no = no % tachyonColors.length
+        return tachyonColors[no]
     }
 }
 
@@ -1270,6 +1312,14 @@ var tachyonDom = {
                 dataSrc: function (json) {
                     json.recordsTotal = json.metadata.records;
                     json.recordsFiltered = json.metadata.records;
+                    headers = element.getElementsByTagName('th')
+                    for (var i = 0; i < headers.length; i++) {
+                        if ('localize' in headers[i].dataset) {
+                            for (var d = 0; d < json.payload.length; d++) {
+                                json.payload[d][headers[i].id] = tachyon.localize(json.payload[d][headers[i].id]);
+                            }
+                        }
+                    }
                     return json.payload;
                 },
                 data: function (q) {
@@ -1344,7 +1394,9 @@ var tachyonDom = {
         $(element).on('error.dt', function(e, settings, techNote, message) {
            tachyonUtils.log('An error has been reported by DataTables (' + message + ')');
         });
+
         dt = $(element).DataTable(config);
+
         tachyonWindows.registerCleanup(dt.destroy, root);
     },
 
@@ -1502,15 +1554,15 @@ var tachyonDom = {
         var div = document.createElement('div');
         var style = 'position: relative;';
         if ('width' in table.dataset) {
-            style = style + 'max-width:' + table.dataset.width + ';';
+            var style = style + 'max-width:' + table.dataset.width + ';';
         }
         if ('height' in table.dataset) {
-            style = style + 'max-height:' + table.dataset.height + ';';
+            var style = style + 'max-height:' + table.dataset.height + ';';
         }
         if ('label' in table.dataset) {
-            label = table.dataset.label;
+            var label = table.dataset.label;
         } else {
-            label = null;
+            var label = null;
         }
 
         div.className = 'chart-container';
@@ -1519,12 +1571,11 @@ var tachyonDom = {
         var canvas = document.createElement('canvas');
         div.appendChild(canvas);
 
-        type = table.dataset.graph.toLowerCase();
+        var type = table.dataset.graph.toLowerCase();
         if (!(type == 'bar' || type == "line" || type == "pie" || type == "doughnut")) {
             tachyonNotice.UIError("Unknown graph type '" + type + "'");
             return null;
         }
-
 
         var config = {
             type: type,
@@ -1534,6 +1585,14 @@ var tachyonDom = {
             },                                                                                                                                                         
             options: {
                 responsive: true,
+                layout: {
+                    padding: {
+                        top: 5,
+                        bottom: 5,
+                        left: 5,
+                        right: 5
+                    }
+                }
             }
         }
 
@@ -1545,6 +1604,14 @@ var tachyonDom = {
                     }
                 }],
                 xAxes: [{}],
+            }
+        }
+
+        if ('title' in table.dataset) {
+            config.options.title = { 
+                padding: 3,
+                display: true,
+                text: table.dataset.title
             }
         }
 
@@ -1580,18 +1647,36 @@ var tachyonDom = {
                         unit: table.dataset.xtime,
                     }
                 } else {
-                    config.options.scales.xAxes[0].ticks = {
-                        callback: function(value, index, values) {
-                            if (table.dataset.xtime == 'minute') {
-                                return moment(value).format('h:mm a');
-                            } else if (table.dataset.xtime == 'hour') {
-                                return moment(value).format('hA');
-                            } else if (table.dataset.xtime == 'day') {
-                                return moment(value).format('MMM D');
-                            } else if (table.dataset.xtime == 'week') {
-                                return moment(value).format('ll');
-                            } else if (table.dataset.xtime == 'month') {
-                                return moment(value).format('MMM YYYY');
+                    if ('offset' in table.dataset) {
+                        config.options.scales.xAxes[0].ticks = {
+                            callback: function(value, index, values) {
+                                if (table.dataset.xtime == 'minute') {
+                                    return moment(value).format('h:mm a');
+                                } else if (table.dataset.xtime == 'hour') {
+                                    return moment(value).format('hA');
+                                } else if (table.dataset.xtime == 'day') {
+                                    return(moment(value).format('MMM D HHA'));
+                                } else if (table.dataset.xtime == 'week') {
+                                    return moment(value).format('ll');
+                                } else if (table.dataset.xtime == 'month') {
+                                    return(moment(value).format('YYYY MMM HHA'));
+                                }
+                            }
+                        }
+                    } else {
+                        config.options.scales.xAxes[0].ticks = {
+                            callback: function(value, index, values) {
+                                if (table.dataset.xtime == 'minute') {
+                                    return moment(value).format('h:mm a');
+                                } else if (table.dataset.xtime == 'hour') {
+                                    return moment(value).format('hA');
+                                } else if (table.dataset.xtime == 'day') {
+                                    return(moment(value).format('MMM D'));
+                                } else if (table.dataset.xtime == 'week') {
+                                    return moment(value).format('ll');
+                                } else if (table.dataset.xtime == 'month') {
+                                    return(moment(value).format('YYYY MMM'));
+                                }
                             }
                         }
                     }
@@ -1733,7 +1818,8 @@ var tachyonDom = {
                                         dataset.borderWidth = borderWidths[f];
                                     } else {
                                         if (type == "pie" || type == "doughnut") {
-                                            color = randomColor({luminosity: 'light'});
+                                            //color = randomColor({luminosity: 'light'});
+                                            color = tachyon.colors(r);
                                             dataset.backgroundColor.push(color);
                                             dataset.borderColor.push(color);
                                         } else {
@@ -1804,7 +1890,7 @@ var tachyonDom = {
             } else {
                 url = null;
             }
-            if ('tabs' in dataset) {
+            if ('jqtabs' in dataset) {
                 $(divs[j]).tabs();
             }
 
@@ -1813,6 +1899,34 @@ var tachyonDom = {
                 tachyonDom.diagram(dataset['diagram'], url, divs[j]);
             }
         }
+
+        // LOCALIZE TIMEZONES
+        var inputs = element.getElementsByTagName('input');
+        for (var j = 0; j < inputs.length; j++) {
+            dataset = inputs[j].dataset;
+            if ('localize' in dataset) {
+                inputs[j].value = tachyon.localize(inputs[j].value);
+            }
+        }
+        var selects = element.getElementsByTagName('select');
+        for (var j = 0; j < selects.length; j++) {
+            dataset = selects[j].dataset;
+            if ('localize' in dataset) {
+                var options = selects[j].getElementsByTagName('option');
+                for (var a = 0; a < options.length; a++) {
+                    options[a].innerHTML = tachyon.localize(options[a].innerHTML);
+                }
+            }
+        }
+        var spans = element.getElementsByTagName('span');
+        for (var j = 0; j < spans.length; j++) {
+            dataset = spans[j].dataset;
+            if ('localize' in dataset) {
+                spans[j].value = tachyon.localize(spans[j].value);
+            }
+        }
+
+
         feather.replace();
     },
 
@@ -1997,6 +2111,8 @@ var tachyonHandlers = {
 var tachyonSession = {
     headers: function(xhr, type) {
         var type = typeof type !== 'undefined' ? type : 'scoped';
+
+        xhr.setRequestHeader("X-Timezone", tachyon.tz);
 
         token = sessionStorage.getItem(type);
 
