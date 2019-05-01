@@ -282,7 +282,7 @@ var tachyonInit = {
                         } else if (thrownError == 'timeout') {
                             tachyonNotice.UIError("AJAX: Request Timeout.");
                         } else if (thrownError == 'abort') {
-                            tachyonNotice.UIError("AJAX: Request was aborted by server.");
+                            tachyonUtils.log("AJAX: Request was aborted by server.");
                         } else {
                             tachyonNotice.UIError("AJAX: No response from server.");
                         }
