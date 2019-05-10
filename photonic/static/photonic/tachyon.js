@@ -380,6 +380,8 @@ var tachyonWindows = {
         var qty = qty || 1;
 
         tachyonWindows.closeWindows(qty);
+        tachyonDom.getElementByTagName('body').style="overflow: visible";
+
     },
 
     /*
