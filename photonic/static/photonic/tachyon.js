@@ -403,9 +403,12 @@ var tachyonWindows = {
         for (var i = 0; i < qty; i++) {
             if (tachyonWindows.modals.length == 0) {
                 tachyonWindows.cleanup(document.getElementById('main'));
-                tachyonNav.navClearActiveLinks()
-                tachyonDom.getElementByTagName('body').style="";
+                tachyonNav.navClearActiveLinks();
+                tachyonDom.getElementByTagName('body').style="overflow: visible";
             } else {
+                if (tachyonWindows.modals.length == 1) {
+                    tachyonDom.getElementByTagName('body').style="overflow: visible";
+                }
                 tachyonWindows.cleanup();
                 var modal = tachyonWindows.modals.pop();
                 modal.parentNode.parentNode.removeChild(modal.parentNode);
@@ -421,7 +424,7 @@ var tachyonWindows = {
      */
     closeAll: function() {
         if (tachyonWindows.modals.length == 1) {
-            tachyonDom.getElementByTagName('body').style="";
+            tachyonDom.getElementByTagName('body').style="overflow: visible";
         }
 
         while (tachyonWindows.modals.length > 0) {
