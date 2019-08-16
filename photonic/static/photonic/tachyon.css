@@ -18,6 +18,10 @@
   z-index: 100000;
 }
 
+/* Fixes XDSOFT Datetime Picker z-index being set to high */
+.xdsoft_datetimepicker .xdsoft_label {
+    z-index: 999 !important;
+}
 
 /*
  * Internal Layout CSS

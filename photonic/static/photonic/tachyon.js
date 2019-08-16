@@ -49,6 +49,8 @@ var tachyonColors = [
     '#6495ED'
 ]
 
+$.datetimepicker.setDateFormatter('moment');
+
 function isSupported(storage) {
   try {
     const key = "__some_random_key_you_are_not_going_to_use__";
@@ -311,6 +313,9 @@ var tachyonInit = {
 
         tachyonDom.registerEvent('html', null, 'click', tachyonSession.tjsl);
         tachyonDom.registerEvent('html', null, 'contextmenu', tachyonSession.tjsl);
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
 
         if (tachyonSession.initSession(true)) {
             tachyonDom.ajax(tachyonDom.getElementByTagName('header'));
@@ -543,6 +548,15 @@ var tachyonUtils = {
 
     },
 
+    localizeEvent: function(datetime) {
+        datetime = moment(datetime)
+        if (datetime.isValid()) {
+            return datetime.format('MMM DD, YYYY @ HH:mm:ss.SSS');
+        }
+        return('');
+
+    },
+
     timezone: function() {
         return(moment.tz.guess());
     },
@@ -753,7 +767,8 @@ var tachyonDom = {
      */
     ajaxQuery: function(method, url, success, error, form, xmldoc, raw, content_type, token) {
         tachyonDom.loading();
-        $('html, body').animate({ scrollTop: 0 }, 'fast');
+        // Breaks logger scroll for yoshii. We should only scroll to top when calling new html.
+        // $('html, body').animate({ scrollTop: 0 }, 'fast');
         if (typeof(raw) !== 'undefined' && raw != null) {
             submit = raw;
             pd = false;
