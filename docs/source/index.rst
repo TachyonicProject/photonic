@@ -23,4 +23,5 @@ Documentation
    install
    releases
    index1
+   themes
 
