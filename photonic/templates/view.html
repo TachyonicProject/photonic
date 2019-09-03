@@ -5,6 +5,7 @@
     <div class="push_header"></div>
         <div id="main">
 {% endif %}
+            <div class="content">
             <h1>{{ view }} <a href='#' data-close-window><span data-feather="x-circle"></span></a></h1>
             <div class="view">
                 {% block content %}{% endblock %}
@@ -17,6 +18,7 @@
             {% if self.more() %}
                 {% block more %}{% endblock %}
             {% endif %}
+            </div>
 {% if not REQ.is_ajax %}
         </div>
     <div class="push_footer"></div>

@@ -1578,6 +1578,7 @@ var tachyonDom = {
      * Draw chartjs graph
      */
     graph: function(element, table) {
+
         table.style.display="none";
         var div = document.createElement('div');
         var style = 'position: relative;';
@@ -1597,6 +1598,13 @@ var tachyonDom = {
         div.style = style
 
         var canvas = document.createElement('canvas');
+        if ('graphHeight' in table.dataset) {
+            canvas.height=table.dataset.graphHeight;
+        }
+        if ('graphWidth' in table.dataset) {
+            canvas.width=table.dataset.graphWidth;
+        }
+
         div.appendChild(canvas);
 
         var type = table.dataset.graph.toLowerCase();
@@ -1613,6 +1621,7 @@ var tachyonDom = {
             },                                                                                                                                                         
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 layout: {
                     padding: {
                         top: 5,
@@ -1621,6 +1630,17 @@ var tachyonDom = {
                         right: 5
                     }
                 }
+            }
+        }
+        if ('legendPosition' in table.dataset) {
+            config.options.legend = { 
+                position: table.dataset.legendPosition,
+            }
+        }
+        if ('noLegend' in table.dataset) {
+            config.options.legend = { 
+                fullWidth: false,
+                display: false,
             }
         }
 
@@ -1637,6 +1657,7 @@ var tachyonDom = {
 
         if ('title' in table.dataset) {
             config.options.title = { 
+                fullWidth: false,
                 padding: 3,
                 display: true,
                 text: table.dataset.title
@@ -1708,6 +1729,18 @@ var tachyonDom = {
                             }
                         }
                     }
+                }
+            }
+        } else {
+            if (table.dataset.suffix != null) {
+                //var value = table.dataset.yprefix + value
+                config.options.tooltips = {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            var indice = tooltipItem.index;
+                            return  data.labels[indice] +': '+data.datasets[0].data[indice] + table.dataset.suffix;
+                        },
+                    },
                 }
             }
         }
@@ -1817,7 +1850,7 @@ var tachyonDom = {
             }
 
             table.parentNode.replaceChild(div, table);
-            var chart = new Chart(canvas, config)
+            var chart = new Chart(canvas, config);
 
         } else {
             var url = tachyon.app + "/apiproxy?url=" + table.dataset.url
@@ -1867,7 +1900,6 @@ var tachyonDom = {
                 });
         } 
     },
-
 	visible: function(){
 		var stateKey, 
 			eventKey, 
@@ -1902,12 +1934,20 @@ var tachyonDom = {
         }
 
         var tables = element.getElementsByTagName('table');
+        var graphs = [];
+        var datatables = [];
         for (var j = 0; j < tables.length; j++) {
             if ('graph' in tables[j].dataset) {
-                tachyonDom.graph(element, tables[j]);
+                graphs.push(tables[j]);
             } else {
-                tachyonDom.datatable(element, tables[j]);
+                datatables.push(tables[j]);
             }
+        }
+        for (var j = 0; j < graphs.length; j++) {
+            tachyonDom.graph(element, graphs[j]);
+        }
+        for (var j = 0; j < datatables.length; j++) {
+            tachyonDom.datatable(element, datatables[j]);
         }
 
         var divs = element.getElementsByTagName('div');
