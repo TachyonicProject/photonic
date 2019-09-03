@@ -1,15 +1,15 @@
 
 span.title:before {
-    content: "Tachyonic";
+    content: "";
     color: #fff;
 }
 
 body {
-    background-color: #ffffff;
+    background-color: #e5e7e9;
 }
 
 header {
-    background-color: #343a40;
+    background-color: #fff;
 }
 
 header img {
@@ -24,36 +24,40 @@ header a {
 }
 
 header a:hover {
-    color: #fff;
+    color: #000;
 }
 
 header a:hover .feather {
-    color: #fff;
-}
-
-footer {
-    background-color: #343a40;
-    color: #FFFFFF;
+    color: #000;
 }
 
 main {
-    background-color: #ffffff;
+    background-color: #d7e8f0;
+    box-shadow: 0px 0px 5px 5px #fff;
 }
 
 div.navigation {
-    background-color: #ffffff;
+    background-color: #f8f9fa;
+    padding-bottom: 5px;
+    box-shadow: 0px 0px 10px 5px #fff;
 }
 
 div.sidebar {
-    background-color: #ffffff;
+    background-color: #d7e8f0;
 }
 
 div.content {
     background-color: #ffffff;
+    padding-bottom: 5px;
+}
+
+footer {
+    background-color: #002b62;
+    color: #FFFFFF;
 }
 
 footer:before {
-    content: "© 2016 - 2019 Myria Solutions (PTY) Ltd (BSD-3 License, Opensource)"
+    content: "NEC XON Holdings (Pty) Ltd"
 }
 
 h1 {

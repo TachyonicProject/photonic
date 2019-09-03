@@ -20,7 +20,7 @@
 
 /* Fixes XDSOFT Datetime Picker z-index being set to high */
 .xdsoft_datetimepicker .xdsoft_label {
-    z-index: 999 !important;
+    z-index: 995 !important;
 }
 
 /*
@@ -41,7 +41,6 @@ body {
     margin-left: 0px;
     margin-right: 0px;
     margin-top: 0px;
-    background-color: #fff;
 }
 
 
@@ -136,7 +135,6 @@ div.push_footer {
 
 div.sidebar {
     position: fixed;
-    background-color: #f8f9fa;
     top: 3rem;
     left: 0rem;
     bottom: 2rem;
@@ -212,7 +210,6 @@ span.select2-dropdown {
 
 main {
     display: block;
-    background-color: #ffffff;
     padding-bottom: 5px;
     margin-left: 200px;
     width: calc(100% - 210px);
