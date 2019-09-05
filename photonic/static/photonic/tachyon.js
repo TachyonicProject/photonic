@@ -31,6 +31,12 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+Number.isInteger = Number.isInteger || function(value) {
+    return typeof value === "number" && 
+           isFinite(value) && 
+           Math.floor(value) === value;
+};
+
 var tachyonColors = [
     '#FF7F50',
     '#90EE90',
@@ -535,9 +541,22 @@ var tachyonUtils = {
             }
     },
 
+    formatChartLabels: function(labels) {
+        formatted = []
+        for (var a = 0; a < labels.length; a++) {
+            if (Number.isInteger(labels[a])) {
+                formatted.push(tachyonUtils.localize(labels[a]));
+            } else {
+                formatted.push(labels[a]);
+            }
+        }
+        return formatted;
+    },
+
     nowTimestamp: function() {
         return(Math.floor(Date.now() / 1000));
     },
+
 
     localize: function(datetime) {
         datetime = moment(datetime)
