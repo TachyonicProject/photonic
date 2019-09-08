@@ -54,24 +54,27 @@ graph_colors = [
 
 def chart(chart, c_type="pie", title=None, legend=True, ysuffix=None):
     chart_id = string_id()
+    if title is None:
+        title = chart.get('title')
+
     c_type = chart.get('type', c_type)
     chart_labels = chart.get('labels')
+    legend_data = []
     for no, chart_label in enumerate(chart_labels):
-        if isinstance(chart_label, str):
-            chart_labels[no] = "\"" + chart_label + "\""
+        if c_type in ["pie", "doughnut"]:
+            # Here we know its not time series. str is normal labels.
+            chart_labels[no] = "\"" + str(chart_label) + "\""
+            legend_data.append({'label': chart_label,
+                                'bgcolor': graph_colors[no]})
+        else:
+            pass
 
     chart_labels = ','.join([str(i) for i in chart_labels])
-
-    dom = HTMLDoc()
-    canvas = dom.create_element('canvas')
-    canvas.set_attribute('id', chart_id)
-    script = dom.create_element('script')
 
     datasets = chart.get('datasets', [])
     for no, dataset in enumerate(datasets):
         if c_type in ["bar", "line"]:
             dataset['background_color'] = "\"" + graph_colors[no] + "\""
-
         if c_type in ["pie", "doughnut"]:
             dataset['background_color'] = "[ " + ','.join(
                 ["\"" + str(i) + "\"" for i in graph_colors]) + " ]"
@@ -82,14 +85,12 @@ def chart(chart, c_type="pie", title=None, legend=True, ysuffix=None):
 
         dataset['data'] = ','.join([str(i) for i in dataset['data']])
 
-    script.append(
-        render_template('photonic/charts.js',
-                        chart_title=chart.get('title', title),
-                        chart_id=chart_id,
-                        chart_type=c_type,
-                        chart_labels=chart_labels,
-                        chart_legend=legend,
-                        chart_ysuffix=ysuffix,
-                        chart_datasets=datasets))
-
-    return dom
+    return render_template('photonic/chart.html',
+                           chart_title=chart.get('title', title),
+                           chart_id=chart_id,
+                           chart_type=c_type,
+                           chart_labels=chart_labels,
+                           chart_legend=legend,
+                           chart_ysuffix=ysuffix,
+                           chart_datasets=datasets,
+                           legend_data=legend_data)

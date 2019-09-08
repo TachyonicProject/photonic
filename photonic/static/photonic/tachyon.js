@@ -1640,7 +1640,6 @@ var tachyonDom = {
             },                                                                                                                                                         
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 layout: {
                     padding: {
                         top: 5,
