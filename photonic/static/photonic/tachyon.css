@@ -568,3 +568,27 @@ div.mxWindow {
     position: fixed !important;
     z-index: 1000 !important;
 }
+
+div.photonicChart {
+    height: 300px;
+}
+
+div.photonicChartLegend {
+    display: table;
+    width: 100%;
+}
+
+div.photonicChartLegend div {
+    display: table-row;
+    border-bottom: 1px solid #ddd !important;
+}
+
+div.photonicChartLegend div div {
+    display: table-cell;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+h2.photonicChartTitle {
+    text-align: center;
+}
