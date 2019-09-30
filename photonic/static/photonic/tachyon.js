@@ -992,7 +992,7 @@ var tachyonDom = {
                         tachyonDom.ajaxQuery('get', element.href, success, null, null);
                         tachyonDom.formHandler(e, form);
                     } else {
-                        tachyonDom.ajaxQuery('get', element.href, success, null, form);
+                        tachyonDom.ajaxQuery('get', url, success, null, form);
                     }
 
                     if (window.innerWidth <= 900) {
