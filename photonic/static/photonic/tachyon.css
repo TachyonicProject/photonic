@@ -342,7 +342,7 @@ div.modal {
 div.modal > div {
     display: block;
     position: absolute;
-    top: 3rem;
+    top: 5rem;
     background-color: #fff;
     border: 1px solid rgba(0, 0, 0, .2);
     border-radius: 6px;
@@ -361,7 +361,7 @@ div.modal > div > div {
     max-height: 400px;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding: 0px 5px 5px 5px;
+    padding: 0px 0px 0px 0px;
 }
 
 
