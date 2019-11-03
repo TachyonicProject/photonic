@@ -361,7 +361,7 @@ var tachyonWindows = {
             tachyonDom.insertAfter(modal, last)
         }
 
-        modal_window.style.top = String(3 + tachyonWindows.modals.length) + 'rem';
+        modal_window.style.top = String(5 + tachyonWindows.modals.length) + 'rem';
         modal_window.id = "model_" + tachyonWindows.modals.length;
         tachyonWindows.modals.push(modal_window);
         tachyonWindows.cleanups[modal_window.id] = [];
@@ -374,9 +374,9 @@ var tachyonWindows = {
      * Make modal dragable
      */
     modalDrag: function(modal_window) {
-        if (modal_window.firstElementChild != null) {
-            if (modal_window.firstElementChild.nodeName == 'H1') {
-                var heading = modal_window.firstElementChild;
+        if (modal_window.firstElementChild.firstElementChild != null) {
+            if (modal_window.firstElementChild.firstElementChild.nodeName == 'H1') {
+                var heading = modal_window.firstElementChild.firstElementChild;
                 tachyonDom.drag(modal_window, heading);
             }
         }
@@ -477,6 +477,7 @@ var tachyonWindows = {
         newModal = tachyonWindows.modal(content)
         tachyonDom.evalJS(newModal);
         tachyonDom.ajax(tachyonWindows.focus());
+        //tachyonWindows.modalDrag(tachyonWindows.focus());
     },
 
     registerCleanup: function(func, root) {
@@ -2294,7 +2295,7 @@ var tachyonSession = {
     },
 
     parseToken: function(token) {
-        var token = token.split("!!!!");
+        var token = token.split(".");
         try {
             var creds = atob(token[1]);
         } catch(err) {

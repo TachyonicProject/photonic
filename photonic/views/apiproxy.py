@@ -85,23 +85,29 @@ def apiproxy(req, resp):
                             params['search'].append(
                                 '%s:%s' % (dt_field, dt_search,))
 
+    # MUST REMOVE SOME HEADERS
+    req_headers = {}
+    for hdr in req.headers:
+        if hdr.lower() not in ['host']:
+            req_headers[hdr] = req.headers[hdr]
+
     if 'json' in str(req.content_type).lower():
         response = req.context.api.execute(
             req.method, url, params=params,
             data=req.read(), endpoint=endpoint,
-            headers=req.headers
+            headers=req_headers
         )
     elif 'xml' in str(req.content_type).lower():
         response = req.context.api.execute(
             req.method, url, params=params,
             data=req.read(), endpoint=endpoint,
-            headers=req.headers
+            headers=req_headers
         )
     else:
         response = req.context.api.execute(
             req.method, url, params=params,
             data=req.form_dict, endpoint=endpoint,
-            headers=req.headers
+            headers=req_headers
         )
 
     resp.set_headers(response.headers)
