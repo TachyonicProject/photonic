@@ -17,11 +17,13 @@
                     <input name="password" type="password" autocomplete="off" id="password" class="form-control" placeholder="Password" required>
                     <i class="form-control-feedback glyphicon glyphicon-lock"></i>
                 </div>
-                {% if not G.app.config.get('identity', 'domain', fallback=None) %}
+                {% if not G.app.config.get('identity', 'auth_domain', fallback=None) %}
                 <div class="form-group">
                     <label for="domain" class="sr-only">Domain</label>
                     <input name="domain" type="text" id="domain" class="form-control" placeholder="Domain" value="">
                 </div>
+                {% else %}
+                <input name="domain" type="hidden" id="domain" class="form-control" value="{{ G.app.config.get('identity', 'auth_domain') }}">
                 {% endif %}
                 {% if not G.app.config.get('identity', 'region', fallback=None) %}
                 <div class="form-group">

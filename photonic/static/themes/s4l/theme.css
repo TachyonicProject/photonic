@@ -1,0 +1,106 @@
+
+span.title:before {
+    content: "";
+    color: #fff;
+}
+
+body {
+    background-color: #e5e7e9;
+}
+
+header {
+    background-color: #fff;
+}
+
+header img {
+    height: 3rem;
+    padding-top: .2rem;
+    padding-bottom: .2rem;
+    margin-right: 5px;
+}
+
+header a {
+    color: #999;
+}
+
+header a:hover {
+    color: #000;
+}
+
+header a:hover .feather {
+    color: #000;
+}
+
+main {
+    background-color: #ffffff;
+    box-shadow: 0px 0px 5px 5px #fff;
+}
+
+div.navigation {
+    background-color: #f8f9fa;
+    padding-bottom: 5px;
+    box-shadow: 0px 0px 10px 5px #fff;
+}
+
+div.sidebar {
+    background-color: #ffe4c3;
+}
+
+div.content {
+    background-color: #ffffff;
+    padding-bottom: 5px;
+}
+
+footer {
+    background-color: #002b62;
+    color: #FFFFFF;
+}
+
+footer:before {
+    content: "Surf4Life (Pty) Ltd (Powered by Tachyonic)"
+}
+
+h1 {
+    background-color: #F4A950; 
+    text-transform: uppercase;
+    color: #161B21;
+    border-bottom: 1px solid #ddd;
+}
+
+h1 .feather {
+    color: #999;
+}
+
+h2 {
+    background-color: #f8f9fa;
+    color: #161B21;
+    border-bottom: 1px solid #ddd;
+}
+
+div.navmenu a.active {
+    color: #F4A950;
+}
+
+div.navmenu a.active .feather {
+    color: #F4A950;
+}
+
+div.navmenu a.active:hover {
+    color: #F4A950;
+}
+
+div.navmenu a.active:hover .feather {
+    color: #F4A950;
+}
+
+a {
+    color: #F4A950;
+}
+
+a:hover {
+    color: #b57e3d;
+}
+
+label {
+    color: #b57e3d;
+}

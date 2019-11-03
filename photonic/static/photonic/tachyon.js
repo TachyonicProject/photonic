@@ -31,6 +31,12 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+Number.isInteger = Number.isInteger || function(value) {
+    return typeof value === "number" && 
+           isFinite(value) && 
+           Math.floor(value) === value;
+};
+
 var tachyonColors = [
     '#FF7F50',
     '#90EE90',
@@ -48,6 +54,8 @@ var tachyonColors = [
     '#FFA500',
     '#6495ED'
 ]
+
+$.datetimepicker.setDateFormatter('moment');
 
 function isSupported(storage) {
   try {
@@ -311,6 +319,9 @@ var tachyonInit = {
 
         tachyonDom.registerEvent('html', null, 'click', tachyonSession.tjsl);
         tachyonDom.registerEvent('html', null, 'contextmenu', tachyonSession.tjsl);
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
 
         if (tachyonSession.initSession(true)) {
             tachyonDom.ajax(tachyonDom.getElementByTagName('header'));
@@ -350,7 +361,7 @@ var tachyonWindows = {
             tachyonDom.insertAfter(modal, last)
         }
 
-        modal_window.style.top = String(3 + tachyonWindows.modals.length) + 'rem';
+        modal_window.style.top = String(5 + tachyonWindows.modals.length) + 'rem';
         modal_window.id = "model_" + tachyonWindows.modals.length;
         tachyonWindows.modals.push(modal_window);
         tachyonWindows.cleanups[modal_window.id] = [];
@@ -363,9 +374,9 @@ var tachyonWindows = {
      * Make modal dragable
      */
     modalDrag: function(modal_window) {
-        if (modal_window.firstElementChild != null) {
-            if (modal_window.firstElementChild.nodeName == 'H1') {
-                var heading = modal_window.firstElementChild;
+        if (modal_window.firstElementChild.firstElementChild != null) {
+            if (modal_window.firstElementChild.firstElementChild.nodeName == 'H1') {
+                var heading = modal_window.firstElementChild.firstElementChild;
                 tachyonDom.drag(modal_window, heading);
             }
         }
@@ -466,6 +477,7 @@ var tachyonWindows = {
         newModal = tachyonWindows.modal(content)
         tachyonDom.evalJS(newModal);
         tachyonDom.ajax(tachyonWindows.focus());
+        //tachyonWindows.modalDrag(tachyonWindows.focus());
     },
 
     registerCleanup: function(func, root) {
@@ -530,14 +542,36 @@ var tachyonUtils = {
             }
     },
 
+    formatChartLabels: function(labels) {
+        formatted = []
+        for (var a = 0; a < labels.length; a++) {
+            if (Number.isInteger(labels[a])) {
+                formatted.push(tachyonUtils.localize(labels[a]));
+            } else {
+                formatted.push(labels[a]);
+            }
+        }
+        return formatted;
+    },
+
     nowTimestamp: function() {
         return(Math.floor(Date.now() / 1000));
     },
+
 
     localize: function(datetime) {
         datetime = moment(datetime)
         if (datetime.isValid()) {
             return datetime.format('YYYY-MM-DD HH:mm:ss');
+        }
+        return('');
+
+    },
+
+    localizeEvent: function(datetime) {
+        datetime = moment(datetime)
+        if (datetime.isValid()) {
+            return datetime.format('MMM DD, YYYY @ HH:mm:ss.SSS');
         }
         return('');
 
@@ -753,7 +787,8 @@ var tachyonDom = {
      */
     ajaxQuery: function(method, url, success, error, form, xmldoc, raw, content_type, token) {
         tachyonDom.loading();
-        $('html, body').animate({ scrollTop: 0 }, 'fast');
+        // Breaks logger scroll for yoshii. We should only scroll to top when calling new html.
+        // $('html, body').animate({ scrollTop: 0 }, 'fast');
         if (typeof(raw) !== 'undefined' && raw != null) {
             submit = raw;
             pd = false;
@@ -958,7 +993,7 @@ var tachyonDom = {
                         tachyonDom.ajaxQuery('get', element.href, success, null, null);
                         tachyonDom.formHandler(e, form);
                     } else {
-                        tachyonDom.ajaxQuery('get', element.href, success, null, form);
+                        tachyonDom.ajaxQuery('get', url, success, null, form);
                     }
 
                     if (window.innerWidth <= 900) {
@@ -1563,6 +1598,7 @@ var tachyonDom = {
      * Draw chartjs graph
      */
     graph: function(element, table) {
+
         table.style.display="none";
         var div = document.createElement('div');
         var style = 'position: relative;';
@@ -1582,6 +1618,13 @@ var tachyonDom = {
         div.style = style
 
         var canvas = document.createElement('canvas');
+        if ('graphHeight' in table.dataset) {
+            canvas.height=table.dataset.graphHeight;
+        }
+        if ('graphWidth' in table.dataset) {
+            canvas.width=table.dataset.graphWidth;
+        }
+
         div.appendChild(canvas);
 
         var type = table.dataset.graph.toLowerCase();
@@ -1608,6 +1651,17 @@ var tachyonDom = {
                 }
             }
         }
+        if ('legendPosition' in table.dataset) {
+            config.options.legend = { 
+                position: table.dataset.legendPosition,
+            }
+        }
+        if ('noLegend' in table.dataset) {
+            config.options.legend = { 
+                fullWidth: false,
+                display: false,
+            }
+        }
 
         if (type == 'line' || type == "bar") {
             config.options.scales = {
@@ -1622,6 +1676,7 @@ var tachyonDom = {
 
         if ('title' in table.dataset) {
             config.options.title = { 
+                fullWidth: false,
                 padding: 3,
                 display: true,
                 text: table.dataset.title
@@ -1693,6 +1748,18 @@ var tachyonDom = {
                             }
                         }
                     }
+                }
+            }
+        } else {
+            if (table.dataset.suffix != null) {
+                //var value = table.dataset.yprefix + value
+                config.options.tooltips = {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            var indice = tooltipItem.index;
+                            return  data.labels[indice] +': '+data.datasets[0].data[indice] + table.dataset.suffix;
+                        },
+                    },
                 }
             }
         }
@@ -1802,7 +1869,7 @@ var tachyonDom = {
             }
 
             table.parentNode.replaceChild(div, table);
-            var chart = new Chart(canvas, config)
+            var chart = new Chart(canvas, config);
 
         } else {
             var url = tachyon.app + "/apiproxy?url=" + table.dataset.url
@@ -1852,7 +1919,6 @@ var tachyonDom = {
                 });
         } 
     },
-
 	visible: function(){
 		var stateKey, 
 			eventKey, 
@@ -1887,12 +1953,20 @@ var tachyonDom = {
         }
 
         var tables = element.getElementsByTagName('table');
+        var graphs = [];
+        var datatables = [];
         for (var j = 0; j < tables.length; j++) {
             if ('graph' in tables[j].dataset) {
-                tachyonDom.graph(element, tables[j]);
+                graphs.push(tables[j]);
             } else {
-                tachyonDom.datatable(element, tables[j]);
+                datatables.push(tables[j]);
             }
+        }
+        for (var j = 0; j < graphs.length; j++) {
+            tachyonDom.graph(element, graphs[j]);
+        }
+        for (var j = 0; j < datatables.length; j++) {
+            tachyonDom.datatable(element, datatables[j]);
         }
 
         var divs = element.getElementsByTagName('div');
@@ -2221,7 +2295,7 @@ var tachyonSession = {
     },
 
     parseToken: function(token) {
-        var token = token.split("!!!!");
+        var token = token.split(".");
         try {
             var creds = atob(token[1]);
         } catch(err) {

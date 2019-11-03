@@ -45,4 +45,5 @@ def env(req, resp):
     return render_template('photonic/env.html',
                            view='Environment',
                            session_id=session_id,
+                           metadata=req.credentials.metadata,
                            cookies=cookies)

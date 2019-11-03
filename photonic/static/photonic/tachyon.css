@@ -18,6 +18,10 @@
   z-index: 100000;
 }
 
+/* Fixes XDSOFT Datetime Picker z-index being set to high */
+.xdsoft_datetimepicker .xdsoft_label {
+    z-index: 995 !important;
+}
 
 /*
  * Internal Layout CSS
@@ -37,7 +41,6 @@ body {
     margin-left: 0px;
     margin-right: 0px;
     margin-top: 0px;
-    background-color: #fff;
 }
 
 
@@ -132,7 +135,6 @@ div.push_footer {
 
 div.sidebar {
     position: fixed;
-    background-color: #f8f9fa;
     top: 3rem;
     left: 0rem;
     bottom: 2rem;
@@ -208,7 +210,6 @@ span.select2-dropdown {
 
 main {
     display: block;
-    background-color: #ffffff;
     padding-bottom: 5px;
     margin-left: 200px;
     width: calc(100% - 210px);
@@ -341,7 +342,7 @@ div.modal {
 div.modal > div {
     display: block;
     position: absolute;
-    top: 3rem;
+    top: 5rem;
     background-color: #fff;
     border: 1px solid rgba(0, 0, 0, .2);
     border-radius: 6px;
@@ -360,7 +361,7 @@ div.modal > div > div {
     max-height: 400px;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding: 0px 5px 5px 5px;
+    padding: 0px 0px 0px 0px;
 }
 
 
@@ -566,4 +567,28 @@ div.mxgraphbase {
 div.mxWindow {
     position: fixed !important;
     z-index: 1000 !important;
+}
+
+div.photonicChart {
+    height: 300px;
+}
+
+div.photonicChartLegend {
+    display: table;
+    width: 100%;
+}
+
+div.photonicChartLegend div {
+    display: table-row;
+    border-bottom: 1px solid #ddd !important;
+}
+
+div.photonicChartLegend div div {
+    display: table-cell;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+h2.photonicChartTitle {
+    text-align: center;
 }
