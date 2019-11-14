@@ -1797,6 +1797,9 @@ var tachyonDom = {
                 } else {
                     borderWidths.push("0");
                 }
+                if ('graph' in th[i].dataset) {
+                    dataset["type"] = th[i].dataset.graph;
+                }
 
                 ids.push(th[i].id);
                 fields.push(th[i].innerHTML);
