@@ -1707,6 +1707,11 @@ var tachyonDom = {
                 return value
             }
 
+            if ('nogrid' in table.dataset) {
+                config.options.scales.xAxes[0].gridLines = {display:false};
+                config.options.scales.yAxes[0].gridLines = {display:false};
+            }
+
             if ('xtime' in table.dataset) {
                 if (type == 'line') {
                     config.options.scales.xAxes[0].type = 'time';
