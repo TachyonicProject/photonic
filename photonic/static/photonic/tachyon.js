@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2018-2019 Christiaan Frans Rademan.
- * Copyright (c) 2018-2019 Dave Kruger.
- *
+ * Copyright (c) 2018-2020 Christiaan Frans Rademan <chris@fwiw.co.za>.
  * All rights reserved.
+ *
+ * Copyright (c) 2018-2019 Dave Kruger.
+ * All rights reserved.
+ *
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
