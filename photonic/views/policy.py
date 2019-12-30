@@ -41,7 +41,7 @@ g.nav_menu.add('/System/Policy', href='/policy', feather='eye',
 
 
 @register.resources()
-class Tachyonic():
+class Policy():
     def __init__(self):
         router.add('GET', '/policy', self.policy, tag='infrastructure:admin')
 
