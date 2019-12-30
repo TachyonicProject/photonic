@@ -37,7 +37,7 @@ g.nav_menu.add('/Dashboard', href='/', feather='home')
 
 
 @register.resources()
-class Tachyonic():
+class Dashboard():
     def __init__(self):
         router.add(('GET', 'POST',), '/', self.home)
 
