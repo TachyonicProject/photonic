@@ -356,22 +356,22 @@ div.modal > div {
 }
 
 
-div.modal > div > div {
+div.modal > div > div > div {
     display: block;
     max-height: 400px;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding: 0px 0px 0px 0px;
+    padding: 0px 4px 0px 4px;
 }
 
 
-@media screen and (max-height: 500px) {
+@media screen and (max-height: 600px) {
     div.modal > div {
         overflow-y: scroll !important;
         overflow-x: scroll !important;
         max-height: calc(100% - 5rem) !important;
     }
-    div.modal > div > div {
+    div.modal > div > div > div {
         max-height: 100% !important;
         overflow-y: hidden !important;
         overflow-x: hidden !important;
