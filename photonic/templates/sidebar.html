@@ -13,7 +13,7 @@
 <form method="POST" data-scope>
     <input type="hidden" name="domain" value="">
     <input type="hidden" name="tenant_id" value="">
-    <select name="region" data-url="/v1/regions" data-id='region' data-text='region' data-placeholder="Select Region" onchange="tachyon.onChange(event, this.form);">
+    <select name="region" data-url="/v1/regions" data-id='region' data-text='region' data-placeholder="Select Region" onchange="photonic.onChange(event, this.form);">
         {% if REQ.context_region %}
             <option value="{{ REQ.context_region }}" selected> {{ REQ.context_region }}</option>
         {% endif %}
@@ -23,7 +23,7 @@
 {% if not G.app.config.get('identity', 'domain', fallback=None) %}
 <form method="POST" data-scope>
     <input type="hidden" name="tenant_id" value="">
-    <select name="domain" data-id="name" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain" onchange="tachyon.onChange(event, this.form);">
+    <select name="domain" data-id="name" data-url="/v1/domains" data-allow-clear data-placeholder="Select Domain" onchange="photonic.onChange(event, this.form);">
         <option value=""></option>
         {% if REQ.context_domain %}
             <option value="{{ REQ.context_domain }}" selected> {{ REQ.context_domain }}</option>

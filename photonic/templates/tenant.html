@@ -1,6 +1,6 @@
 <form method="POST" data-scope>
     <input type="hidden" name="domain" value="{% if REQ.context_domain %}{{ REQ.context_domain }}{% endif%}">
-    <select name="tenant_id" data-url="/v1/tenants" onchange="tachyon.onChange(event, this.form);" data-allow-clear data-placeholder="Select Tenant">
+    <select name="tenant_id" data-url="/v1/tenants" onchange="photonic.onChange(event, this.form);" data-allow-clear data-placeholder="Select Tenant">
 	<option value=""></option>
 
 	{% if REQ.context_tenant_id %}  
